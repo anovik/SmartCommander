@@ -26,11 +26,11 @@
 		
 		<Menu></Menu>
 		
-		<TextBox Grid.Row="1">Path 1 here</TextBox>
+		<TextBox Grid.Row="1" Text="{Binding CurrentDirectory1}"></TextBox>
 		<ItemsRepeater  Grid.Row="2"></ItemsRepeater>
 		<TextBlock Grid.Row="3">0/1 files</TextBlock>
 		
-		<TextBox Grid.Row="1" Grid.Column="1">Path 2 here</TextBox>
+		<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrentDirectory2}"></TextBox>
 		<ItemsRepeater  Grid.Row="2" Grid.Column="1"></ItemsRepeater>
 		<TextBlock Grid.Row="3" Grid.Column="1">0/1 files</TextBlock>
 	</Grid>

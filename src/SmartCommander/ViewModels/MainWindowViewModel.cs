@@ -6,6 +6,14 @@ namespace SmartCommander.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting => "Welcome to Avalonia!";
+        public string CurrentDirectory1 { get; set; }
+
+        public string CurrentDirectory2 { get; set; }
+
+        public MainWindowViewModel()
+        {
+            CurrentDirectory1 = CurrentDirectory2
+                = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        }
     }
 }
