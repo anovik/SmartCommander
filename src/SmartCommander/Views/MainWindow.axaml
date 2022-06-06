@@ -12,6 +12,27 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+	<Grid>
+		<Grid.ColumnDefinitions>			
+			<ColumnDefinition Width="*"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+		</Grid.RowDefinitions>
+		
+		<Menu></Menu>
+		
+		<TextBox Grid.Row="1">Path 1 here</TextBox>
+		<ItemsRepeater  Grid.Row="2"></ItemsRepeater>
+		<TextBlock Grid.Row="3">0/1 files</TextBlock>
+		
+		<TextBox Grid.Row="1" Grid.Column="1">Path 2 here</TextBox>
+		<ItemsRepeater  Grid.Row="2" Grid.Column="1"></ItemsRepeater>
+		<TextBlock Grid.Row="3" Grid.Column="1">0/1 files</TextBlock>
+	</Grid>
 
 </Window>
