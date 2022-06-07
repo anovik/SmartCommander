@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace SmartCommander.ViewModels
@@ -15,18 +16,19 @@ namespace SmartCommander.ViewModels
 
         public int CurrentIndex { get; set; } = -1;
 
-        public List<int> SelectedIndices { get; set; } = new List<int> { };
-      
+        public ObservableCollection<int> SelectedIndices { get; set; } = new ObservableCollection<int> { };      
 
-        public List<string> FoldersFilesList { get; set; } = new List<string>();      
+        public ObservableCollection<string> FoldersFilesList { get; set; } = new ObservableCollection<string>();      
 
         public FilesPaneViewModel()
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
         }
 
-        private void GetFilesFolders(string dir, List<string> filesFoldersList)
+        private void GetFilesFolders(string dir, ObservableCollection<string> filesFoldersList)
         {
+            if (!Directory.Exists(dir))
+                return;
             filesFoldersList.Clear();
             string[] subdirectoryEntries = Directory.GetDirectories(dir);
             foreach (string subdirectory in subdirectoryEntries)

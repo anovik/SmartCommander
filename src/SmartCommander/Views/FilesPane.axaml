@@ -17,7 +17,9 @@
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
 		<TextBox Margin="5" Text="{Binding CurrentDirectory}"></TextBox>
-		<DataGrid Margin="5" Grid.Row="1" Items="{Binding FoldersFilesList}" AutoGenerateColumns="True"></DataGrid>
+		<ScrollViewer Margin="5" Grid.Row="1">
+		<DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="True"></DataGrid>		
+		</ScrollViewer>
 		<TextBlock Grid.Row="2">0/1 files</TextBlock>
 	</Grid>
 </UserControl>
