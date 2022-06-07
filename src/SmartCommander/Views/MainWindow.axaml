@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SmartCommander.ViewModels"
+		xmlns:views="using:SmartCommander.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -18,21 +19,14 @@
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"></RowDefinition>
-			<RowDefinition Height="Auto"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>			
 		</Grid.RowDefinitions>
 		
 		<Menu></Menu>
-		
-		<TextBox Margin="5" Grid.Row="1" Text="{Binding CurrentDirectory1}"></TextBox>
-		<ItemsRepeater Margin="5" Grid.Row="2" Items="{Binding FoldersFilesList1}"></ItemsRepeater>
-		<TextBlock Grid.Row="3">0/1 files</TextBlock>
 
-		<TextBox Margin="5" Grid.Row="1" Grid.Column="1" Text="{Binding CurrentDirectory2}"></TextBox>
-		<ItemsRepeater Margin="5"  Grid.Row="2" Grid.Column="1" Items="{Binding FoldersFilesList2}"></ItemsRepeater>
-		<TextBlock Grid.Row="3" Grid.Column="1">0/1 files</TextBlock>
+		<views:FilesPane Grid.Row="1"  Name="LeftPane" />
+
+		<views:FilesPane Grid.Row="1" Grid.Column="1" Name="RightPane" />		
 	</Grid>
 
 </Window>

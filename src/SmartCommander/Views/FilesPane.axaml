@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:vm="using:SmartCommander.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SmartCommander.Views.FilesPane">
+
+	<Design.DataContext>
+		<vm:FilesPaneViewModel/>
+	</Design.DataContext>
+
+	<Grid>
+		<Grid.RowDefinitions>			
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+		</Grid.RowDefinitions>
+		<TextBox Margin="5" Text="{Binding CurrentDirectory}"></TextBox>
+		<DataGrid Margin="5" Grid.Row="1" Items="{Binding FoldersFilesList}" AutoGenerateColumns="True"></DataGrid>
+		<TextBlock Grid.Row="2">0/1 files</TextBlock>
+	</Grid>
+</UserControl>
