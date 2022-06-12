@@ -22,10 +22,22 @@
 			<RowDefinition Height="Auto"></RowDefinition>
 			<RowDefinition Height="*"></RowDefinition>			
 		</Grid.RowDefinitions>
-		
-		<Menu></Menu>
 
-		<views:FilesPane Grid.Row="1"  Name="LeftPane" />
+    <Menu>
+      <MenuItem Header="_File">
+        
+        <Separator></Separator>
+        <MenuItem Header="_Exit" Command="{Binding ExitCommand}"></MenuItem>        
+      </MenuItem>
+      <MenuItem Header="_View">
+
+      </MenuItem>
+      <MenuItem Header="_Options">
+
+      </MenuItem>
+    </Menu>
+
+    <views:FilesPane Grid.Row="1"  Name="LeftPane" />
 
 		<views:FilesPane Grid.Row="1" Grid.Column="1" Name="RightPane" />		
 	</Grid>
