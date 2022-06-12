@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:vm="using:SmartCommander.ViewModels"
+						 xmlns:vm="using:SmartCommander.ViewModels"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -18,8 +20,17 @@
 		</Grid.RowDefinitions>
 		<TextBox Margin="5" Text="{Binding CurrentDirectory}"></TextBox>
 		<ScrollViewer Margin="5" Grid.Row="1">
-		<DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="True"></DataGrid>		
+		<DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="True">
+      <i:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
+          <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
+        </ia:EventTriggerBehavior>
+        <ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
+          <ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
+        </ia:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+    </DataGrid>		
 		</ScrollViewer>
-		<TextBlock Grid.Row="2">0/1 files</TextBlock>
+		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
 	</Grid>
 </UserControl>
