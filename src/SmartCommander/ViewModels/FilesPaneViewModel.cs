@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Controls;
+using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -43,9 +44,15 @@ namespace SmartCommander.ViewModels
 
         }
 
+        public void BeginningEdit(object sender, object parameter)
+        {
+            DataGridBeginningEditEventArgs args = parameter as DataGridBeginningEditEventArgs;
+            args.Cancel = true;
+        }
+
         public void DoubleTapped(object sender, object parameter)
         {
-            string path = Path.Combine(CurrentDirectory, CurrentItem.Name);
+            string path = Path.Combine(CurrentDirectory, CurrentItem.Name+CurrentItem.Extension);
             if (File.Exists(path))
             {
                 // it is a file, open it
@@ -72,13 +79,25 @@ namespace SmartCommander.ViewModels
             string[] subdirectoryEntries = Directory.GetDirectories(dir);
             foreach (string subdirectory in subdirectoryEntries)
             {
-                filesFoldersList.Add(new FileViewModel() { Name = Path.GetFileName(subdirectory) });
+                filesFoldersList.Add(new FileViewModel()
+                {
+                    Name = Path.GetFileName(subdirectory),
+                    Extension = "",
+                    Size = "Folder",
+                    DateCreated = DateTime.Now
+                });
             }
 
             string[] fileEntries = Directory.GetFiles(dir);
             foreach (string fileName in fileEntries)
             {
-                filesFoldersList.Add(new FileViewModel() { Name = Path.GetFileName(fileName) });
+                filesFoldersList.Add(new FileViewModel()
+                {
+                    Name = Path.GetFileNameWithoutExtension(fileName),
+                    Extension = Path.GetExtension(fileName),
+                    Size = "",
+                    DateCreated = DateTime.Now
+                });
             }
 
             _totalFiles = subdirectoryEntries.Length;

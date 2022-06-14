@@ -28,6 +28,9 @@
         <ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
           <ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
         </ia:EventTriggerBehavior>
+       <ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
+          <ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
+        </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </DataGrid>		
 		</ScrollViewer>
