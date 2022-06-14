@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 
 namespace SmartCommander.ViewModels
@@ -11,7 +12,13 @@ namespace SmartCommander.ViewModels
         public string CurrentDirectory
         {
             get { return _currentDirectory; }
-            set { _currentDirectory = value; GetFilesFolders(CurrentDirectory, FoldersFilesList); }
+            set 
+            { 
+                _currentDirectory = value; 
+                GetFilesFolders(CurrentDirectory, FoldersFilesList);
+                this.RaisePropertyChanged("CurrentDirectory");
+                this.RaisePropertyChanged("CurrentDirectoryInfo");
+            }
         }
 
         private int _totalFiles = 0;
@@ -42,6 +49,13 @@ namespace SmartCommander.ViewModels
             if (File.Exists(path))
             {
                 // it is a file, open it
+                new Process
+                {
+                    StartInfo = new ProcessStartInfo(path)
+                    {
+                        UseShellExecute = true
+                    }
+                }.Start();
             }
             else if (Directory.Exists(path))
             {
