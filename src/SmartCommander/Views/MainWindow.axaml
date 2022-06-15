@@ -20,26 +20,36 @@
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>			
+			<RowDefinition Height="*"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
 
     <Menu>
       <MenuItem Header="_File">
-        
-        <Separator></Separator>
-        <MenuItem Header="_Exit" Command="{Binding ExitCommand}"></MenuItem>        
+        <MenuItem Header="_Exit" Command="{Binding ExitCommand}"></MenuItem>        		  
       </MenuItem>
       <MenuItem Header="_View">
-
-      </MenuItem>
+		  <MenuItem Header="Sort by _name" Command="{Binding SortNameCommand}"></MenuItem>
+		  <MenuItem Header="Sort by _extension" Command="{Binding SortExtensionCommand}"></MenuItem>
+		  <MenuItem Header="Sort by _size" Command="{Binding SortSizeCommand}"></MenuItem>
+		  <MenuItem Header="Sort by _date" Command="{Binding SortDateCommand}"></MenuItem>
+	  </MenuItem>
       <MenuItem Header="_Options">
 
       </MenuItem>
     </Menu>
 
     <views:FilesPane Grid.Row="1"  Name="LeftPane" />
+	<views:FilesPane Grid.Row="1" Grid.Column="1" Name="RightPane" />
 
-		<views:FilesPane Grid.Row="1" Grid.Column="1" Name="RightPane" />		
+	<Grid Margin="300,0,0,0"  Grid.Row="2" Grid.ColumnSpan="2">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+		</Grid.ColumnDefinitions>
+		<TextBlock >Current directory name</TextBlock>
+		<TextBox Grid.Column="1"></TextBox>
 	</Grid>
+</Grid>
 
 </Window>
