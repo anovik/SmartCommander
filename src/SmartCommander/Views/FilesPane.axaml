@@ -20,7 +20,14 @@
 		</Grid.RowDefinitions>
 		<TextBox Margin="5" Text="{Binding CurrentDirectory}"></TextBox>
 		<ScrollViewer Margin="5" Grid.Row="1">
-		<DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="True" SelectedItem="{Binding CurrentItem}">  
+	    <DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="False" SelectedItem="{Binding CurrentItem}">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
+				<DataGridTextColumn Header="Extension" Binding="{Binding Extension}"></DataGridTextColumn>
+				<DataGridTextColumn Header="Size" Binding="{Binding Size}"></DataGridTextColumn>
+				<DataGridTextColumn Header="Date" Binding="{Binding DateCreated}"></DataGridTextColumn>
+			</DataGrid.Columns>
+			
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
           <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>

@@ -52,23 +52,21 @@ namespace SmartCommander.ViewModels
 
         public void DoubleTapped(object sender, object parameter)
         {
-            string path = Path.Combine(CurrentDirectory, CurrentItem.Name+CurrentItem.Extension);
-            if (File.Exists(path))
+            if (CurrentItem.IsFolder)
             {
+                CurrentDirectory = CurrentItem.FullName;
+            }
+            else
+            { 
                 // it is a file, open it
                 new Process
                 {
-                    StartInfo = new ProcessStartInfo(path)
+                    StartInfo = new ProcessStartInfo(CurrentItem.FullName)
                     {
                         UseShellExecute = true
                     }
                 }.Start();
-            }
-            else if (Directory.Exists(path))
-            {
-                // go to this subdirectory
-                CurrentDirectory = path;
-            }
+            }           
         }
 
         private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)
@@ -76,11 +74,22 @@ namespace SmartCommander.ViewModels
             if (!Directory.Exists(dir))
                 return;
             filesFoldersList.Clear();
+            filesFoldersList.Add(new FileViewModel()
+            {
+                FullName = "..",
+                IsFolder = true,
+                Name = "..",
+                Extension = "",
+                Size = "Folder",
+                DateCreated = DateTime.Now
+            });
             string[] subdirectoryEntries = Directory.GetDirectories(dir);
             foreach (string subdirectory in subdirectoryEntries)
             {
                 filesFoldersList.Add(new FileViewModel()
                 {
+                    FullName = subdirectory,
+                    IsFolder = true,
                     Name = Path.GetFileName(subdirectory),
                     Extension = "",
                     Size = "Folder",
@@ -93,11 +102,13 @@ namespace SmartCommander.ViewModels
             {
                 filesFoldersList.Add(new FileViewModel()
                 {
+                    FullName = fileName,
+                    IsFolder = false,
                     Name = Path.GetFileNameWithoutExtension(fileName),
-                    Extension = Path.GetExtension(fileName),
+                    Extension = Path.GetExtension(fileName).TrimStart('.'),
                     Size = "",
                     DateCreated = DateTime.Now
-                });
+                }); ;
             }
 
             _totalFiles = subdirectoryEntries.Length;
