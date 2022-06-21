@@ -23,6 +23,10 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> SortSizeCommand { get; }
         public ReactiveCommand<Unit, Unit> SortDateCommand { get; }
 
+        public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel();
+
+        public FilesPaneViewModel RightFileViewModel { get; } = new FilesPaneViewModel();
+
 
         public void Exit()
         {

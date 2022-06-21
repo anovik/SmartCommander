@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using SmartCommander.ViewModels;
+using System;
 
 namespace SmartCommander.Views
 {
@@ -7,11 +8,16 @@ namespace SmartCommander.Views
     {
         public MainWindow()
         {
-            InitializeComponent();
+            Opened += OnOpened;
+            InitializeComponent();            
+        }
 
-            // TODO: this will be changed later
-            LeftPane.DataContext = new FilesPaneViewModel();
-            RightPane.DataContext = new FilesPaneViewModel();
+        private void OnOpened(object sender, EventArgs e)
+        {
+            MainWindowViewModel vm = DataContext as MainWindowViewModel;
+
+            LeftPane.DataContext = vm.LeftFileViewModel;
+            RightPane.DataContext = vm.RightFileViewModel;
         }
     }
 }
