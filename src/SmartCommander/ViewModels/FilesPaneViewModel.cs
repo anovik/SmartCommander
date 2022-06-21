@@ -93,7 +93,7 @@ namespace SmartCommander.ViewModels
                     Name = Path.GetFileName(subdirectory),
                     Extension = "",
                     Size = "Folder",
-                    DateCreated = DateTime.Now
+                    DateCreated = File.GetCreationTime(subdirectory)
                 });
             }
 
@@ -107,7 +107,7 @@ namespace SmartCommander.ViewModels
                     Name = Path.GetFileNameWithoutExtension(fileName),
                     Extension = Path.GetExtension(fileName).TrimStart('.'),
                     Size = "",
-                    DateCreated = DateTime.Now
+                    DateCreated = File.GetCreationTime(fileName)
                 }); ;
             }
 
