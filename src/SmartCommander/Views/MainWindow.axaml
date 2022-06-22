@@ -35,8 +35,8 @@
 		  <MenuItem Header="Sort by _size" Command="{Binding SortSizeCommand}"></MenuItem>
 		  <MenuItem Header="Sort by _date" Command="{Binding SortDateCommand}"></MenuItem>
 	  </MenuItem>
-      <MenuItem Header="_Options">
-
+      <MenuItem Header="_Configuration">
+		  <MenuItem Header="_Options"></MenuItem>
       </MenuItem>
     </Menu>
 
@@ -64,12 +64,12 @@
 			<ColumnDefinition Width="*"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<Button Background="White" HorizontalAlignment="Center" >F3 View</Button>
-		<Button Background="White" HorizontalAlignment="Center" Grid.Column="1">F4 Edit</Button>
-		<Button Background="White" HorizontalAlignment="Center" Grid.Column="2">F5 Copy</Button>
-		<Button Background="White" HorizontalAlignment="Center" Grid.Column="3">F6 Move</Button>
-		<Button Background="White" HorizontalAlignment="Center" Grid.Column="4">F7 Create Folder</Button>
-		<Button Background="White" HorizontalAlignment="Center" Grid.Column="5">F8 Delete</Button>
+		<Button HorizontalAlignment="Center" >F3 View</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="1">F4 Edit</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="2">F5 Copy</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="3">F6 Move</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="4">F7 Create Folder</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="5">F8 Delete</Button>
 	</Grid>
 		
 </Grid>
