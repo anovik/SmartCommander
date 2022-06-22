@@ -22,6 +22,7 @@
 			<RowDefinition Height="Auto"></RowDefinition>
 			<RowDefinition Height="*"></RowDefinition>
 			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
 
     <Menu>
@@ -47,13 +48,30 @@
 			<ColumnDefinition Width="Auto"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<TextBlock >Current directory name</TextBlock>
+		<TextBlock VerticalAlignment="Center">Current directory name</TextBlock>
 		<TextBox Grid.Column="1" Text="{Binding CommandText}">
 			<TextBox.KeyBindings>
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
 			</TextBox.KeyBindings>
 		</TextBox>
 	</Grid>
+	<Grid Grid.Row="3" Grid.ColumnSpan="2">
+		<Grid.ColumnDefinitions>			
+			<ColumnDefinition Width="*"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+			<ColumnDefinition Width="*"></ColumnDefinition>
+		</Grid.ColumnDefinitions>
+		<Button Background="White" HorizontalAlignment="Center" >F3 View</Button>
+		<Button Background="White" HorizontalAlignment="Center" Grid.Column="1">F4 Edit</Button>
+		<Button Background="White" HorizontalAlignment="Center" Grid.Column="2">F5 Copy</Button>
+		<Button Background="White" HorizontalAlignment="Center" Grid.Column="3">F6 Move</Button>
+		<Button Background="White" HorizontalAlignment="Center" Grid.Column="4">F7 Create Folder</Button>
+		<Button Background="White" HorizontalAlignment="Center" Grid.Column="5">F8 Delete</Button>
+	</Grid>
+		
 </Grid>
 
 </Window>
