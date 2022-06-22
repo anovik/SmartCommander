@@ -69,6 +69,18 @@ namespace SmartCommander.ViewModels
             }           
         }
 
+        public void Execute(string command)
+        {
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(command)
+                {
+                    WorkingDirectory = CurrentDirectory,                    
+                    UseShellExecute = true
+                }
+            }.Start();
+        }
+
         private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)
         {
             if (!Directory.Exists(dir))

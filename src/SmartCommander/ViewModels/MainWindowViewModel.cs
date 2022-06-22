@@ -14,6 +14,7 @@ namespace SmartCommander.ViewModels
             SortExtensionCommand = ReactiveCommand.Create(SortExtension);
             SortSizeCommand = ReactiveCommand.Create(SortSize);
             SortDateCommand = ReactiveCommand.Create(SortDate);
+            EnterCommand = ReactiveCommand.Create(Execute);
         }      
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -22,10 +23,13 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> SortExtensionCommand { get; }
         public ReactiveCommand<Unit, Unit> SortSizeCommand { get; }
         public ReactiveCommand<Unit, Unit> SortDateCommand { get; }
+        public ReactiveCommand<Unit, Unit> EnterCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel();
 
         public FilesPaneViewModel RightFileViewModel { get; } = new FilesPaneViewModel();
+
+        public string CommandText { get; set; }
 
 
         public void Exit()
@@ -54,6 +58,14 @@ namespace SmartCommander.ViewModels
         public void SortDate()
         {
 
+        }
+
+        public void Execute()
+        {
+            // TODO: get selected pane (viewmodel)
+            LeftFileViewModel.Execute(CommandText);
+
+            CommandText = "";
         }
     }
 }
