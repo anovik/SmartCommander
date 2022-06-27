@@ -16,8 +16,11 @@ namespace SmartCommander.Views
         {
             MainWindowViewModel vm = DataContext as MainWindowViewModel;
 
-            LeftPane.DataContext = vm.LeftFileViewModel;
-            RightPane.DataContext = vm.RightFileViewModel;
+            if (vm != null)
+            {
+                LeftPane.DataContext = vm.LeftFileViewModel;
+                RightPane.DataContext = vm.RightFileViewModel;
+            }
         }
     }
 }

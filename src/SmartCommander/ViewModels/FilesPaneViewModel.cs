@@ -32,6 +32,8 @@ namespace SmartCommander.ViewModels
 
         public FileViewModel CurrentItem { get; set; }     
 
+        public bool IsSelected { get; set; }
+
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();      
 
         public FilesPaneViewModel()
@@ -47,7 +49,10 @@ namespace SmartCommander.ViewModels
         public void BeginningEdit(object sender, object parameter)
         {
             DataGridBeginningEditEventArgs args = parameter as DataGridBeginningEditEventArgs;
-            args.Cancel = true;
+            if (args != null)
+            {
+                args.Cancel = true;
+            }
         }
 
         public void DoubleTapped(object sender, object parameter)

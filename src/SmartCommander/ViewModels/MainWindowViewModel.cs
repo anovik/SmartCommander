@@ -25,11 +25,20 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> SortDateCommand { get; }
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
 
-        public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel();
+        public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel() { IsSelected = true};
 
         public FilesPaneViewModel RightFileViewModel { get; } = new FilesPaneViewModel();
 
-        public string CommandText { get; set; }
+        private string _commandText;
+        public string CommandText
+        {
+            get { return _commandText; }
+            set
+            {
+                _commandText = value;              
+                this.RaisePropertyChanged("CommandText");               
+            }
+        }
 
 
         public void Exit()
@@ -62,8 +71,14 @@ namespace SmartCommander.ViewModels
 
         public void Execute()
         {
-            // TODO: get selected pane (viewmodel)
-            LeftFileViewModel.Execute(CommandText);
+            if (LeftFileViewModel.IsSelected)
+            {
+                LeftFileViewModel.Execute(CommandText);
+            }
+            else if (RightFileViewModel.IsSelected)
+            {
+                RightFileViewModel.Execute(CommandText);
+            }
 
             CommandText = "";
         }
