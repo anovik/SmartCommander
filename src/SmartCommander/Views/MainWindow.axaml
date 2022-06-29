@@ -64,12 +64,12 @@
 			<ColumnDefinition Width="*"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<Button HorizontalAlignment="Center" >F3 View</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="1">F4 Edit</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="2">F5 Copy</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="3">F6 Move</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="4">F7 Create Folder</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="5">F8 Delete</Button>
+		<Button HorizontalAlignment="Center" Command="{Binding F3Command}">F3 View</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="1" Command="{Binding F4Command}">F4 Edit</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="2" Command="{Binding F5Command}">F5 Copy</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="3" Command="{Binding F6Command}">F6 Move</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="4" Command="{Binding F7Command}">F7 Create Folder</Button>
+		<Button HorizontalAlignment="Center" Grid.Column="5" Command="{Binding F8Command}">F8 Delete</Button>
 	</Grid>
 		
 </Grid>

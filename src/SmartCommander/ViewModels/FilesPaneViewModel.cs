@@ -86,6 +86,16 @@ namespace SmartCommander.ViewModels
             }.Start();
         }
 
+        public void Delete()
+        {
+
+        }
+
+        public void CreateNewFolder(string name)
+        {
+
+        }
+
         private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)
         {
             if (!Directory.Exists(dir))

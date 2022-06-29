@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
+using System;
 using System.Reactive;
 
 namespace SmartCommander.ViewModels
@@ -15,6 +16,12 @@ namespace SmartCommander.ViewModels
             SortSizeCommand = ReactiveCommand.Create(SortSize);
             SortDateCommand = ReactiveCommand.Create(SortDate);
             EnterCommand = ReactiveCommand.Create(Execute);
+            F3Command = ReactiveCommand.Create(View);
+            F4Command = ReactiveCommand.Create(Edit);
+            F5Command = ReactiveCommand.Create(Copy);
+            F6Command = ReactiveCommand.Create(Move);
+            F7Command = ReactiveCommand.Create(CreateNewFolder);
+            F8Command = ReactiveCommand.Create(Delete);
         }      
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -24,6 +31,13 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> SortSizeCommand { get; }
         public ReactiveCommand<Unit, Unit> SortDateCommand { get; }
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> F3Command { get; }
+        public ReactiveCommand<Unit, Unit> F4Command { get; }
+        public ReactiveCommand<Unit, Unit> F5Command { get; }
+        public ReactiveCommand<Unit, Unit> F6Command { get; }
+        public ReactiveCommand<Unit, Unit> F7Command { get; }
+        public ReactiveCommand<Unit, Unit> F8Command { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel() { IsSelected = true};
 
@@ -71,16 +85,57 @@ namespace SmartCommander.ViewModels
 
         public void Execute()
         {
+            FilesPaneViewModel pane = GetSelectedPane();           
+            pane.Execute(CommandText);        
+
+            CommandText = "";
+        }
+
+        public void View()
+        {
+
+        }
+
+        public void Edit()
+        {
+
+        }
+
+        public void Copy()
+        {
+
+        }
+
+        public void Move()
+        {
+
+        }
+
+        public void CreateNewFolder()
+        {
+            FilesPaneViewModel pane = GetSelectedPane();
+            // TODO: ask for new folder name;
+            pane.CreateNewFolder("New Folder");
+         }
+
+        public void Delete()
+        {
+            FilesPaneViewModel pane = GetSelectedPane();
+            // TODO: ask for confirmation
+            pane.Delete();
+        }
+
+        private FilesPaneViewModel GetSelectedPane()
+        {
             if (LeftFileViewModel.IsSelected)
             {
-                LeftFileViewModel.Execute(CommandText);
+                return LeftFileViewModel;
             }
             else if (RightFileViewModel.IsSelected)
             {
-                RightFileViewModel.Execute(CommandText);
+                return RightFileViewModel;
             }
-
-            CommandText = "";
+            throw new Exception("Error: no pane selected");           
         }
     }
 }
