@@ -9,7 +9,8 @@ namespace SmartCommander.Views
         public MainWindow()
         {
             Opened += OnOpened;
-            InitializeComponent();            
+            InitializeComponent();
+          
         }
 
         private void OnOpened(object sender, EventArgs e)
@@ -20,7 +21,14 @@ namespace SmartCommander.Views
             {
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
+
+                vm.MessageBoxRequest += new EventHandler<MvvmMessageBoxEventArgs>(View_MessageBoxRequest);
             }
+        }
+
+        async void View_MessageBoxRequest(object sender, MvvmMessageBoxEventArgs e)
+        {
+            await e.Show(this);
         }
     }
 }

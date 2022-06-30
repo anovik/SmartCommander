@@ -88,7 +88,23 @@ namespace SmartCommander.ViewModels
 
         public void Delete()
         {
+            try
+            {
+                if (CurrentItem.IsFolder)
+                {
+                    // additional warning should be given in case it is not empty
+                    Directory.Delete(CurrentDirectory, true);                    
+                }
+                else
+                {                    
+                    File.Delete(CurrentItem.FullName);
+                }
+                CurrentDirectory = CurrentDirectory;
+            }
+            catch
+            {
 
+            }
         }
 
         public void CreateNewFolder(string name)
