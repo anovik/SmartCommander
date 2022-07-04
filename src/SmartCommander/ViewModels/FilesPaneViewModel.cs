@@ -74,7 +74,15 @@ namespace SmartCommander.ViewModels
         {
             if (CurrentItem.IsFolder)
             {
-                CurrentDirectory = CurrentItem.FullName;
+                if (CurrentItem.FullName == "..")
+                {
+                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory).FullName : 
+                        CurrentDirectory;
+                }
+                else
+                {
+                    CurrentDirectory = CurrentItem.FullName;
+                }
             }
             else
             { 
@@ -137,15 +145,18 @@ namespace SmartCommander.ViewModels
             if (!Directory.Exists(dir))
                 return;
             filesFoldersList.Clear();
-            filesFoldersList.Add(new FileViewModel()
+            if (Directory.GetParent(CurrentDirectory) != null)
             {
-                FullName = "..",
-                IsFolder = true,
-                Name = "..",
-                Extension = "",
-                Size = "Folder",
-                DateCreated = DateTime.Now
-            });
+                filesFoldersList.Add(new FileViewModel()
+                {
+                    FullName = "..",
+                    IsFolder = true,
+                    Name = "..",
+                    Extension = "",
+                    Size = "Folder",
+                    DateCreated = DateTime.Now
+                });
+            }
             string[] subdirectoryEntries = Directory.GetDirectories(dir);
             foreach (string subdirectory in subdirectoryEntries)
             {
