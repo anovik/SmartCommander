@@ -7,6 +7,14 @@ using System.IO;
 
 namespace SmartCommander.ViewModels
 {
+    public enum SortingBy
+    {
+        SortingByName = 0,
+        SortingByExt,
+        SortingBySize,
+        SortingByDate,        
+    }
+
     public class FilesPaneViewModel : ViewModelBase
     {
         private string _currentDirectory;
@@ -30,7 +38,9 @@ namespace SmartCommander.ViewModels
             get { return string.Format("Files: {0}, folders: {1}.", _totalFiles, _totalFolders); }
         }
 
-        public FileViewModel CurrentItem { get; set; }     
+        public FileViewModel CurrentItem { get; set; }
+
+        public SortingBy Sorting { get; set; } = SortingBy.SortingByName;
 
         public bool IsSelected { get; set; }
 
@@ -42,6 +52,11 @@ namespace SmartCommander.ViewModels
         }
 
         public void CellPointerPressed(object sender, object parameter)
+        {
+
+        }
+
+        public void SortingStarted(object sender, object parameter)
         {
 
         }
@@ -109,7 +124,12 @@ namespace SmartCommander.ViewModels
 
         public void CreateNewFolder(string name)
         {
-
+            if (Directory.Exists(name))
+            {
+                // give a warning
+                return;
+            }
+            Directory.CreateDirectory(name);
         }
 
         private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)

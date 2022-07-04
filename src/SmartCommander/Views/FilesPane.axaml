@@ -22,6 +22,7 @@
 		<ScrollViewer Margin="5" Grid.Row="1">
 	    <DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="False"
 				  CanUserResizeColumns="True"
+				  CanUserSortColumns="True"
 				  SelectedItem="{Binding CurrentItem}">
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
@@ -31,6 +32,9 @@
 			</DataGrid.Columns>
 			
       <i:Interaction.Behaviors>
+		<ia:EventTriggerBehavior EventName="Sorting" SourceObject="{Binding #FoldersFilesList}">
+			<ia:CallMethodAction TargetObject="{Binding}" MethodName="SortingStarted"/>
+		</ia:EventTriggerBehavior>
         <ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
           <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
         </ia:EventTriggerBehavior>

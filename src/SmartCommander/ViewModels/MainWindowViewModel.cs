@@ -116,7 +116,7 @@ namespace SmartCommander.ViewModels
         {
             FilesPaneViewModel pane = GetSelectedPane();
             // show window
-            //pane.CreateNewFolder("New Folder");            
+            pane.CreateNewFolder("New Folder");            
          }
 
         public void Delete()
