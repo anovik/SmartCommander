@@ -194,13 +194,14 @@ namespace SmartCommander.ViewModels
                     IsFolder = false,
                     Name = Path.GetFileNameWithoutExtension(fileName),
                     Extension = Path.GetExtension(fileName).TrimStart('.'),
-                    Size = "",
+                    Size = new FileInfo(fileName).Length.ToString(),
                     DateCreated = File.GetCreationTime(fileName)
-                }); ;
+                }); 
             }
 
             _totalFiles = subdirectoryEntries.Length;
             _totalFolders = fileEntries.Length;      
         }
+     
     }
 }
