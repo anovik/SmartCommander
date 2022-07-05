@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive;
 
 namespace SmartCommander.ViewModels
 {
@@ -49,7 +50,10 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel()
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            EnterCommand = ReactiveCommand.Create(Enter);
         }
+
+        public ReactiveCommand<Unit, Unit> EnterCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -70,32 +74,15 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public void Enter()
+        {
+            ProcessCurrentItem();
+        }
+
         public void DoubleTapped(object sender, object parameter)
         {
-            if (CurrentItem.IsFolder)
-            {
-                if (CurrentItem.FullName == "..")
-                {
-                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory).FullName : 
-                        CurrentDirectory;
-                }
-                else
-                {
-                    CurrentDirectory = CurrentItem.FullName;
-                }
-            }
-            else
-            { 
-                // it is a file, open it
-                new Process
-                {
-                    StartInfo = new ProcessStartInfo(CurrentItem.FullName)
-                    {
-                        UseShellExecute = true
-                    }
-                }.Start();
-            }           
-        }
+            ProcessCurrentItem();
+        }        
 
         public void Execute(string command)
         {
@@ -138,6 +125,33 @@ namespace SmartCommander.ViewModels
                 return;
             }
             Directory.CreateDirectory(name);
+        }
+
+        private void ProcessCurrentItem()
+        {
+            if (CurrentItem.IsFolder)
+            {
+                if (CurrentItem.FullName == "..")
+                {
+                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory).FullName :
+                        CurrentDirectory;
+                }
+                else
+                {
+                    CurrentDirectory = CurrentItem.FullName;
+                }
+            }
+            else
+            {
+                // it is a file, open it
+                new Process
+                {
+                    StartInfo = new ProcessStartInfo(CurrentItem.FullName)
+                    {
+                        UseShellExecute = true
+                    }
+                }.Start();
+            }
         }
 
         private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)

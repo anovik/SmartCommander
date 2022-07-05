@@ -24,6 +24,9 @@
 				  CanUserResizeColumns="True"
 				  CanUserSortColumns="True"
 				  SelectedItem="{Binding CurrentItem}">
+			<DataGrid.KeyBindings>
+				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
+			</DataGrid.KeyBindings>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
 				<DataGridTextColumn Header="Extension" Binding="{Binding Extension}"></DataGridTextColumn>
