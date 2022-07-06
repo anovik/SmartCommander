@@ -13,6 +13,16 @@
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
+	
+	<Window.KeyBindings>
+		<KeyBinding Gesture="F3" Command="{Binding F3Command}" />
+		<KeyBinding Gesture="F4" Command="{Binding F4Command}" />
+		<KeyBinding Gesture="F5" Command="{Binding F5Command}" />
+		<KeyBinding Gesture="F6" Command="{Binding F6Command}" />
+		<KeyBinding Gesture="F7" Command="{Binding F7Command}" />
+		<KeyBinding Gesture="F8" Command="{Binding F8Command}" />
+	</Window.KeyBindings>
+	
 
 	<Grid>
 		<Grid.ColumnDefinitions>			
@@ -26,17 +36,17 @@
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
 
-    <Menu>
-      <MenuItem Header="_File">
-        <MenuItem Header="_Exit" Command="{Binding ExitCommand}"></MenuItem>        		  
+    <Menu >
+      <MenuItem Header="_File" IsTabStop="False">
+        <MenuItem Header="_Exit" Command="{Binding ExitCommand}" IsTabStop="False"></MenuItem>        		  
       </MenuItem>
-      <MenuItem Header="_View">
+      <MenuItem Header="_View" IsTabStop="False">
 		  <MenuItem Header="Sort by _name" Command="{Binding SortNameCommand}"></MenuItem>
 		  <MenuItem Header="Sort by _extension" Command="{Binding SortExtensionCommand}"></MenuItem>
-		  <MenuItem Header="Sort by _size" Command="{Binding SortSizeCommand}"></MenuItem>
+		  <MenuItem Header="Sort by _size"  Command="{Binding SortSizeCommand}"></MenuItem>
 		  <MenuItem Header="Sort by _date" Command="{Binding SortDateCommand}"></MenuItem>
 	  </MenuItem>
-      <MenuItem Header="_Configuration">
+      <MenuItem Header="_Configuration" IsTabStop="False" >
 		  <MenuItem Header="_Options"></MenuItem>
       </MenuItem>
     </Menu>
@@ -50,9 +60,9 @@
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
 		<TextBlock VerticalAlignment="Center">Current directory name</TextBlock>
-		<TextBox Grid.Column="1" Text="{Binding CommandText}">
+		<TextBox IsTabStop="False" Grid.Column="1" Text="{Binding CommandText}">
 			<TextBox.KeyBindings>
-				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
+				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />				
 			</TextBox.KeyBindings>
 		</TextBox>
 	</Grid>
@@ -65,12 +75,12 @@
 			<ColumnDefinition Width="*"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<Button HorizontalAlignment="Center" Command="{Binding F3Command}">F3 View</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="1" Command="{Binding F4Command}">F4 Edit</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="2" Command="{Binding F5Command}">F5 Copy</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="3" Command="{Binding F6Command}">F6 Move</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="4" Command="{Binding F7Command}">F7 Create Folder</Button>
-		<Button HorizontalAlignment="Center" Grid.Column="5" Command="{Binding F8Command}">F8 Delete</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Command="{Binding F3Command}">F3 View</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="1" Command="{Binding F4Command}">F4 Edit</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="2" Command="{Binding F5Command}">F5 Copy</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="3" Command="{Binding F6Command}">F6 Move</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="4" Command="{Binding F7Command}">F7 Create Folder</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="5" Command="{Binding F8Command}">F8 Delete</Button>
 	</Grid>
 		
 </Grid>

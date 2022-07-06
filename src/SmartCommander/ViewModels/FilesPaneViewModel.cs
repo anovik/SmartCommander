@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reactive;
+using System.Runtime.InteropServices;
 
 namespace SmartCommander.ViewModels
 {
@@ -96,6 +97,38 @@ namespace SmartCommander.ViewModels
             }.Start();
         }
 
+        public void View()
+        {
+            if (!CurrentItem.IsFolder)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {                    
+                    Process.Start("less", CurrentItem.FullName);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    // ? lister or whatever
+                }
+            }
+            // else may be give warning?
+        }
+
+        public void Edit()
+        {
+            if (!CurrentItem.IsFolder)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {                    
+                    Process.Start("vi", CurrentItem.FullName);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Process.Start("notepad.exe", CurrentItem.FullName);
+                }
+            }
+            // else may be give warning?
+        }
+
         public void Delete()
         {
             try
@@ -159,6 +192,7 @@ namespace SmartCommander.ViewModels
             if (!Directory.Exists(dir))
                 return;
             filesFoldersList.Clear();
+            bool isParent = false;
             if (Directory.GetParent(CurrentDirectory) != null)
             {
                 filesFoldersList.Add(new FileViewModel()
@@ -170,6 +204,7 @@ namespace SmartCommander.ViewModels
                     Size = "Folder",
                     DateCreated = DateTime.Now
                 });
+                isParent = true;
             }
             string[] subdirectoryEntries = Directory.GetDirectories(dir);
             foreach (string subdirectory in subdirectoryEntries)
@@ -199,8 +234,14 @@ namespace SmartCommander.ViewModels
                 }); 
             }
 
-            _totalFiles = subdirectoryEntries.Length;
-            _totalFolders = fileEntries.Length;      
+            _totalFolders = subdirectoryEntries.Length;
+            _totalFiles = fileEntries.Length;
+
+            if (filesFoldersList.Count > 0)
+            {
+                CurrentItem = (isParent && filesFoldersList.Count > 1) ?
+                    filesFoldersList[1] : filesFoldersList[0];
+            }
         }
      
     }

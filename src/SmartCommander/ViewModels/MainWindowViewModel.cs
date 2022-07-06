@@ -94,12 +94,14 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
-
+            FilesPaneViewModel pane = GetSelectedPane();
+            pane.View();
         }
 
         public void Edit()
         {
-
+            FilesPaneViewModel pane = GetSelectedPane();
+            pane.Edit();
         }
 
         public void Copy()
@@ -122,7 +124,8 @@ namespace SmartCommander.ViewModels
         public void Delete()
         {
             FilesPaneViewModel pane = GetSelectedPane();
-            MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " + pane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
+            MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " + 
+                pane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
         }
 
         public void DeleteAnswer(ButtonResult result)

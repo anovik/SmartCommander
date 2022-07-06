@@ -18,11 +18,11 @@
 			<RowDefinition Height="*"></RowDefinition>
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
-		<TextBox Margin="5" Text="{Binding CurrentDirectory}"></TextBox>
+		<TextBox Margin="5" IsTabStop="False" Text="{Binding CurrentDirectory}"></TextBox>
 		<ScrollViewer Margin="5" Grid.Row="1">
-	    <DataGrid Items="{Binding FoldersFilesList}" AutoGenerateColumns="False"
+	    <DataGrid IsTabStop="True" Items="{Binding FoldersFilesList}" AutoGenerateColumns="False"
 				  CanUserResizeColumns="True"
-				  CanUserSortColumns="True"
+				  CanUserSortColumns="True"	
 				  SelectedItem="{Binding CurrentItem}">
 			<DataGrid.KeyBindings>
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
@@ -34,21 +34,21 @@
 				<DataGridTextColumn Header="Date" Binding="{Binding DateCreated}"></DataGridTextColumn>
 			</DataGrid.Columns>
 			
-      <i:Interaction.Behaviors>
-		<ia:EventTriggerBehavior EventName="Sorting" SourceObject="{Binding #FoldersFilesList}">
-			<ia:CallMethodAction TargetObject="{Binding}" MethodName="SortingStarted"/>
-		</ia:EventTriggerBehavior>
-        <ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
-          <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
-        </ia:EventTriggerBehavior>
-        <ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
-          <ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
-        </ia:EventTriggerBehavior>
-       <ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
-          <ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
-        </ia:EventTriggerBehavior>
-      </i:Interaction.Behaviors>
-    </DataGrid>		
+		  <i:Interaction.Behaviors>
+			<ia:EventTriggerBehavior EventName="Sorting" SourceObject="{Binding #FoldersFilesList}">
+				<ia:CallMethodAction TargetObject="{Binding}" MethodName="SortingStarted"/>
+			</ia:EventTriggerBehavior>
+			<ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
+			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
+			</ia:EventTriggerBehavior>
+			<ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
+			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
+			</ia:EventTriggerBehavior>
+		   <ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
+			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
+			</ia:EventTriggerBehavior>
+		  </i:Interaction.Behaviors>
+		</DataGrid>		
 		</ScrollViewer>
 		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
 	</Grid>
