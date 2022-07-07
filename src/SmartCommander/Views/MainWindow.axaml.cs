@@ -22,7 +22,9 @@ namespace SmartCommander.Views
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
 
-                vm.MessageBoxRequest += new EventHandler<MvvmMessageBoxEventArgs>(View_MessageBoxRequest);
+                vm.MessageBoxRequest += View_MessageBoxRequest;
+                vm.LeftFileViewModel.MessageBoxRequest += View_MessageBoxRequest;
+                vm.RightFileViewModel.MessageBoxRequest += View_MessageBoxRequest;
             }
         }
 

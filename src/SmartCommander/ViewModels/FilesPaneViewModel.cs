@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
@@ -110,7 +111,10 @@ namespace SmartCommander.ViewModels
                     // ? lister or whatever
                 }
             }
-            // else may be give warning?
+            else
+            {
+                MessageBox_Show(null, "Can't view the folder", "Alert", ButtonEnum.Ok);
+            }
         }
 
         public void Edit()
@@ -126,7 +130,10 @@ namespace SmartCommander.ViewModels
                     Process.Start("notepad.exe", CurrentItem.FullName);
                 }
             }
-            // else may be give warning?
+            else
+            {
+               MessageBox_Show(null, "Can't edit the folder", "Alert", ButtonEnum.Ok);
+            }
         }
 
         public void Delete()

@@ -10,7 +10,7 @@
 
 	<Design.DataContext>
 		<vm:FilesPaneViewModel/>
-	</Design.DataContext>
+	</Design.DataContext>	
 
 	<Grid>
 		<Grid.RowDefinitions>			
@@ -27,6 +27,11 @@
 			<DataGrid.KeyBindings>
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
 			</DataGrid.KeyBindings>
+			<DataGrid.Styles>
+				<Style Selector="DataGridCell /template/ Border#CellBorder">
+					<Setter Property="BorderThickness" Value="0"/>
+				</Style>
+			</DataGrid.Styles>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
 				<DataGridTextColumn Header="Extension" Binding="{Binding Extension}"></DataGridTextColumn>
