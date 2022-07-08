@@ -24,6 +24,7 @@ namespace SmartCommander.ViewModels
             F6Command = ReactiveCommand.Create(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
+            TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
         }      
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -40,6 +41,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F6Command { get; }
         public ReactiveCommand<Unit, Unit> F7Command { get; }
         public ReactiveCommand<Unit, Unit> F8Command { get; }
+        public ReactiveCommand<Unit, Unit> TabCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel() { IsSelected = true};
 
@@ -83,6 +85,20 @@ namespace SmartCommander.ViewModels
         public void SortDate()
         {
 
+        }
+
+        public void ChangeSelectedPane()
+        {
+            if (LeftFileViewModel.IsSelected)
+            {
+                LeftFileViewModel.IsSelected = false;
+                RightFileViewModel.IsSelected = true;
+            }
+            else if (RightFileViewModel.IsSelected)
+            {
+                RightFileViewModel.IsSelected = false;
+                LeftFileViewModel.IsSelected = true;                
+            }
         }
 
         public void Execute()
