@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using System;
@@ -115,11 +116,18 @@ namespace SmartCommander.ViewModels
         }
 
         public void CreateNewFolder()
+        {           
+            MessageBoxInput_Show(CreateNewFolderAnswer, "Folder", "Create New Folder");            
+        }
+
+        public void CreateNewFolderAnswer(MessageWindowResultDTO result)
         {
-            FilesPaneViewModel pane = GetSelectedPane();
-            // show window
-            pane.CreateNewFolder("New Folder");            
-         }
+            if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
+            {
+                FilesPaneViewModel pane = GetSelectedPane();
+                pane.CreateNewFolder(result.Message);
+            }
+        }
 
         public void Delete()
         {

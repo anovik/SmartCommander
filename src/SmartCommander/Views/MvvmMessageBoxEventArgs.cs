@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using System;
 using System.Threading.Tasks;
@@ -6,10 +7,13 @@ using System.Threading.Tasks;
 namespace SmartCommander.Views
 {
     public class MvvmMessageBoxEventArgs : EventArgs
-    {        public MvvmMessageBoxEventArgs(Action<ButtonResult> resultAction, string messageBoxText, string caption = "", 
-                                            ButtonEnum button = ButtonEnum.Ok, Icon icon =Icon.None)
+    {        public MvvmMessageBoxEventArgs(Action<ButtonResult> resultAction,
+                                            Action<MessageWindowResultDTO> resultInputAction,
+                                            string messageBoxText, string caption = "", 
+                                            ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None)
         {
             this.resultAction = resultAction;
+            this.resultInputAction = resultInputAction;
             this.messageBoxText = messageBoxText;
             this.caption = caption;
             this.button = button;
@@ -17,6 +21,8 @@ namespace SmartCommander.Views
         }
 
         Action<ButtonResult> resultAction;
+        Action<MessageWindowResultDTO> resultInputAction;
+
         string messageBoxText;
         string caption;
         ButtonEnum button;
@@ -24,18 +30,19 @@ namespace SmartCommander.Views
 
         public async Task Show(Window owner)
         {
-            var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager
+            var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandardWindow(caption, messageBoxText + Environment.NewLine, button, icon);
-            ButtonResult  result = await messageBoxStandardWindow.ShowDialog(owner);
+            var  result = await messageBoxWindow.ShowDialog(owner);
             if (resultAction != null) resultAction(result);
         }
 
-        public async Task Show()
+        public async Task ShowInput(Window owner)
         {
-            var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager
-               .GetMessageBoxStandardWindow(caption, messageBoxText + Environment.NewLine, button, icon);
-            ButtonResult result = await messageBoxStandardWindow.Show();
-            if (resultAction != null) resultAction(result);
-        }
+            var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
+                .GetMessageBoxInputWindow(new MessageBoxInputParams() 
+                    { ContentTitle = caption, ContentMessage = messageBoxText, MinWidth = 300, WindowStartupLocation = WindowStartupLocation.CenterOwner });
+            var result = await messageBoxWindow.ShowDialog(owner);            
+            if (resultInputAction != null) resultInputAction(result);
+        }   
     }
 }
