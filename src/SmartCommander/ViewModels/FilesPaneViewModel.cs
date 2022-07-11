@@ -201,6 +201,7 @@ namespace SmartCommander.ViewModels
             if (!Directory.Exists(dir))
                 return;
             filesFoldersList.Clear();
+            _totalFolders = _totalFiles = 0;
             bool isParent = false;
             if (Directory.GetParent(CurrentDirectory) != null)
             {
@@ -215,36 +216,51 @@ namespace SmartCommander.ViewModels
                 });
                 isParent = true;
             }
-            string[] subdirectoryEntries = Directory.GetDirectories(dir);
+
+            var options = new EnumerationOptions()
+            {
+                AttributesToSkip = FileAttributes.Hidden | FileAttributes.System,
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = false,                
+            };
+
+            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
             foreach (string subdirectory in subdirectoryEntries)
             {
-                filesFoldersList.Add(new FileViewModel()
+                try
                 {
-                    FullName = subdirectory,
-                    IsFolder = true,
-                    Name = Path.GetFileName(subdirectory),
-                    Extension = "",
-                    Size = "Folder",
-                    DateCreated = File.GetCreationTime(subdirectory)
-                });
+                    filesFoldersList.Add(new FileViewModel()
+                    {
+                        FullName = subdirectory,
+                        IsFolder = true,
+                        Name = Path.GetFileName(subdirectory),
+                        Extension = "",
+                        Size = "Folder",
+                        DateCreated = File.GetCreationTime(subdirectory)
+                    });
+                    ++_totalFolders;
+                }
+                catch { }
             }
 
-            string[] fileEntries = Directory.GetFiles(dir);
+            var fileEntries = Directory.EnumerateFiles(dir, "*", options);
             foreach (string fileName in fileEntries)
             {
-                filesFoldersList.Add(new FileViewModel()
+                try
                 {
-                    FullName = fileName,
-                    IsFolder = false,
-                    Name = Path.GetFileNameWithoutExtension(fileName),
-                    Extension = Path.GetExtension(fileName).TrimStart('.'),
-                    Size = new FileInfo(fileName).Length.ToString(),
-                    DateCreated = File.GetCreationTime(fileName)
-                }); 
-            }
-
-            _totalFolders = subdirectoryEntries.Length;
-            _totalFiles = fileEntries.Length;
+                    filesFoldersList.Add(new FileViewModel()
+                    {
+                        FullName = fileName,
+                        IsFolder = false,
+                        Name = Path.GetFileNameWithoutExtension(fileName),
+                        Extension = Path.GetExtension(fileName).TrimStart('.'),
+                        Size = new FileInfo(fileName).Length.ToString(),
+                        DateCreated = File.GetCreationTime(fileName)
+                    });
+                    ++_totalFiles;
+                }
+                catch { }
+            }     
 
             if (filesFoldersList.Count > 0)
             {
