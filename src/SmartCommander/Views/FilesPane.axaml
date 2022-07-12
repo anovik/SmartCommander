@@ -35,8 +35,14 @@
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
 			</DataGrid.KeyBindings>
 			<DataGrid.Styles>
-				<Style Selector="DataGridCell /template/ Border#CellBorder">
-					<Setter Property="BorderThickness" Value="0"/>
+				<Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
+					<Setter Property="IsVisible" Value="False" />
+				</Style>
+				<Style Selector="DataGrid:focus DataGridCell:current /template/ Grid#FocusVisual">
+					<Setter Property="IsVisible" Value="False" />
+				</Style>
+				<Style Selector="DataGridCell:invalid /template/ Rectangle#InvalidVisualElement">
+					<Setter Property="IsVisible" Value="False" />
 				</Style>
 			</DataGrid.Styles>
 			<DataGrid.Columns>
