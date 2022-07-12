@@ -9,7 +9,7 @@ using System.Reactive;
 namespace SmartCommander.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
-    {    
+    {
         public MainWindowViewModel()
         {
             ExitCommand = ReactiveCommand.Create(Exit);
@@ -25,7 +25,10 @@ namespace SmartCommander.ViewModels
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
             TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
-        }      
+
+            LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
+            RightFileViewModel = new FilesPaneViewModel(this);
+        }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
 
@@ -43,9 +46,9 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F8Command { get; }
         public ReactiveCommand<Unit, Unit> TabCommand { get; }
 
-        public FilesPaneViewModel LeftFileViewModel { get; } = new FilesPaneViewModel() { IsSelected = true};
+        public FilesPaneViewModel LeftFileViewModel { get; } 
 
-        public FilesPaneViewModel RightFileViewModel { get; } = new FilesPaneViewModel();
+        public FilesPaneViewModel RightFileViewModel { get; }
 
         private string? _commandText;
         public string? CommandText
@@ -91,19 +94,46 @@ namespace SmartCommander.ViewModels
         {
             if (LeftFileViewModel.IsSelected)
             {
-                LeftFileViewModel.IsSelected = false;
-                RightFileViewModel.IsSelected = true;
+                SelectedPane = RightFileViewModel;
             }
             else if (RightFileViewModel.IsSelected)
             {
-                RightFileViewModel.IsSelected = false;
-                LeftFileViewModel.IsSelected = true;                
+                SelectedPane = LeftFileViewModel;       
+            }
+        }
+
+        public FilesPaneViewModel SelectedPane
+        {
+            get
+            {
+                if (LeftFileViewModel.IsSelected)
+                {
+                    return LeftFileViewModel;
+                }
+                else if (RightFileViewModel.IsSelected)
+                {
+                    return RightFileViewModel;
+                }
+                throw new Exception("Error: no pane selected");
+            }
+            set 
+            {
+                if (RightFileViewModel == value && !RightFileViewModel.IsSelected)
+                {
+                    LeftFileViewModel.IsSelected = false;
+                    RightFileViewModel.IsSelected = true;                    
+                }
+                else if (LeftFileViewModel == value && !LeftFileViewModel.IsSelected)
+                {
+                    RightFileViewModel.IsSelected = false;
+                    LeftFileViewModel.IsSelected = true;
+                }             
             }
         }
 
         public void Execute()
         {
-            FilesPaneViewModel pane = GetSelectedPane();           
+            FilesPaneViewModel pane = SelectedPane;           
             pane.Execute(CommandText);        
 
             CommandText = "";
@@ -111,13 +141,13 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
-            FilesPaneViewModel pane = GetSelectedPane();
+            FilesPaneViewModel pane = SelectedPane;
             pane.View();
         }
 
         public void Edit()
         {
-            FilesPaneViewModel pane = GetSelectedPane();
+            FilesPaneViewModel pane = SelectedPane;
             pane.Edit();
         }
 
@@ -140,14 +170,14 @@ namespace SmartCommander.ViewModels
         {
             if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
             {
-                FilesPaneViewModel pane = GetSelectedPane();
+                FilesPaneViewModel pane = SelectedPane;
                 pane.CreateNewFolder(result.Message);
             }
         }
 
         public void Delete()
         {
-            FilesPaneViewModel pane = GetSelectedPane();
+            FilesPaneViewModel pane = SelectedPane;
             MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " + 
                 pane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
         }
@@ -156,22 +186,9 @@ namespace SmartCommander.ViewModels
         {
             if (result == ButtonResult.Yes)
             {
-                FilesPaneViewModel pane = GetSelectedPane();
+                FilesPaneViewModel pane = SelectedPane;
                 pane.Delete();
             }
-        }
-
-        private FilesPaneViewModel GetSelectedPane()
-        {
-            if (LeftFileViewModel.IsSelected)
-            {
-                return LeftFileViewModel;
-            }
-            else if (RightFileViewModel.IsSelected)
-            {
-                return RightFileViewModel;
-            }
-            throw new Exception("Error: no pane selected");           
-        }
+        }       
     }
 }

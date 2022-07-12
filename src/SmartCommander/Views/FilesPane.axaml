@@ -10,7 +10,13 @@
 
 	<Design.DataContext>
 		<vm:FilesPaneViewModel/>
-	</Design.DataContext>	
+	</Design.DataContext>
+
+	<i:Interaction.Behaviors>
+		<ia:EventTriggerBehavior EventName="Tapped">
+			<ia:CallMethodAction TargetObject="{Binding}" MethodName="Tapped"/>
+		</ia:EventTriggerBehavior>
+	</i:Interaction.Behaviors>
 
 	<Grid>
 		<Grid.RowDefinitions>			
@@ -18,8 +24,9 @@
 			<RowDefinition Height="*"></RowDefinition>
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
-		<TextBox Margin="5" IsTabStop="False" Text="{Binding CurrentDirectory}"></TextBox>
-		<ScrollViewer Margin="5" Grid.Row="1">
+		<TextBox Margin="5" IsTabStop="False" Text="{Binding CurrentDirectory}">	
+		</TextBox>
+		<ScrollViewer Margin="5" Grid.Row="1">			
 	    <DataGrid IsTabStop="True" Items="{Binding FoldersFilesList}" AutoGenerateColumns="False"
 				  CanUserResizeColumns="True"
 				  CanUserSortColumns="True"	
@@ -39,13 +46,13 @@
 				<DataGridTextColumn Header="Date" Binding="{Binding DateCreated}"></DataGridTextColumn>
 			</DataGrid.Columns>
 			
-		  <i:Interaction.Behaviors>
+		  <i:Interaction.Behaviors>		
 			<ia:EventTriggerBehavior EventName="Sorting" SourceObject="{Binding #FoldersFilesList}">
 				<ia:CallMethodAction TargetObject="{Binding}" MethodName="SortingStarted"/>
 			</ia:EventTriggerBehavior>
 			<ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
 			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
-			</ia:EventTriggerBehavior>
+			</ia:EventTriggerBehavior>			
 			<ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
 			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
 			</ia:EventTriggerBehavior>

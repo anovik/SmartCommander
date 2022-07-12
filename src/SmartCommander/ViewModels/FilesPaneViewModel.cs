@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Input;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using System;
@@ -36,6 +37,8 @@ namespace SmartCommander.ViewModels
         private int _totalFiles = 0;
         private int _totalFolders = 0;
 
+        private MainWindowViewModel _mainVM;
+
         public string CurrentDirectoryInfo
         {
             get { return string.Format("Files: {0}, folders: {1}.", _totalFiles, _totalFolders); }
@@ -47,24 +50,29 @@ namespace SmartCommander.ViewModels
 
         public bool IsSelected { get; set; }
 
-        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();      
-
+        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();    
+        
         public FilesPaneViewModel()
+        {
+        }
+
+        public FilesPaneViewModel(MainWindowViewModel mainVM)
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             EnterCommand = ReactiveCommand.Create(Enter);
+            _mainVM = mainVM;
         }
 
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
-
+            _mainVM.SelectedPane = this;
         }
 
         public void SortingStarted(object sender, object parameter)
         {
-
+            _mainVM.SelectedPane = this;
         }
 
         public void BeginningEdit(object sender, object parameter)
@@ -76,6 +84,12 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public void Tapped(object sender, object parameter)
+        {
+            _mainVM.SelectedPane = this;
+        }
+
+
         public void Enter()
         {
             ProcessCurrentItem();
@@ -84,8 +98,8 @@ namespace SmartCommander.ViewModels
         public void DoubleTapped(object sender, object parameter)
         {
             ProcessCurrentItem();
-        }        
-
+        }     
+            
         public void Execute(string? command)
         {
             if (!string.IsNullOrEmpty(command))
