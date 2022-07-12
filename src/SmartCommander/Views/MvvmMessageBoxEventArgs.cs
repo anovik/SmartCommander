@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace SmartCommander.Views
 {
     public class MvvmMessageBoxEventArgs : EventArgs
-    {        public MvvmMessageBoxEventArgs(Action<ButtonResult> resultAction,
-                                            Action<MessageWindowResultDTO> resultInputAction,
+    {        public MvvmMessageBoxEventArgs(Action<ButtonResult>? resultAction,
+                                            Action<MessageWindowResultDTO>? resultInputAction,
                                             string messageBoxText, string caption = "", 
                                             ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None)
         {
@@ -20,8 +20,8 @@ namespace SmartCommander.Views
             this.icon = icon;       
         }
 
-        Action<ButtonResult> resultAction;
-        Action<MessageWindowResultDTO> resultInputAction;
+        Action<ButtonResult>? resultAction;
+        Action<MessageWindowResultDTO>? resultInputAction;
 
         string messageBoxText;
         string caption;
@@ -33,7 +33,7 @@ namespace SmartCommander.Views
             var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandardWindow(caption, messageBoxText + Environment.NewLine, button, icon);
             var  result = await messageBoxWindow.ShowDialog(owner);
-            if (resultAction != null) resultAction(result);
+            resultAction?.Invoke(result);
         }
 
         public async Task ShowInput(Window owner)
@@ -41,8 +41,8 @@ namespace SmartCommander.Views
             var messageBoxWindow = MessageBox.Avalonia.MessageBoxManager
                 .GetMessageBoxInputWindow(new MessageBoxInputParams() 
                     { ContentTitle = caption, ContentMessage = messageBoxText, MinWidth = 300, WindowStartupLocation = WindowStartupLocation.CenterOwner });
-            var result = await messageBoxWindow.ShowDialog(owner);            
-            if (resultInputAction != null) resultInputAction(result);
+            var result = await messageBoxWindow.ShowDialog(owner);
+            resultInputAction?.Invoke(result);
         }   
     }
 }

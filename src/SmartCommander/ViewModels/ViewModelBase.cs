@@ -8,11 +8,11 @@ namespace SmartCommander.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {
-        public event EventHandler<MvvmMessageBoxEventArgs> MessageBoxRequest;
-        public event EventHandler<MvvmMessageBoxEventArgs> MessageBoxInputRequest;
+        public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxRequest;
+        public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxInputRequest;
 
 
-        protected void MessageBox_Show(Action<ButtonResult> resultAction, string messageBoxText, string caption = "",
+        protected void MessageBox_Show(Action<ButtonResult>? resultAction, string messageBoxText, string caption = "",
             ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None)
         {
             if (this.MessageBoxRequest != null)
@@ -21,7 +21,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        protected void MessageBoxInput_Show(Action<MessageWindowResultDTO> resultAction, string messageBoxText, string caption = "")
+        protected void MessageBoxInput_Show(Action<MessageWindowResultDTO>? resultAction, string messageBoxText, string caption = "")
         {
             if (this.MessageBoxInputRequest != null)
             {

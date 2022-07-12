@@ -47,8 +47,8 @@ namespace SmartCommander.ViewModels
 
         public FilesPaneViewModel RightFileViewModel { get; } = new FilesPaneViewModel();
 
-        private string _commandText;
-        public string CommandText
+        private string? _commandText;
+        public string? CommandText
         {
             get { return _commandText; }
             set

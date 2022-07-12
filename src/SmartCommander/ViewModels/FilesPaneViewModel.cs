@@ -86,16 +86,19 @@ namespace SmartCommander.ViewModels
             ProcessCurrentItem();
         }        
 
-        public void Execute(string command)
+        public void Execute(string? command)
         {
-            new Process
+            if (!string.IsNullOrEmpty(command))
             {
-                StartInfo = new ProcessStartInfo(command)
+                new Process
                 {
-                    WorkingDirectory = CurrentDirectory,                    
-                    UseShellExecute = true
-                }
-            }.Start();
+                    StartInfo = new ProcessStartInfo(command)
+                    {
+                        WorkingDirectory = CurrentDirectory,
+                        UseShellExecute = true
+                    }
+                }.Start();
+            }
         }
 
         public void View()

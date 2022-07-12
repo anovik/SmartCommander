@@ -13,7 +13,7 @@ namespace SmartCommander.Views
           
         }
 
-        private void OnOpened(object sender, EventArgs e)
+        private void OnOpened(object? sender, EventArgs e)
         {
             MainWindowViewModel vm = DataContext as MainWindowViewModel;
 
@@ -33,12 +33,12 @@ namespace SmartCommander.Views
             }
         }
 
-        async void View_MessageBoxRequest(object sender, MvvmMessageBoxEventArgs e)
+        async void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)
         {
             await e.Show(this);
         }
 
-        async void View_MessageBoxInputRequest(object sender, MvvmMessageBoxEventArgs e)
+        async void View_MessageBoxInputRequest(object? sender,MvvmMessageBoxEventArgs e)
         {
             await e.ShowInput(this);
         }
