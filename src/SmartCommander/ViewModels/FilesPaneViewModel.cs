@@ -1,5 +1,5 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Input;
+using Avalonia.Media;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using System;
@@ -22,20 +22,24 @@ namespace SmartCommander.ViewModels
     public class FilesPaneViewModel : ViewModelBase
     {
         private string _currentDirectory;
+
+        private int _totalFiles = 0;
+        private int _totalFolders = 0;
+
+        private bool _isSelected;
+
         public string CurrentDirectory
         {
-            get { return _currentDirectory; }
-            set 
-            { 
-                _currentDirectory = value; 
+            get => _currentDirectory; 
+            set
+            {
+                _currentDirectory = value;
                 GetFilesFolders(CurrentDirectory, FoldersFilesList);
                 this.RaisePropertyChanged("CurrentDirectory");
                 this.RaisePropertyChanged("CurrentDirectoryInfo");
             }
         }
 
-        private int _totalFiles = 0;
-        private int _totalFolders = 0;
 
         private MainWindowViewModel _mainVM;
 
@@ -48,7 +52,18 @@ namespace SmartCommander.ViewModels
 
         public SortingBy Sorting { get; set; } = SortingBy.SortingByName;
 
-        public bool IsSelected { get; set; }
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                this.RaisePropertyChanged("IsSelected");
+                this.RaisePropertyChanged("GridBorderBrush");
+            }
+        }
+
+        public Brush GridBorderBrush => IsSelected ? new SolidColorBrush(Colors.LightSkyBlue) : new SolidColorBrush(Colors.Transparent);
 
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();    
         
