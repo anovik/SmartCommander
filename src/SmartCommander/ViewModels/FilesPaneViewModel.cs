@@ -65,10 +65,11 @@ namespace SmartCommander.ViewModels
 
         public Brush GridBorderBrush => IsSelected ? new SolidColorBrush(Colors.LightSkyBlue) : new SolidColorBrush(Colors.Transparent);
 
-        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();    
+        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();         
         
         public FilesPaneViewModel()
         {
+
         }
 
         public FilesPaneViewModel(MainWindowViewModel mainVM)

@@ -28,6 +28,8 @@ namespace SmartCommander.ViewModels
 
             LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
+
+            ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -61,6 +63,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
         public void Exit()
         {
@@ -132,33 +135,34 @@ namespace SmartCommander.ViewModels
         }
 
         public void Execute()
-        {
-            FilesPaneViewModel pane = SelectedPane;           
-            pane.Execute(CommandText);        
+        {            
+            SelectedPane.Execute(CommandText);        
 
             CommandText = "";
         }
 
         public void View()
-        {
-            FilesPaneViewModel pane = SelectedPane;
-            pane.View();
+        {            
+            SelectedPane.View();
         }
 
         public void Edit()
-        {
-            FilesPaneViewModel pane = SelectedPane;
-            pane.Edit();
+        {            
+            SelectedPane.Edit();
         }
 
         public void Copy()
         {
-
+            var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, "");            
+            var result = ShowCopyDialog.Handle(copy);
+            // do something here
         }
 
         public void Move()
         {
-
+            var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, "");
+            var result = ShowCopyDialog.Handle(copy);
+            // do something here
         }
 
         public void CreateNewFolder()
@@ -169,25 +173,22 @@ namespace SmartCommander.ViewModels
         public void CreateNewFolderAnswer(MessageWindowResultDTO result)
         {
             if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
-            {
-                FilesPaneViewModel pane = SelectedPane;
-                pane.CreateNewFolder(result.Message);
+            {                
+                SelectedPane.CreateNewFolder(result.Message);
             }
         }
 
         public void Delete()
-        {
-            FilesPaneViewModel pane = SelectedPane;
-            MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " + 
-                pane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
+        {            
+            MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " +
+                SelectedPane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
         }
 
         public void DeleteAnswer(ButtonResult result)
         {
             if (result == ButtonResult.Yes)
-            {
-                FilesPaneViewModel pane = SelectedPane;
-                pane.Delete();
+            {                
+                SelectedPane.Delete();
             }
         }       
     }

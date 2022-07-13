@@ -1,16 +1,28 @@
-using Avalonia.Controls;
+using Avalonia.ReactiveUI;
+using ReactiveUI;
 using SmartCommander.ViewModels;
 using System;
+using System.Threading.Tasks;
 
 namespace SmartCommander.Views
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        public MainWindow()
+        public MainWindow() 
         {
             Opened += OnOpened;
             InitializeComponent();
+            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
           
+        }
+
+        private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
+        {
+            var dialog = new CopyMoveWindow();
+            dialog.DataContext = interaction.Input;
+
+            var result = await dialog.ShowDialog<CopyMoveViewModel>(this);
+            interaction.SetOutput(result);
         }
 
         private void OnOpened(object? sender, EventArgs e)
