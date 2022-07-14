@@ -25,11 +25,13 @@ namespace SmartCommander.ViewModels
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
             TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
+            OptionsCommand = ReactiveCommand.Create(ShowOptions);
 
             LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
 
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
+            ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -47,13 +49,14 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F7Command { get; }
         public ReactiveCommand<Unit, Unit> F8Command { get; }
         public ReactiveCommand<Unit, Unit> TabCommand { get; }
+        public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; } 
 
         public FilesPaneViewModel RightFileViewModel { get; }
 
-        private string? _commandText;
-        public string? CommandText
+        private string _commandText = "";
+        public string CommandText
         {
             get { return _commandText; }
             set
@@ -65,32 +68,36 @@ namespace SmartCommander.ViewModels
 
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
+        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
+
         public void Exit()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {                
+                // TODO: save settings on exit
+
                 desktopLifetime.Shutdown();
             }
         }
 
         public void SortName()
         {
-
+            SelectedPane.Sorting = SortingBy.SortingByName;
         }
 
         public void SortExtension()
         {
-
+            SelectedPane.Sorting = SortingBy.SortingByExt;
         }
 
         public void SortSize()
         {
-
+            SelectedPane.Sorting = SortingBy.SortingBySize;
         }
 
         public void SortDate()
         {
-
+            SelectedPane.Sorting = SortingBy.SortingByDate;
         }
 
         public void ChangeSelectedPane()
@@ -136,8 +143,7 @@ namespace SmartCommander.ViewModels
 
         public void Execute()
         {            
-            SelectedPane.Execute(CommandText);        
-
+            SelectedPane.Execute(CommandText);   
             CommandText = "";
         }
 
@@ -163,6 +169,14 @@ namespace SmartCommander.ViewModels
             var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, "");
             var result = ShowCopyDialog.Handle(copy);
             // do something here
+        }
+
+        public void ShowOptions()
+        {
+            var optionsModel = new OptionsViewModel();
+            var result = ShowOptionsDialog.Handle(optionsModel);       
+            
+            // do something here?
         }
 
         public void CreateNewFolder()

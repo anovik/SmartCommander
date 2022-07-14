@@ -11,9 +11,7 @@ namespace SmartCommander.Views
         public MainWindow() 
         {
             Opened += OnOpened;
-            InitializeComponent();
-            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
-          
+            InitializeComponent();              
         }
 
         private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
@@ -22,6 +20,15 @@ namespace SmartCommander.Views
             dialog.DataContext = interaction.Input;
 
             var result = await dialog.ShowDialog<CopyMoveViewModel>(this);
+            interaction.SetOutput(result);
+        }
+
+        private async Task DoShowOptionsDialogAsync(InteractionContext<OptionsViewModel, OptionsViewModel?> interaction)
+        {
+            var dialog = new OptionsWindow();
+            dialog.DataContext = interaction.Input;
+
+            var result = await dialog.ShowDialog<OptionsViewModel>(this);
             interaction.SetOutput(result);
         }
 
@@ -42,6 +49,8 @@ namespace SmartCommander.Views
                 vm.LeftFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.RightFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
 
+                vm.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync);
+                vm.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync);
             }
         }
 

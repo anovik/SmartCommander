@@ -48,7 +48,7 @@
 		  <MenuItem Header="Sort by _date" Command="{Binding SortDateCommand}"></MenuItem>
 	  </MenuItem>
       <MenuItem Header="_Configuration" IsTabStop="False" >
-		  <MenuItem Header="_Options"></MenuItem>
+		  <MenuItem Header="_Options" Command="{Binding OptionsCommand}"></MenuItem>
       </MenuItem>
     </Menu>
 
