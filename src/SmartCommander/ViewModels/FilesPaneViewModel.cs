@@ -141,7 +141,7 @@ namespace SmartCommander.ViewModels
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    // ? lister or whatever
+                    Process.Start("LTFViewr5u.exe", CurrentItem.FullName);
                 }
             }
             else
