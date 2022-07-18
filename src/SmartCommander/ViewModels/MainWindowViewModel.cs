@@ -160,21 +160,21 @@ namespace SmartCommander.ViewModels
         public void Copy()
         {
             var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, "");            
-            var result = ShowCopyDialog.Handle(copy);
+            var result = ShowCopyDialog.Handle(copy).Subscribe();
             // do something here
         }
 
         public void Move()
         {
             var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, "");
-            var result = ShowCopyDialog.Handle(copy);
+            var result = ShowCopyDialog.Handle(copy).Subscribe();
             // do something here
         }
 
         public void ShowOptions()
         {
             var optionsModel = new OptionsViewModel();
-            var result = ShowOptionsDialog.Handle(optionsModel);       
+            var result = ShowOptionsDialog.Handle(optionsModel).Subscribe();       
             
             // do something here?
         }
