@@ -1,27 +1,43 @@
-﻿namespace SmartCommander.ViewModels
+﻿using SmartCommander.Models;
+
+namespace SmartCommander.ViewModels
 {
     public class OptionsViewModel : ViewModelBase
     {
-        public bool IsCurrentDirectoryDisplayed { get; set; } = true;
-
-        public bool IsFunctionKeysDisplayed { get; set; } = true;        
-
-        public bool IsCommandLineDisplayed { get; set; } = true;
-
-        public bool IsHiddenSystemFilesDisplayed { get; set; }
-
-        public bool SaveSettingsOnExit { get; set; } = true;
-
-        public bool ConfirmationWhenDeleteNonEmpty { get; set; } = true;
-
-        public void Save()
-        {
-            // serialize model
+        public bool IsCurrentDirectoryDisplayed 
+        { 
+            get { return OptionsModel.Instance.IsCurrentDirectoryDisplayed; }
+            set { OptionsModel.Instance.IsCurrentDirectoryDisplayed = value; } 
         }
 
-        public void Load()
+        public bool IsFunctionKeysDisplayed
         {
-            // deserialize model
+            get { return OptionsModel.Instance.IsFunctionKeysDisplayed; }
+            set { OptionsModel.Instance.IsFunctionKeysDisplayed = value; }
+        }
+
+        public bool IsCommandLineDisplayed
+        {
+            get { return OptionsModel.Instance.IsCommandLineDisplayed; }
+            set { OptionsModel.Instance.IsCommandLineDisplayed = value; }
+        }
+
+        public bool IsHiddenSystemFilesDisplayed
+        {
+            get { return OptionsModel.Instance.IsHiddenSystemFilesDisplayed; }
+            set { OptionsModel.Instance.IsHiddenSystemFilesDisplayed = value; }
+        }
+
+        public bool SaveSettingsOnExit
+        {
+            get { return OptionsModel.Instance.SaveSettingsOnExit; }
+            set { OptionsModel.Instance.SaveSettingsOnExit = value; }
+        }
+
+        public bool ConfirmationWhenDeleteNonEmpty
+        {
+            get { return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty; }
+            set { OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty = value; }
         }
     }
 }
