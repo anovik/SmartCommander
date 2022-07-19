@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
+using SmartCommander.Models;
 using System;
 using System.Reactive;
 
@@ -74,7 +75,10 @@ namespace SmartCommander.ViewModels
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {                
-                // TODO: save settings on exit
+                if (OptionsModel.Instance.SaveSettingsOnExit)
+                {
+                    OptionsModel.Instance.Save();
+                }
 
                 desktopLifetime.Shutdown();
             }
