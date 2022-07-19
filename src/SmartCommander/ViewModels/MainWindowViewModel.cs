@@ -112,6 +112,22 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public FilesPaneViewModel SecondPane
+        {
+            get
+            {
+                if (LeftFileViewModel.IsSelected)
+                {
+                    return RightFileViewModel;
+                }
+                else if (RightFileViewModel.IsSelected)
+                {
+                    return LeftFileViewModel;
+                }
+                throw new Exception("Error: no pane selected");
+            }
+        }
+
         public FilesPaneViewModel SelectedPane
         {
             get
@@ -159,14 +175,14 @@ namespace SmartCommander.ViewModels
 
         public void Copy()
         {
-            var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, "");            
-            var result = ShowCopyDialog.Handle(copy).Subscribe();
+            var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);            
+            var result = ShowCopyDialog.Handle(copy).Subscribe();            
             // do something here
         }
 
         public void Move()
         {
-            var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, "");
+            var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);
             var result = ShowCopyDialog.Handle(copy).Subscribe();
             // do something here
         }
@@ -174,9 +190,7 @@ namespace SmartCommander.ViewModels
         public void ShowOptions()
         {
             var optionsModel = new OptionsViewModel();
-            var result = ShowOptionsDialog.Handle(optionsModel).Subscribe();       
-            
-            // do something here?
+            ShowOptionsDialog.Handle(optionsModel).Subscribe();       
         }
 
         public void CreateNewFolder()

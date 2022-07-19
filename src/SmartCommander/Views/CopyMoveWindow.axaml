@@ -8,5 +8,16 @@
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Title="SmartCommander">
-  
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"></RowDefinition>
+      <RowDefinition Height="*"></RowDefinition>
+      <RowDefinition Height="Auto"></RowDefinition>
+    </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+      <Button Margin="5">OK</Button>
+      <Button Margin="5">Cancel</Button>
+    </StackPanel>
+  </Grid>
 </Window>

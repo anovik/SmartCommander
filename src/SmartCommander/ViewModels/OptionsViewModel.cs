@@ -13,5 +13,15 @@
         public bool SaveSettingsOnExit { get; set; } = true;
 
         public bool ConfirmationWhenDeleteNonEmpty { get; set; } = true;
+
+        public void Save()
+        {
+            // serialize model
+        }
+
+        public void Load()
+        {
+            // deserialize model
+        }
     }
 }
