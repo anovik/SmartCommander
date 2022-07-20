@@ -1,9 +1,18 @@
-﻿using SmartCommander.Models;
+﻿using Avalonia.Controls;
+using ReactiveUI;
+using SmartCommander.Models;
+using System.Reactive;
 
 namespace SmartCommander.ViewModels
 {
     public class OptionsViewModel : ViewModelBase
     {
+        public OptionsViewModel()
+        {
+            OKCommand = ReactiveCommand.Create<Window>(SaveClose);
+            CancelCommand = ReactiveCommand.Create<Window>(Close);
+        }
+
         public bool IsCurrentDirectoryDisplayed 
         { 
             get { return OptionsModel.Instance.IsCurrentDirectoryDisplayed; }
@@ -38,6 +47,26 @@ namespace SmartCommander.ViewModels
         {
             get { return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty; }
             set { OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty = value; }
+        }
+
+        public ReactiveCommand<Window, Unit> OKCommand { get; }
+        public ReactiveCommand<Window, Unit> CancelCommand { get; }
+
+        public void SaveClose(Window window)
+        {
+            OptionsModel.Instance.Save();
+            if (window != null)
+            {
+                window.Close();
+            }
+        }
+
+        public void Close(Window window)
+        {
+            if (window != null)
+            {
+                window.Close();
+            }
         }
     }
 }

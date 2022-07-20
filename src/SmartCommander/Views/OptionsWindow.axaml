@@ -30,8 +30,8 @@
       </TabItem>
     </TabControl>
     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button Margin="5">Save</Button>
-      <Button Margin="5">Cancel</Button>
+      <Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}">Save</Button>
+      <Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}">Cancel</Button>
     </StackPanel>
   </Grid> 
 </Window>

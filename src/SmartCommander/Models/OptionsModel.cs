@@ -8,7 +8,7 @@ namespace SmartCommander.Models
     {
         public static OptionsModel Instance { get; } = new OptionsModel();
         static string _settingsDir = Path.Combine(GetFolderPath(SpecialFolder.ApplicationData), "SmartCommander");
-        static string _settingsPath = Path.Combine(_settingsDir);
+        static string _settingsPath = Path.Combine(_settingsDir, "settings.json");
         static OptionsModel()
         {
             Directory.CreateDirectory(_settingsDir);

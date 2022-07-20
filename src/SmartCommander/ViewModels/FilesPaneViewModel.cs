@@ -88,7 +88,30 @@ namespace SmartCommander.ViewModels
 
         public void SortingStarted(object sender, object parameter)
         {
-            _mainVM.SelectedPane = this;
+            _mainVM.SelectedPane = this;       
+            
+            DataGridColumnEventArgs args = parameter as DataGridColumnEventArgs;
+            if (args != null)
+            {
+                if (args.Column.Header.ToString() == "Name")
+                {
+                    Sorting = SortingBy.SortingByName;
+                }
+                if (args.Column.Header.ToString() == "Extension")
+                {
+                    Sorting = SortingBy.SortingByExt;
+                }
+                if (args.Column.Header.ToString() == "Size")
+                {
+                    Sorting = SortingBy.SortingBySize;
+                }
+                if (args.Column.Header.ToString() == "Date")
+                {
+                    Sorting = SortingBy.SortingByDate;
+                }
+
+                args.Handled = true;
+            }
         }
 
         public void BeginningEdit(object sender, object parameter)
@@ -113,6 +136,7 @@ namespace SmartCommander.ViewModels
 
         public void DoubleTapped(object sender, object parameter)
         {
+            //TODO: if parameter source column header, then ignore
             ProcessCurrentItem();
         }     
             
