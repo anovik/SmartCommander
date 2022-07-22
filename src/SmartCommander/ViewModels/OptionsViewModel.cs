@@ -49,6 +49,12 @@ namespace SmartCommander.ViewModels
             set { OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty = value; }
         }
 
+        public bool SaveWindowPositionSize
+        {
+            get { return OptionsModel.Instance.SaveWindowPositionSize; }
+            set { OptionsModel.Instance.SaveWindowPositionSize = value; }
+        }
+
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
 

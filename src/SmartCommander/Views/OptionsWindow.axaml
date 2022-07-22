@@ -19,6 +19,7 @@
           <CheckBox IsChecked="{Binding IsCurrentDirectoryDisplayed}">Display Current Directory</CheckBox>
           <CheckBox IsChecked="{Binding IsFunctionKeysDisplayed}">Display Function Keys</CheckBox>
           <CheckBox IsChecked="{Binding IsCommandLineDisplayed}">Display Command Line</CheckBox>
+          <CheckBox IsChecked="{Binding SaveWindowPositionSize}">Save Window Position and Size</CheckBox>
         </StackPanel>
       </TabItem>
       <TabItem Header="Operation">

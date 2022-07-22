@@ -2,6 +2,7 @@
 using Avalonia.Media;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
+using SmartCommander.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -276,7 +277,7 @@ namespace SmartCommander.ViewModels
 
             var options = new EnumerationOptions()
             {
-                AttributesToSkip = FileAttributes.Hidden | FileAttributes.System,
+                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
                 IgnoreInaccessible = true,
                 RecurseSubdirectories = false,                
             };

@@ -24,6 +24,8 @@ namespace SmartCommander.Models
 
         public bool IsCommandLineDisplayed { get; set; } = true;
 
+        public bool SaveWindowPositionSize { get; set; } = true;
+
         public bool IsHiddenSystemFilesDisplayed { get; set; }
 
         public bool SaveSettingsOnExit { get; set; } = true;

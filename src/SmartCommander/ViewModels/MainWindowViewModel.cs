@@ -74,11 +74,13 @@ namespace SmartCommander.ViewModels
         public void Exit()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-            {                
+            {
+                // TODO: save window position and size if necessary
+
                 if (OptionsModel.Instance.SaveSettingsOnExit)
                 {
                     OptionsModel.Instance.Save();
-                }
+                }               
 
                 desktopLifetime.Shutdown();
             }
