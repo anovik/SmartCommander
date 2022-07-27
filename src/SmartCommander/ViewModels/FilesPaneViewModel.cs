@@ -263,15 +263,7 @@ namespace SmartCommander.ViewModels
             bool isParent = false;
             if (Directory.GetParent(CurrentDirectory) != null)
             {
-                filesFoldersList.Add(new FileViewModel()
-                {
-                    FullName = "..",
-                    IsFolder = true,
-                    Name = "..",
-                    Extension = "",
-                    Size = "Folder",
-                    DateCreated = DateTime.Now
-                });
+                filesFoldersList.Add(new FileViewModel("..", true));
                 isParent = true;
             }
 
@@ -287,15 +279,7 @@ namespace SmartCommander.ViewModels
             {
                 try
                 {
-                    filesFoldersList.Add(new FileViewModel()
-                    {
-                        FullName = subdirectory,
-                        IsFolder = true,
-                        Name = Path.GetFileName(subdirectory),
-                        Extension = "",
-                        Size = "Folder",
-                        DateCreated = File.GetCreationTime(subdirectory)
-                    });
+                    filesFoldersList.Add(new FileViewModel(subdirectory, true));
                     ++_totalFolders;
                 }
                 catch { }
@@ -306,15 +290,7 @@ namespace SmartCommander.ViewModels
             {
                 try
                 {
-                    filesFoldersList.Add(new FileViewModel()
-                    {
-                        FullName = fileName,
-                        IsFolder = false,
-                        Name = Path.GetFileNameWithoutExtension(fileName),
-                        Extension = Path.GetExtension(fileName).TrimStart('.'),
-                        Size = new FileInfo(fileName).Length.ToString(),
-                        DateCreated = File.GetCreationTime(fileName)
-                    });
+                    filesFoldersList.Add(new FileViewModel(fileName, false));
                     ++_totalFiles;
                 }
                 catch { }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace SmartCommander.ViewModels
 {
@@ -8,6 +9,35 @@ namespace SmartCommander.ViewModels
         {
 
         }
+
+        public FileViewModel(string fullName, bool isFolder)
+        {
+            FullName = fullName;
+            IsFolder = isFolder;
+            if (isFolder)
+            {   
+                Name = Path.GetFileName(fullName);
+                Extension = "";
+                Size = "Folder";
+                DateCreated = File.GetCreationTime(fullName);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(fullName)))
+                {
+                    Name = Path.GetFileName(fullName);
+                    Extension = "";
+                }
+                else
+                {
+                    Name = Path.GetFileNameWithoutExtension(fullName);
+                    Extension = Path.GetExtension(fullName).TrimStart('.');
+                }
+                Size = new FileInfo(fullName).Length.ToString();
+                DateCreated = File.GetCreationTime(fullName);
+            }
+        }
+
         public string FullName { get; set; } = "";
         public string Name { get; set; } = "";
         public string Extension { get; set; } = "";
