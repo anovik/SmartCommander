@@ -56,7 +56,7 @@
     <views:FilesPane Grid.Row="1"  Name="LeftPane" />
 	<views:FilesPane Grid.Row="1" Grid.Column="1" Name="RightPane" />
 
-	<Grid Margin="300,0,0,0"  Grid.Row="2" Grid.ColumnSpan="2">
+	<Grid Margin="300,0,0,0"  Grid.Row="2" Grid.ColumnSpan="2" IsVisible="{Binding IsCommandLineDisplayed}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
@@ -68,7 +68,7 @@
 			</TextBox.KeyBindings>
 		</TextBox>
 	</Grid>
-	<Grid Grid.Row="3" Grid.ColumnSpan="2">
+	<Grid Grid.Row="3" Grid.ColumnSpan="2" IsVisible="{Binding IsFunctionKeysDisplayed}">
 		<Grid.ColumnDefinitions>			
 			<ColumnDefinition Width="*"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>

@@ -71,6 +71,9 @@ namespace SmartCommander.ViewModels
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
 
+        public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;        
+        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
+
         public void Exit()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
@@ -182,21 +185,32 @@ namespace SmartCommander.ViewModels
         public void Copy()
         {
             var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);            
-            var result = ShowCopyDialog.Handle(copy).Subscribe();            
-            // do something here
+            var result = ShowCopyDialog.Handle(copy).Subscribe();
+            if (result != null)
+            {
+
+            }
         }
 
         public void Move()
         {
             var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);
             var result = ShowCopyDialog.Handle(copy).Subscribe();
-            // do something here
+            if (result != null)
+            {
+
+            }
         }
 
         public void ShowOptions()
         {
             var optionsModel = new OptionsViewModel();
-            ShowOptionsDialog.Handle(optionsModel).Subscribe();       
+            var result = ShowOptionsDialog.Handle(optionsModel).Subscribe();
+            if (result != null)
+            {
+                this.RaisePropertyChanged("IsFunctionKeysDisplayed");
+                this.RaisePropertyChanged("IsCommandLineDisplayed");
+            }
         }
 
         public void CreateNewFolder()
