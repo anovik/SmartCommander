@@ -256,7 +256,7 @@ namespace SmartCommander.ViewModels
 
         private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)
         {
-            if (!Directory.Exists(dir))
+            if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
                 return;
             filesFoldersList.Clear();
             _totalFolders = _totalFiles = 0;
