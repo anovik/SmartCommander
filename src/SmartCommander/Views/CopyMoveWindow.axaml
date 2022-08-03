@@ -3,19 +3,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
-        Width="400" Height="200"
+        Width="400" Height="150"
         x:Class="SmartCommander.Views.CopyMoveWindow"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Title="SmartCommander">
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="*"></RowDefinition>
-      <RowDefinition Height="*"></RowDefinition>
+      <RowDefinition Height="Auto"></RowDefinition>
+      <RowDefinition Height="Auto"></RowDefinition>
       <RowDefinition Height="Auto"></RowDefinition>
     </Grid.RowDefinitions>
-
-    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+    <TextBlock Margin="10" Text="{Binding CopyText}"></TextBlock>
+    <TextBlock Margin="10"  Grid.Row="1" Text="{Binding Directory}"></TextBlock>
+    <StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
       <Button Margin="5" Command="{Binding OKCommand}"  CommandParameter="{Binding $parent[Window]}">OK</Button>
       <Button Margin="5" Command="{Binding CancelCommand}"  CommandParameter="{Binding $parent[Window]}">Cancel</Button>
     </StackPanel>

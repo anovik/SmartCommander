@@ -22,6 +22,8 @@ namespace SmartCommander.ViewModels
 
         public string Directory { get; set; }
 
+        public string CopyText => (IsCopying? "Copy '" : "Move '") + Item.Name + "' to:";
+
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
 
