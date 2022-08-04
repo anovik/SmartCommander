@@ -6,6 +6,7 @@
         Width="600" Height="300"
         x:Class="SmartCommander.Views.OptionsWindow"
         ShowInTaskbar="False"
+        Icon="/Assets/main.ico"
 		    WindowStartupLocation="CenterOwner"        
         Title="Options">
   <Grid>

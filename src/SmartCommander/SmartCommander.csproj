@@ -10,10 +10,14 @@
     <RepositoryUrl>https://github.com/anovik/SmartCommander</RepositoryUrl>
     <Version>0.1.0</Version>
 	  <Authors>Anna Novikova</Authors>
+	  <ApplicationIcon>Assets\main.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <None Remove=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\main.ico" />
   </ItemGroup>
   <ItemGroup>
     <!--This helps with theme dll-s trimming.
