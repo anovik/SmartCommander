@@ -11,7 +11,8 @@ namespace SmartCommander.Views
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();
-#endif
+#endif           
+            
         }
 
         private void InitializeComponent()

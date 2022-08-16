@@ -31,7 +31,7 @@ namespace SmartCommander.ViewModels
         {
             if (window != null)
             {
-                window.Close();
+                window.Close(this);
             }
         }
 

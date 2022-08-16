@@ -11,7 +11,10 @@ namespace SmartCommander.Views
         public MainWindow() 
         {
             Opened += OnOpened;
-            InitializeComponent();              
+            InitializeComponent();
+
+            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
+            this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
         }
 
         private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
@@ -47,10 +50,7 @@ namespace SmartCommander.Views
 
                 vm.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.LeftFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
-                vm.RightFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
-
-                vm.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync);
-                vm.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync);
+                vm.RightFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;             
             }
         }
 

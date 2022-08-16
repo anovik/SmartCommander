@@ -6,6 +6,8 @@ using ReactiveUI;
 using SmartCommander.Models;
 using System;
 using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
 {
@@ -13,6 +15,9 @@ namespace SmartCommander.ViewModels
     {
         public MainWindowViewModel()
         {
+            ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
+            ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
+
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
             SortExtensionCommand = ReactiveCommand.Create(SortExtension);
@@ -21,18 +26,15 @@ namespace SmartCommander.ViewModels
             EnterCommand = ReactiveCommand.Create(Execute);
             F3Command = ReactiveCommand.Create(View);
             F4Command = ReactiveCommand.Create(Edit);
-            F5Command = ReactiveCommand.Create(Copy);
-            F6Command = ReactiveCommand.Create(Move);
+            F5Command = ReactiveCommand.CreateFromTask(Copy);
+            F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
             TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
-            OptionsCommand = ReactiveCommand.Create(ShowOptions);
+            OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
             LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
-
-            ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
-            ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -182,30 +184,30 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit();
         }
 
-        public void Copy()
+        public async Task Copy()
         {
             var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);            
-            var result = ShowCopyDialog.Handle(copy).Subscribe();
+            var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
             {
 
             }
         }
 
-        public void Move()
+        public async Task Move()
         {
             var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);
-            var result = ShowCopyDialog.Handle(copy).Subscribe();
+            var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
             {
 
             }
         }
 
-        public void ShowOptions()
+        public async Task ShowOptions()
         {
             var optionsModel = new OptionsViewModel();
-            var result = ShowOptionsDialog.Handle(optionsModel).Subscribe();
+            var result = await ShowOptionsDialog.Handle(optionsModel);
             if (result != null)
             {
                 this.RaisePropertyChanged("IsFunctionKeysDisplayed");

@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Xaml.Interactions.Custom;
 using ReactiveUI;
 using SmartCommander.Models;
 using System.Reactive;
@@ -11,59 +12,36 @@ namespace SmartCommander.ViewModels
         {
             OKCommand = ReactiveCommand.Create<Window>(SaveClose);
             CancelCommand = ReactiveCommand.Create<Window>(Close);
+
+            // TODO: initialize from model to viewmodel
         }
 
-        public bool IsCurrentDirectoryDisplayed 
-        { 
-            get { return OptionsModel.Instance.IsCurrentDirectoryDisplayed; }
-            set { OptionsModel.Instance.IsCurrentDirectoryDisplayed = value; } 
-        }
+        public bool IsCurrentDirectoryDisplayed { get; set; }       
 
-        public bool IsFunctionKeysDisplayed
-        {
-            get { return OptionsModel.Instance.IsFunctionKeysDisplayed; }
-            set { OptionsModel.Instance.IsFunctionKeysDisplayed = value; }
-        }
+        public bool IsFunctionKeysDisplayed { get; set; }
 
-        public bool IsCommandLineDisplayed
-        {
-            get { return OptionsModel.Instance.IsCommandLineDisplayed; }
-            set { OptionsModel.Instance.IsCommandLineDisplayed = value; }
-        }
+        public bool IsCommandLineDisplayed { get; set; }
 
-        public bool IsHiddenSystemFilesDisplayed
-        {
-            get { return OptionsModel.Instance.IsHiddenSystemFilesDisplayed; }
-            set { OptionsModel.Instance.IsHiddenSystemFilesDisplayed = value; }
-        }
+        public bool IsHiddenSystemFilesDisplayed { get; set; }
 
-        public bool SaveSettingsOnExit
-        {
-            get { return OptionsModel.Instance.SaveSettingsOnExit; }
-            set { OptionsModel.Instance.SaveSettingsOnExit = value; }
-        }
+        public bool SaveSettingsOnExit { get; set; }
 
-        public bool ConfirmationWhenDeleteNonEmpty
-        {
-            get { return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty; }
-            set { OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty = value; }
-        }
+        public bool ConfirmationWhenDeleteNonEmpty { get; set; }
 
-        public bool SaveWindowPositionSize
-        {
-            get { return OptionsModel.Instance.SaveWindowPositionSize; }
-            set { OptionsModel.Instance.SaveWindowPositionSize = value; }
-        }
+        public bool SaveWindowPositionSize { get; set; }
+
 
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
 
         public void SaveClose(Window window)
         {
+            // TODO: save from viewmodel to model
+
             OptionsModel.Instance.Save();
             if (window != null)
             {
-                window.Close();
+                window.Close(this);
             }
         }
 
