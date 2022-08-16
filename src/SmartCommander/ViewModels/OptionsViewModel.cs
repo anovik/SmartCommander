@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Xaml.Interactions.Custom;
 using ReactiveUI;
 using SmartCommander.Models;
 using System.Reactive;
@@ -12,8 +11,14 @@ namespace SmartCommander.ViewModels
         {
             OKCommand = ReactiveCommand.Create<Window>(SaveClose);
             CancelCommand = ReactiveCommand.Create<Window>(Close);
-
-            // TODO: initialize from model to viewmodel
+            
+            IsCurrentDirectoryDisplayed = Model.IsCurrentDirectoryDisplayed;
+            IsFunctionKeysDisplayed = Model.IsFunctionKeysDisplayed;
+            IsCommandLineDisplayed = Model.IsCommandLineDisplayed;
+            IsHiddenSystemFilesDisplayed = Model.IsHiddenSystemFilesDisplayed;
+            SaveSettingsOnExit = Model.SaveSettingsOnExit;
+            ConfirmationWhenDeleteNonEmpty = Model.ConfirmationWhenDeleteNonEmpty;
+            SaveWindowPositionSize = Model.SaveWindowPositionSize;
         }
 
         public bool IsCurrentDirectoryDisplayed { get; set; }       
@@ -36,9 +41,15 @@ namespace SmartCommander.ViewModels
 
         public void SaveClose(Window window)
         {
-            // TODO: save from viewmodel to model
+            Model.IsCurrentDirectoryDisplayed = IsCurrentDirectoryDisplayed;
+            Model.IsFunctionKeysDisplayed = IsFunctionKeysDisplayed;
+            Model.IsCommandLineDisplayed = IsCommandLineDisplayed;
+            Model.IsHiddenSystemFilesDisplayed = IsHiddenSystemFilesDisplayed;
+            Model.SaveSettingsOnExit = SaveSettingsOnExit;
+            Model.ConfirmationWhenDeleteNonEmpty = ConfirmationWhenDeleteNonEmpty;
+            Model.SaveWindowPositionSize = SaveWindowPositionSize;
 
-            OptionsModel.Instance.Save();
+            Model.Save();
             if (window != null)
             {
                 window.Close(this);
@@ -52,5 +63,7 @@ namespace SmartCommander.ViewModels
                 window.Close();
             }
         }
+
+        private OptionsModel Model => OptionsModel.Instance;
     }
 }
