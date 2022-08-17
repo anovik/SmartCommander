@@ -31,5 +31,16 @@ namespace SmartCommander.Models
         public bool SaveSettingsOnExit { get; set; } = true;
 
         public bool ConfirmationWhenDeleteNonEmpty { get; set; } = true;
+
+        public double Top { get; set; } = -1;
+
+        public double Left { get; set; } = -1;
+
+        public double Width { get; set; } = -1;
+
+        public double Height { get; set; } = -1;
+
+        public double IsMaximized { get; set; }
+
     }
 }

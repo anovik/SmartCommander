@@ -80,8 +80,11 @@ namespace SmartCommander.ViewModels
         public void Exit()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-            {
-                // TODO: save window position and size if necessary
+            {                
+                if (OptionsModel.Instance.SaveWindowPositionSize)
+                {
+                    // TODO: save window position and size
+                }
 
                 if (OptionsModel.Instance.SaveSettingsOnExit)
                 {
@@ -198,7 +201,34 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     // copy file
-                }
+                    string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
+                    if (destFile == SelectedPane.CurrentItem.FullName)
+                    {
+                        MessageBox_Show(null, "Can't copy file to itself", "Alert");
+                    }
+                    else if (!File.Exists(destFile))
+                    {
+                        File.Copy(SelectedPane.CurrentItem.FullName, destFile, false);
+                        SelectedPane.Update();
+                        SecondPane.Update();
+                    }
+                    else
+                    {
+                        MessageBox_Show(CopyFileExists, "File already exists. Are you sure you would like to rewrite " +
+                            destFile + " ?", "Alert", ButtonEnum.YesNo);
+                    }
+                }               
+            }
+        }
+
+        public void CopyFileExists(ButtonResult result)
+        {
+            if (result == ButtonResult.Yes)
+            {
+                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
+                File.Copy(SelectedPane.CurrentItem.FullName, destFile, true);
+                SelectedPane.Update();
+                SecondPane.Update();
             }
         }
 
@@ -216,6 +246,8 @@ namespace SmartCommander.ViewModels
                 {
                     // move file
                 }
+                SelectedPane.Update();
+                SecondPane.Update();
             }
         }
 
@@ -227,6 +259,8 @@ namespace SmartCommander.ViewModels
             {
                 this.RaisePropertyChanged("IsFunctionKeysDisplayed");
                 this.RaisePropertyChanged("IsCommandLineDisplayed");
+                SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
+                SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
             }
         }
 
@@ -240,6 +274,8 @@ namespace SmartCommander.ViewModels
             if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
             {                
                 SelectedPane.CreateNewFolder(result.Message);
+                SelectedPane.Update();
+                SecondPane.Update();
             }
         }
 
@@ -254,6 +290,8 @@ namespace SmartCommander.ViewModels
             if (result == ButtonResult.Yes)
             {                
                 SelectedPane.Delete();
+                SelectedPane.Update();
+                SecondPane.Update();
             }
         }
 

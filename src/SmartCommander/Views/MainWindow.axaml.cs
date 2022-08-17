@@ -37,6 +37,8 @@ namespace SmartCommander.Views
 
         private void OnOpened(object? sender, EventArgs e)
         {
+            // TODO: restore windows parameters
+
             MainWindowViewModel vm = DataContext as MainWindowViewModel;
 
             if (vm != null)

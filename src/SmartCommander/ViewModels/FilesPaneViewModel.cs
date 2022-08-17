@@ -7,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Runtime.InteropServices;
 
@@ -31,7 +32,7 @@ namespace SmartCommander.ViewModels
 
         public string CurrentDirectory
         {
-            get => _currentDirectory; 
+            get => _currentDirectory;
             set
             {
                 _currentDirectory = value;
@@ -63,6 +64,12 @@ namespace SmartCommander.ViewModels
                 this.RaisePropertyChanged("GridBorderBrush");
             }
         }
+
+        public bool IsCurrentDirectoryDisplayed
+        {
+            get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;            
+        }
+
 
         public Brush GridBorderBrush => IsSelected ? new SolidColorBrush(Colors.LightSkyBlue) : new SolidColorBrush(Colors.Transparent);
 
@@ -156,6 +163,12 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public void Update()
+        {
+            // TODO: may be there is anything smarter?
+            CurrentDirectory = CurrentDirectory;
+        }
+
         public void View()
         {
             if (!CurrentItem.IsFolder)
@@ -200,19 +213,30 @@ namespace SmartCommander.ViewModels
             {
                 if (CurrentItem.IsFolder)
                 {
-                    // additional warning should be given in case it is not empty
-                    Directory.Delete(CurrentItem.FullName, true);                    
+                    if (OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty &&
+                        !IsDirectoryEmpty(CurrentItem.FullName))
+                    {
+                        // TODO: additional warning should be given in case it is not empty
+                    }
+                    else
+                    {
+                        Directory.Delete(CurrentItem.FullName, true);
+                    }
                 }
                 else
                 {                    
                     File.Delete(CurrentItem.FullName);
-                }
-                CurrentDirectory = CurrentDirectory;
+                }               
             }
             catch
             {
 
             }
+        }
+
+        public bool IsDirectoryEmpty(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
         public void CreateNewFolder(string name)
@@ -223,8 +247,7 @@ namespace SmartCommander.ViewModels
                 MessageBox_Show(null, "The folder already exists", "Alert", ButtonEnum.Ok);
                 return;
             }
-            Directory.CreateDirectory(newFolder);
-            CurrentDirectory = CurrentDirectory;
+            Directory.CreateDirectory(newFolder);            
         }
 
         private void ProcessCurrentItem()

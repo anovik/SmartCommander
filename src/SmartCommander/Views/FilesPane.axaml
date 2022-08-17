@@ -24,7 +24,7 @@
 			<RowDefinition Height="*"></RowDefinition>
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
-		<TextBox Margin="5" IsTabStop="False" Text="{Binding CurrentDirectory}" >	
+		<TextBox Margin="5" IsVisible="{Binding IsCurrentDirectoryDisplayed}" IsTabStop="False" Text="{Binding CurrentDirectory}" >	
 		</TextBox>
 		<ScrollViewer Margin="5" Grid.Row="1">			
 	    <DataGrid IsTabStop="True" Items="{Binding FoldersFilesList}" AutoGenerateColumns="False"
