@@ -1,5 +1,7 @@
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
+using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using System;
 using System.Threading.Tasks;
@@ -15,7 +17,9 @@ namespace SmartCommander.Views
 
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
-        }
+
+           
+        }        
 
         private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
         {
@@ -37,7 +41,22 @@ namespace SmartCommander.Views
 
         private void OnOpened(object? sender, EventArgs e)
         {
-            // TODO: restore windows parameters
+            if (OptionsModel.Instance.SaveWindowPositionSize &&
+                OptionsModel.Instance.Left > -1 &&
+                OptionsModel.Instance.Width > -1 &&
+                OptionsModel.Instance.Top > -1 &&
+                OptionsModel.Instance.Height > -1)
+            {               
+                if (OptionsModel.Instance.IsMaximized)
+                {
+                    WindowState = Avalonia.Controls.WindowState.Maximized;
+                }
+                else
+                {
+                    WindowState = Avalonia.Controls.WindowState.Normal;                    
+                    this.Arrange(new Avalonia.Rect(OptionsModel.Instance.Left, OptionsModel.Instance.Top, OptionsModel.Instance.Width, OptionsModel.Instance.Height));
+                }
+            }
 
             MainWindowViewModel vm = DataContext as MainWindowViewModel;
 

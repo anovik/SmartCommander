@@ -40,7 +40,7 @@ namespace SmartCommander.Models
 
         public double Height { get; set; } = -1;
 
-        public double IsMaximized { get; set; }
+        public bool IsMaximized { get; set; }
 
     }
 }
