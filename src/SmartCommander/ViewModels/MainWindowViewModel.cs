@@ -288,11 +288,32 @@ namespace SmartCommander.ViewModels
         public void DeleteAnswer(ButtonResult result)
         {
             if (result == ButtonResult.Yes)
-            {                
-                SelectedPane.Delete();
-                SelectedPane.Update();
-                SecondPane.Update();
+            {
+                if (SelectedPane.NonEmptyFolder())
+                {
+                    MessageBox_Show(DeleteAnswerNonEmptyFolder, "The folder is not empty. Are you sure you would like to delete " +
+                        SelectedPane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);
+                }
+                else
+                {
+                    DeleteItem();
+                }
             }
+        }
+
+        public void DeleteAnswerNonEmptyFolder(ButtonResult result)
+        {
+            if (result == ButtonResult.Yes)
+            {
+                DeleteItem();
+            }
+        }
+
+        public void DeleteItem()
+        {
+            SelectedPane.Delete();
+            SelectedPane.Update();
+            SecondPane.Update();
         }
 
         static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)

@@ -207,30 +207,28 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public bool NonEmptyFolder()
+        {
+            return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty && 
+                CurrentItem.IsFolder && 
+                !IsDirectoryEmpty(CurrentItem.FullName);
+        }
+
         public void Delete()
         {
             try
             {
                 if (CurrentItem.IsFolder)
                 {
-                    if (OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty &&
-                        !IsDirectoryEmpty(CurrentItem.FullName))
-                    {
-                        // TODO: additional warning should be given in case it is not empty
-                    }
-                    else
-                    {
-                        Directory.Delete(CurrentItem.FullName, true);
-                    }
+                    Directory.Delete(CurrentItem.FullName, true);
                 }
                 else
-                {                    
+                {
                     File.Delete(CurrentItem.FullName);
                 }               
             }
             catch
             {
-
             }
         }
 
