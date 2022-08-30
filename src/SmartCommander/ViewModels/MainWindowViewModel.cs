@@ -220,7 +220,7 @@ namespace SmartCommander.ViewModels
                 SelectedPane.Update();
                 SecondPane.Update();
             }
-        }
+        }      
 
         public async Task Move()
         {
@@ -235,7 +235,32 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     // move file
-                }
+                    string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
+                    if (destFile == SelectedPane.CurrentItem.FullName)
+                    {
+                        MessageBox_Show(null, "Can't move file to itself", "Alert");
+                    }
+                    else if (!File.Exists(destFile))
+                    {
+                        File.Move(SelectedPane.CurrentItem.FullName, destFile, false);
+                        SelectedPane.Update();
+                        SecondPane.Update();
+                    }
+                    else
+                    {
+                        MessageBox_Show(MoveFileExists, "File already exists. Are you sure you would like to rewrite " +
+                            destFile + " ?", "Alert", ButtonEnum.YesNo);
+                    }
+                }             
+            }
+        }
+
+        public void MoveFileExists(ButtonResult result)
+        {
+            if (result == ButtonResult.Yes)
+            {
+                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
+                File.Move(SelectedPane.CurrentItem.FullName, destFile, true);
                 SelectedPane.Update();
                 SecondPane.Update();
             }
