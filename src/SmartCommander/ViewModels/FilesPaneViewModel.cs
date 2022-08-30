@@ -98,7 +98,7 @@ namespace SmartCommander.ViewModels
         {
             _mainVM.SelectedPane = this;       
             
-            DataGridColumnEventArgs args = parameter as DataGridColumnEventArgs;
+            DataGridColumnEventArgs? args = parameter as DataGridColumnEventArgs;
             if (args != null)
             {
                 if (args.Column.Header.ToString() == "Name")
@@ -124,7 +124,7 @@ namespace SmartCommander.ViewModels
 
         public void BeginningEdit(object sender, object parameter)
         {
-            DataGridBeginningEditEventArgs args = parameter as DataGridBeginningEditEventArgs;
+            DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;
             if (args != null)
             {
                 args.Cancel = true;
@@ -254,7 +254,7 @@ namespace SmartCommander.ViewModels
             {
                 if (CurrentItem.FullName == "..")
                 {
-                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory).FullName :
+                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
                         CurrentDirectory;
                 }
                 else

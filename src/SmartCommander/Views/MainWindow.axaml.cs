@@ -58,7 +58,7 @@ namespace SmartCommander.Views
                 }
             }
 
-            MainWindowViewModel vm = DataContext as MainWindowViewModel;
+            MainWindowViewModel? vm = DataContext as MainWindowViewModel;
 
             if (vm != null)
             {
