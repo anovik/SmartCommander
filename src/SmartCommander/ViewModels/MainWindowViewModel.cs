@@ -187,6 +187,17 @@ namespace SmartCommander.ViewModels
                 if (SelectedPane.CurrentItem.IsFolder)
                 {
                     // copy folder
+                    try
+                    {
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
+                        CopyDirectory(SelectedPane.CurrentItem.FullName, destFolder, true);                        
+                        SelectedPane.Update();
+                        SecondPane.Update();
+                    }
+                    catch
+                    {
+                        MessageBox_Show(null, "Can't move folder here", "Alert");
+                    }
                 }
                 else
                 {
@@ -197,7 +208,7 @@ namespace SmartCommander.ViewModels
                         MessageBox_Show(null, "Can't copy file to itself", "Alert");
                     }
                     else if (!File.Exists(destFile))
-                    {
+                    {                        
                         File.Copy(SelectedPane.CurrentItem.FullName, destFile, false);
                         SelectedPane.Update();
                         SecondPane.Update();
@@ -231,6 +242,23 @@ namespace SmartCommander.ViewModels
                 if (SelectedPane.CurrentItem.IsFolder)
                 {
                     // move folder
+                    try
+                    {
+                        if (SelectedPane.CurrentItem.FullName == SecondPane.CurrentDirectory)
+                        {
+                            MessageBox_Show(null, "Can't move folder to itself", "Alert");
+                            return;
+                        }
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
+                        CopyDirectory(SelectedPane.CurrentItem.FullName, destFolder, true);
+                        Directory.Delete(SelectedPane.CurrentItem.FullName, true);
+                        SelectedPane.Update();
+                        SecondPane.Update();
+                    }
+                    catch
+                    {
+                        MessageBox_Show(null, "Can't move folder here", "Alert");
+                    }
                 }
                 else
                 {
@@ -241,7 +269,7 @@ namespace SmartCommander.ViewModels
                         MessageBox_Show(null, "Can't move file to itself", "Alert");
                     }
                     else if (!File.Exists(destFile))
-                    {
+                    {                        
                         File.Move(SelectedPane.CurrentItem.FullName, destFile, false);
                         SelectedPane.Update();
                         SecondPane.Update();
