@@ -31,7 +31,7 @@ namespace SmartCommander
         }
 
         private void App_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
-        {
+        {            
             if (OptionsModel.Instance.SaveWindowPositionSize)
             {
                 var desktop = sender as ClassicDesktopStyleApplicationLifetime;

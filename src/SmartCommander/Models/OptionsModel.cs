@@ -42,5 +42,9 @@ namespace SmartCommander.Models
 
         public bool IsMaximized { get; set; }
 
+        public string LeftPanePath { get; set; } = "";
+
+        public string RightPanePath { get; set; } = "";
+
     }
 }
