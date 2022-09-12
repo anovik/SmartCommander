@@ -4,11 +4,13 @@ using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 
 namespace SmartCommander.ViewModels
@@ -295,26 +297,58 @@ namespace SmartCommander.ViewModels
                 RecurseSubdirectories = false,                
             };
 
-            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
+            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);          
+            var foldersList = new List<FileViewModel>();
             foreach (string subdirectory in subdirectoryEntries)
             {
                 try
                 {
-                    filesFoldersList.Add(new FileViewModel(subdirectory, true));
+                    foldersList.Add(new FileViewModel(subdirectory, true));
                     ++_totalFolders;
                 }
                 catch { }
-            }
+            }          
 
+            var filesList = new List<FileViewModel>();
             var fileEntries = Directory.EnumerateFiles(dir, "*", options);
             foreach (string fileName in fileEntries)
             {
                 try
                 {
-                    filesFoldersList.Add(new FileViewModel(fileName, false));
+                    filesList.Add(new FileViewModel(fileName, false));
                     ++_totalFiles;
                 }
                 catch { }
+            }
+            if (Sorting == SortingBy.SortingByName)
+            {
+                foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
+                filesList = filesList.OrderBy(entry => entry.Name).ToList();
+            }
+            else if (Sorting == SortingBy.SortingByExt)
+            {
+                foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
+                filesList = filesList.OrderBy(entry => entry.Extension).ToList();
+            }
+            else if (Sorting == SortingBy.SortingBySize)
+            {
+                foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
+                filesList = filesList.OrderBy(entry => entry.Size).ToList();
+            }
+            else if (Sorting == SortingBy.SortingByDate)
+            {
+                foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
+                filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
+            }
+
+            foreach (var folder in foldersList)
+            {
+                filesFoldersList.Add(folder);
+            }
+
+            foreach (var file in filesList)
+            {
+                filesFoldersList.Add(file);
             }     
 
             if (filesFoldersList.Count > 0)

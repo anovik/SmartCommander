@@ -5,6 +5,7 @@ using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
 using System;
+using System.Data;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -87,22 +88,22 @@ namespace SmartCommander.ViewModels
 
         public void SortName()
         {
-            SelectedPane.Sorting = SortingBy.SortingByName;
+            SelectedPane.Sorting = SortingBy.SortingByName;            
         }
 
         public void SortExtension()
         {
-            SelectedPane.Sorting = SortingBy.SortingByExt;
+            SelectedPane.Sorting = SortingBy.SortingByExt;            
         }
 
         public void SortSize()
         {
-            SelectedPane.Sorting = SortingBy.SortingBySize;
+            SelectedPane.Sorting = SortingBy.SortingBySize;            
         }
 
         public void SortDate()
         {
-            SelectedPane.Sorting = SortingBy.SortingByDate;
+            SelectedPane.Sorting = SortingBy.SortingByDate;            
         }
 
         public void ChangeSelectedPane()
