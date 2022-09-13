@@ -31,6 +31,7 @@ namespace SmartCommander.ViewModels
         private int _totalFolders = 0;
 
         private bool _isSelected;
+        private SortingBy _sorting = SortingBy.SortingByName;
 
         public string CurrentDirectory
         {
@@ -54,7 +55,15 @@ namespace SmartCommander.ViewModels
 
         public FileViewModel CurrentItem { get; set; }
 
-        public SortingBy Sorting { get; set; } = SortingBy.SortingByName;
+        public SortingBy Sorting
+        {
+            get => _sorting;
+            set
+            {
+                _sorting = value;
+                Update();
+            }
+        }
 
         public bool IsSelected
         {
@@ -332,8 +341,8 @@ namespace SmartCommander.ViewModels
             }
             else if (Sorting == SortingBy.SortingBySize)
             {
-                foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
-                filesList = filesList.OrderBy(entry => entry.Size).ToList();
+                foldersList = foldersList.OrderBy(entry =>entry.Size).ToList();
+                filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
             }
             else if (Sorting == SortingBy.SortingByDate)
             {
