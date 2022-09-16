@@ -37,6 +37,9 @@ namespace SmartCommander.ViewModels
 
             LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
+
+            LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
+            RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }

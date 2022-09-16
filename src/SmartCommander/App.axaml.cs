@@ -31,10 +31,19 @@ namespace SmartCommander
         }
 
         private void App_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
-        {            
-            if (OptionsModel.Instance.SaveWindowPositionSize)
+        {
+            var desktop = sender as ClassicDesktopStyleApplicationLifetime;
+            if (desktop != null)
             {
-                var desktop = sender as ClassicDesktopStyleApplicationLifetime;
+                MainWindowViewModel? viewModel = desktop.MainWindow.DataContext as MainWindowViewModel;
+                if (viewModel != null)
+                {
+                    OptionsModel.Instance.LeftPanePath = viewModel.LeftFileViewModel.CurrentDirectory;
+                    OptionsModel.Instance.RightPanePath = viewModel.RightFileViewModel.CurrentDirectory;
+                }
+            }
+            if (OptionsModel.Instance.SaveWindowPositionSize)
+            {                
                 if (desktop != null)
                 {
                     OptionsModel.Instance.Left = desktop.MainWindow.Bounds.Left;
