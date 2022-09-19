@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Themes.Fluent;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
@@ -40,6 +41,7 @@ namespace SmartCommander.ViewModels
 
             LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
             RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
+            SetTheme();
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -308,6 +310,23 @@ namespace SmartCommander.ViewModels
                 this.RaisePropertyChanged("IsCommandLineDisplayed");
                 SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
                 SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
+                SetTheme();
+            }
+        }
+
+        private void SetTheme()
+        {
+            var themeStyle = Application.Current.Styles[0];
+            FluentTheme? fluentTheme = themeStyle as FluentTheme;
+            if (fluentTheme == null)
+                return;
+            if (OptionsModel.Instance.IsDarkThemeEnabled)
+            {                
+                fluentTheme.Mode = FluentThemeMode.Dark;
+            }
+            else
+            {
+                fluentTheme.Mode = FluentThemeMode.Light;
             }
         }
 

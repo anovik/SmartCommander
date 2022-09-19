@@ -21,6 +21,8 @@
           <CheckBox IsChecked="{Binding IsFunctionKeysDisplayed}">Display Function Keys</CheckBox>
           <CheckBox IsChecked="{Binding IsCommandLineDisplayed}">Display Command Line</CheckBox>
           <CheckBox IsChecked="{Binding SaveWindowPositionSize}">Save Window Position and Size</CheckBox>
+          <RadioButton IsChecked="{Binding !IsDarkThemeEnabled}">Light Theme</RadioButton>
+          <RadioButton IsChecked="{Binding IsDarkThemeEnabled}">Dark Theme</RadioButton>
         </StackPanel>
       </TabItem>
       <TabItem Header="Operation">

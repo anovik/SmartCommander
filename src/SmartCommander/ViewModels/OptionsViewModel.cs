@@ -19,6 +19,7 @@ namespace SmartCommander.ViewModels
             SaveSettingsOnExit = Model.SaveSettingsOnExit;
             ConfirmationWhenDeleteNonEmpty = Model.ConfirmationWhenDeleteNonEmpty;
             SaveWindowPositionSize = Model.SaveWindowPositionSize;
+            IsDarkThemeEnabled = Model.IsDarkThemeEnabled;
         }
 
         public bool IsCurrentDirectoryDisplayed { get; set; }       
@@ -35,6 +36,7 @@ namespace SmartCommander.ViewModels
 
         public bool SaveWindowPositionSize { get; set; }
 
+        public bool IsDarkThemeEnabled { get; set; }        
 
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
@@ -48,6 +50,7 @@ namespace SmartCommander.ViewModels
             Model.SaveSettingsOnExit = SaveSettingsOnExit;
             Model.ConfirmationWhenDeleteNonEmpty = ConfirmationWhenDeleteNonEmpty;
             Model.SaveWindowPositionSize = SaveWindowPositionSize;
+            Model.IsDarkThemeEnabled = IsDarkThemeEnabled;
 
             Model.Save();
             if (window != null)

@@ -46,5 +46,7 @@ namespace SmartCommander.Models
 
         public string RightPanePath { get; set; } = "";
 
+        public bool IsDarkThemeEnabled { get; set; }
+
     }
 }
