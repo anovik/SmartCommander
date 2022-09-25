@@ -39,8 +39,14 @@ namespace SmartCommander.ViewModels
             LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
 
-            LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
-            RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
+            if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
+            {
+                LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
+            }
+            if (!string.IsNullOrEmpty(OptionsModel.Instance.RightPanePath))
+            {
+                RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
+            }
             SetTheme();
         }
 
