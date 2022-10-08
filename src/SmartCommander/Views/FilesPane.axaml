@@ -31,12 +31,7 @@
       </Grid.ColumnDefinitions>
 			<TextBox IsTabStop="False" Text="{Binding CurrentDirectory}" >      
 			</TextBox>
-      <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo">
-        <ComboBox.ItemTemplate>
-          <DataTemplate>
-            <TextBlock Text="{Binding Name}" />
-          </DataTemplate>
-        </ComboBox.ItemTemplate>
+      <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}">      
       </ComboBox>
     </Grid>
 		<ScrollViewer Margin="5" Grid.Row="1">			

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
 using System.IO;
+using System.Linq;
 
 namespace SmartCommander.Views
 {
@@ -16,7 +17,7 @@ namespace SmartCommander.Views
             {
                 var driveInfos = DriveInfo.GetDrives();
                 ComboBox comboBox = this.Find<ComboBox>("driveCombo");
-                comboBox.Items = driveInfos;
+                comboBox.Items = driveInfos.Select(k => k.Name).ToList();
                 comboBox.SelectedIndex = 0;
             }
         }

@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
 {
@@ -22,7 +23,7 @@ namespace SmartCommander.ViewModels
         SortingByName = 0,
         SortingByExt,
         SortingBySize,
-        SortingByDate,        
+        SortingByDate,
     }
 
     public class FilesPaneViewModel : ViewModelBase
@@ -97,7 +98,7 @@ namespace SmartCommander.ViewModels
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             EnterCommand = ReactiveCommand.Create(Enter);
-            _mainVM = mainVM;         
+            _mainVM = mainVM;
         }
 
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
@@ -301,6 +302,12 @@ namespace SmartCommander.ViewModels
                 isParent = true;
             }
 
+            if (IsWindows)
+            {
+                FileInfo f = new FileInfo(CurrentDirectory);
+                SelectedDrive = Path.GetPathRoot(f.FullName);
+            }
+
             var options = new EnumerationOptions()
             {
                 AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
@@ -372,10 +379,33 @@ namespace SmartCommander.ViewModels
         bool IsWindows
         {
             get
-            {                
+            {
                 return AvaloniaLocator.Current.GetService<IRuntimePlatform>().GetRuntimeInfo().OperatingSystem == OperatingSystemType.WinNT;
             }
         }
-     
+
+        string _selectedDrive;
+        string SelectedDrive
+        {
+            get { return _selectedDrive; }
+            set 
+            {           
+                if (!Directory.Exists(value))
+                {
+                    MessageBox_Show(null, "The drive is not available", "Alert", ButtonEnum.Ok); 
+                    return;
+                }
+
+                FileInfo f = new FileInfo(CurrentDirectory);
+                var driveFromDirectory = Path.GetPathRoot(f.FullName);
+
+                _selectedDrive = value; 
+                if (_selectedDrive != driveFromDirectory)
+                {
+                    CurrentDirectory = _selectedDrive;
+                }
+                this.RaisePropertyChanged("SelectedDrive"); 
+            }
+        }
     }
 }
