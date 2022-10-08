@@ -1,5 +1,7 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Platform;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
@@ -12,6 +14,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
 {
@@ -20,7 +23,7 @@ namespace SmartCommander.ViewModels
         SortingByName = 0,
         SortingByExt,
         SortingBySize,
-        SortingByDate,        
+        SortingByDate,
     }
 
     public class FilesPaneViewModel : ViewModelBase
@@ -78,14 +81,14 @@ namespace SmartCommander.ViewModels
 
         public bool IsCurrentDirectoryDisplayed
         {
-            get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;            
+            get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
         }
 
 
         public Brush GridBorderBrush => IsSelected ? new SolidColorBrush(Colors.LightSkyBlue) : new SolidColorBrush(Colors.Transparent);
 
-        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();         
-        
+        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
+
         public FilesPaneViewModel()
         {
 
@@ -107,8 +110,8 @@ namespace SmartCommander.ViewModels
 
         public void SortingStarted(object sender, object parameter)
         {
-            _mainVM.SelectedPane = this;       
-            
+            _mainVM.SelectedPane = this;
+
             DataGridColumnEventArgs? args = parameter as DataGridColumnEventArgs;
             if (args != null)
             {
@@ -157,8 +160,8 @@ namespace SmartCommander.ViewModels
         {
             //TODO: if parameter source column header, then ignore
             ProcessCurrentItem();
-        }     
-            
+        }
+
         public void Execute(string? command)
         {
             if (!string.IsNullOrEmpty(command))
@@ -185,7 +188,7 @@ namespace SmartCommander.ViewModels
             if (!CurrentItem.IsFolder)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {                    
+                {
                     Process.Start("less", CurrentItem.FullName);
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -204,7 +207,7 @@ namespace SmartCommander.ViewModels
             if (!CurrentItem.IsFolder)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {                    
+                {
                     Process.Start("vi", CurrentItem.FullName);
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -214,14 +217,14 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-               MessageBox_Show(null, "Can't edit the folder", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, "Can't edit the folder", "Alert", ButtonEnum.Ok);
             }
         }
 
         public bool NonEmptyFolder()
         {
-            return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty && 
-                CurrentItem.IsFolder && 
+            return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty &&
+                CurrentItem.IsFolder &&
                 !IsDirectoryEmpty(CurrentItem.FullName);
         }
 
@@ -236,7 +239,7 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     File.Delete(CurrentItem.FullName);
-                }               
+                }
             }
             catch
             {
@@ -256,7 +259,7 @@ namespace SmartCommander.ViewModels
                 MessageBox_Show(null, "The folder already exists", "Alert", ButtonEnum.Ok);
                 return;
             }
-            Directory.CreateDirectory(newFolder);            
+            Directory.CreateDirectory(newFolder);
         }
 
         private void ProcessCurrentItem()
@@ -299,14 +302,20 @@ namespace SmartCommander.ViewModels
                 isParent = true;
             }
 
+            if (IsWindows)
+            {
+                FileInfo f = new FileInfo(CurrentDirectory);
+                SelectedDrive = Path.GetPathRoot(f.FullName);
+            }
+
             var options = new EnumerationOptions()
             {
                 AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
                 IgnoreInaccessible = true,
-                RecurseSubdirectories = false,                
+                RecurseSubdirectories = false,
             };
 
-            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);          
+            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
             var foldersList = new List<FileViewModel>();
             foreach (string subdirectory in subdirectoryEntries)
             {
@@ -316,7 +325,7 @@ namespace SmartCommander.ViewModels
                     ++_totalFolders;
                 }
                 catch { }
-            }          
+            }
 
             var filesList = new List<FileViewModel>();
             var fileEntries = Directory.EnumerateFiles(dir, "*", options);
@@ -341,7 +350,7 @@ namespace SmartCommander.ViewModels
             }
             else if (Sorting == SortingBy.SortingBySize)
             {
-                foldersList = foldersList.OrderBy(entry =>entry.Size).ToList();
+                foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
                 filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
             }
             else if (Sorting == SortingBy.SortingByDate)
@@ -358,7 +367,7 @@ namespace SmartCommander.ViewModels
             foreach (var file in filesList)
             {
                 filesFoldersList.Add(file);
-            }     
+            }
 
             if (filesFoldersList.Count > 0)
             {
@@ -366,6 +375,37 @@ namespace SmartCommander.ViewModels
                     filesFoldersList[1] : filesFoldersList[0];
             }
         }
-     
+
+        bool IsWindows
+        {
+            get
+            {
+                return AvaloniaLocator.Current.GetService<IRuntimePlatform>().GetRuntimeInfo().OperatingSystem == OperatingSystemType.WinNT;
+            }
+        }
+
+        string _selectedDrive;
+        string SelectedDrive
+        {
+            get { return _selectedDrive; }
+            set 
+            {           
+                if (!Directory.Exists(value))
+                {
+                    MessageBox_Show(null, "The drive is not available", "Alert", ButtonEnum.Ok); 
+                    return;
+                }
+
+                FileInfo f = new FileInfo(CurrentDirectory);
+                var driveFromDirectory = Path.GetPathRoot(f.FullName);
+
+                _selectedDrive = value; 
+                if (_selectedDrive != driveFromDirectory)
+                {
+                    CurrentDirectory = _selectedDrive;
+                }
+                this.RaisePropertyChanged("SelectedDrive"); 
+            }
+        }
     }
 }
