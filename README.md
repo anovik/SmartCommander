@@ -2,6 +2,8 @@
 
 A two-panel cross-platform open source file manager based on Avalonia. Supports Windows and Linux.
 
+![alt SmartCommander](https://github.com/anovik/SmartCommander/blob/main/img/main_windows.png)
+
 ## How to build
 
 ## Main features
