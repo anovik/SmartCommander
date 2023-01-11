@@ -54,6 +54,12 @@
 					<Setter Property="IsVisible" Value="False" />
 				</Style>
 			</DataGrid.Styles>
+        <DataGrid.ContextMenu>
+          <ContextMenu>            
+            <MenuItem Header="View" Command="{Binding ViewCommand}"></MenuItem>
+            <MenuItem Header="Edit" Command="{Binding EditCommand}"></MenuItem>
+          </ContextMenu>          
+        </DataGrid.ContextMenu>
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
 				<DataGridTextColumn Header="Extension" Binding="{Binding Extension}"></DataGridTextColumn>
