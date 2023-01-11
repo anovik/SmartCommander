@@ -98,10 +98,14 @@ namespace SmartCommander.ViewModels
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             EnterCommand = ReactiveCommand.Create(Enter);
+            ViewCommand = ReactiveCommand.Create(View);
+            EditCommand = ReactiveCommand.Create(Edit);
             _mainVM = mainVM;
         }
 
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
+        public ReactiveCommand<Unit, Unit> ViewCommand { get; }
+        public ReactiveCommand<Unit, Unit> EditCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
