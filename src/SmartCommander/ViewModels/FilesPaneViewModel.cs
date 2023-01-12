@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Platform;
 using MessageBox.Avalonia.Enums;
@@ -162,8 +163,15 @@ namespace SmartCommander.ViewModels
 
         public void DoubleTapped(object sender, object parameter)
         {
-            //TODO: if parameter source column header, then ignore
-            ProcessCurrentItem();
+           var args = parameter as TappedEventArgs;
+            if (args != null)
+            {
+                var source = args.Source as Control;
+                if (source != null && source.TemplatedParent is DataGridCell)
+                {
+                    ProcessCurrentItem();
+                }
+            }
         }
 
         public void Execute(string? command)
