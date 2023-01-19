@@ -99,22 +99,26 @@ namespace SmartCommander.ViewModels
 
         public void SortName()
         {
-            SelectedPane.Sorting = SortingBy.SortingByName;            
+            SelectedPane.Sorting = SortingBy.SortingByName;
+            SelectedPane.Ascending = true;
         }
 
         public void SortExtension()
         {
-            SelectedPane.Sorting = SortingBy.SortingByExt;            
+            SelectedPane.Sorting = SortingBy.SortingByExt;
+            SelectedPane.Ascending = true;
         }
 
         public void SortSize()
         {
-            SelectedPane.Sorting = SortingBy.SortingBySize;            
+            SelectedPane.Sorting = SortingBy.SortingBySize;
+            SelectedPane.Ascending = true;
         }
 
         public void SortDate()
         {
-            SelectedPane.Sorting = SortingBy.SortingByDate;            
+            SelectedPane.Sorting = SortingBy.SortingByDate;
+            SelectedPane.Ascending = true;
         }
 
         public void ChangeSelectedPane()
