@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Platform;
 using MessageBox.Avalonia.Enums;
@@ -35,6 +36,7 @@ namespace SmartCommander.ViewModels
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
+        private bool _ascending = true;
 
         public string CurrentDirectory
         {
@@ -64,6 +66,17 @@ namespace SmartCommander.ViewModels
             set
             {
                 _sorting = value;
+                Update();
+            }
+        }
+
+        public bool Ascending
+        {
+
+            get => _ascending;
+            set
+            {
+                _ascending = value;
                 Update();
             }
         }
@@ -119,21 +132,54 @@ namespace SmartCommander.ViewModels
             DataGridColumnEventArgs? args = parameter as DataGridColumnEventArgs;
             if (args != null)
             {
-                if (args.Column.Header.ToString() == "Name")
+                var header = args.Column.Header.ToString();
+                if (header == "Name")
                 {
-                    Sorting = SortingBy.SortingByName;
+                    if (Sorting == SortingBy.SortingByName)
+                    {
+                        Ascending = !Ascending;
+                    }
+                    else
+                    {
+                        Sorting = SortingBy.SortingByName;
+                        Ascending = true;
+                    }
                 }
-                if (args.Column.Header.ToString() == "Extension")
+                if (header == "Extension")
                 {
-                    Sorting = SortingBy.SortingByExt;
+                    if (Sorting == SortingBy.SortingByExt)
+                    {
+                        Ascending = !Ascending;
+                    }
+                    else
+                    {
+                        Sorting = SortingBy.SortingByExt;
+                        Ascending = true;
+                    }
                 }
-                if (args.Column.Header.ToString() == "Size")
+                if (header == "Size")
                 {
-                    Sorting = SortingBy.SortingBySize;
+                    if (Sorting == SortingBy.SortingBySize)
+                    {
+                        Ascending = !Ascending;
+                    }
+                    else
+                    {
+                        Sorting = SortingBy.SortingBySize;
+                        Ascending = true;
+                    }
                 }
-                if (args.Column.Header.ToString() == "Date")
+                if (header == "Date")
                 {
-                    Sorting = SortingBy.SortingByDate;
+                    if (Sorting == SortingBy.SortingByDate)
+                    {
+                        Ascending = !Ascending;
+                    }
+                    else
+                    {
+                        Sorting = SortingBy.SortingByDate;
+                        Ascending = true;
+                    }
                 }
 
                 args.Handled = true;
@@ -162,8 +208,16 @@ namespace SmartCommander.ViewModels
 
         public void DoubleTapped(object sender, object parameter)
         {
-            //TODO: if parameter source column header, then ignore
-            ProcessCurrentItem();
+           var args = parameter as TappedEventArgs;
+            if (args != null)
+            {
+                var source = args.Source as Control;
+                if (source != null && 
+                    (source.TemplatedParent is DataGridCell || source.Parent is DataGridCell))
+                {
+                    ProcessCurrentItem();
+                }
+            }
         }
 
         public void Execute(string? command)
@@ -344,23 +398,55 @@ namespace SmartCommander.ViewModels
             }
             if (Sorting == SortingBy.SortingByName)
             {
-                foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
-                filesList = filesList.OrderBy(entry => entry.Name).ToList();
+                if (Ascending)
+                {
+                    foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
+                    filesList = filesList.OrderBy(entry => entry.Name).ToList();
+                }
+                else
+                {
+                    foldersList = foldersList.OrderByDescending(entry => entry.Name).ToList();
+                    filesList = filesList.OrderByDescending(entry => entry.Name).ToList();
+                }
             }
             else if (Sorting == SortingBy.SortingByExt)
             {
-                foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
-                filesList = filesList.OrderBy(entry => entry.Extension).ToList();
+                if (Ascending)
+                {
+                    foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
+                    filesList = filesList.OrderBy(entry => entry.Extension).ToList();
+                }
+                else
+                {
+                    foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
+                    filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
+                }            
             }
             else if (Sorting == SortingBy.SortingBySize)
             {
-                foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
-                filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
+                if (Ascending)
+                {
+                    foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
+                    filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
+                }
+                else
+                {
+                    foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
+                    filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
+                }                
             }
             else if (Sorting == SortingBy.SortingByDate)
             {
-                foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
-                filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
+                if (Ascending)
+                {
+                    foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
+                    filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
+                }
+                else
+                {
+                    foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
+                    filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
+                }                
             }
 
             foreach (var folder in foldersList)
