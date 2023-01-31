@@ -1,14 +1,23 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using ReactiveUI;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using SmartCommander.Views;
+using System.Reflection;
+using System;
 
 namespace SmartCommander
 {
     public partial class App : Application
     {
+        private MainWindow? mainWindow;
+
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -19,16 +28,61 @@ namespace SmartCommander
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
+                mainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(),
                 };
+
+                mainWindow.PropertyChanged += MainWindow_PropertyChanged;
+
+                desktop.MainWindow = mainWindow;
+
+                RegisterTrayIcon();
 
                 ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime).ShutdownRequested += App_ShutdownRequested;
             }
 
             base.OnFrameworkInitializationCompleted();
         }
+
+        private void MainWindow_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (sender is MainWindow && e.NewValue is WindowState windowState && windowState == WindowState.Minimized)
+            {
+                mainWindow?.Hide();
+            }
+        }
+
+        private void RegisterTrayIcon()
+        {
+            IBitmap bitmap = new Bitmap(AvaloniaLocator.Current?.GetService<IAssetLoader>()?.Open(
+                new Uri($"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Assets/main.ico")));
+
+            var trayIcon = new TrayIcon
+            {
+                IsVisible = true,
+                ToolTipText = "Smart Commander",
+                Command = ReactiveCommand.Create(ShowApplication),
+                Icon = new WindowIcon(bitmap)
+            };
+
+            var trayIcons = new TrayIcons
+            {
+                trayIcon
+            };
+
+            SetValue(TrayIcon.IconsProperty, trayIcons);
+        }
+
+        private void ShowApplication()
+        {
+            if (mainWindow != null)
+            {
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Show();
+            }
+        }
+
 
         private void App_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
         {
