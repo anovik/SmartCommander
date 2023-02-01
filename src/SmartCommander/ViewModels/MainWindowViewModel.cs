@@ -6,7 +6,6 @@ using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
 using System;
-using System.Data;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;

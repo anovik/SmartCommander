@@ -2,21 +2,18 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using ReactiveUI;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using SmartCommander.Views;
-using System.Reflection;
-using System;
 
 namespace SmartCommander
 {
     public partial class App : Application
     {
         private MainWindow? mainWindow;
-
+        private TrayIcon? trayIcon;
+        private MainWindowViewModel? vm;
 
         public override void Initialize()
         {
@@ -28,9 +25,10 @@ namespace SmartCommander
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                vm = new MainWindowViewModel();
                 mainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = vm,
                 };
 
                 mainWindow.PropertyChanged += MainWindow_PropertyChanged;
@@ -39,7 +37,7 @@ namespace SmartCommander
 
                 RegisterTrayIcon();
 
-                ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime).ShutdownRequested += App_ShutdownRequested;
+                ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime).ShutdownRequested += App_ShutdownRequested;                
             }
 
             base.OnFrameworkInitializationCompleted();
@@ -47,24 +45,32 @@ namespace SmartCommander
 
         private void MainWindow_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
-            if (sender is MainWindow && e.NewValue is WindowState windowState && windowState == WindowState.Minimized)
+            if (sender is MainWindow && e.NewValue is WindowState windowState)
             {
-                mainWindow?.Hide();
-            }
+                if (windowState == WindowState.Minimized)
+                {
+                    mainWindow?.Hide();
+                    trayIcon.IsVisible = true;
+                }
+                else
+                {                   
+                    mainWindow?.Show();
+                    trayIcon.IsVisible = false;
+                }
+            }         
         }
 
         private void RegisterTrayIcon()
         {
-            IBitmap bitmap = new Bitmap(AvaloniaLocator.Current?.GetService<IAssetLoader>()?.Open(
-                new Uri($"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Assets/main.ico")));
-
-            var trayIcon = new TrayIcon
-            {
-                IsVisible = true,
+            trayIcon = new TrayIcon
+            {             
                 ToolTipText = "Smart Commander",
                 Command = ReactiveCommand.Create(ShowApplication),
-                Icon = new WindowIcon(bitmap)
+                Icon = mainWindow?.Icon,
+                Menu = new NativeMenu() 
             };
+
+            trayIcon.Menu.Add(new NativeMenuItem("Exit") { Command = vm?.ExitCommand });
 
             var trayIcons = new TrayIcons
             {
@@ -72,6 +78,8 @@ namespace SmartCommander
             };
 
             SetValue(TrayIcon.IconsProperty, trayIcons);
+
+            trayIcon.IsVisible = false;
         }
 
         private void ShowApplication()
@@ -82,7 +90,6 @@ namespace SmartCommander
                 mainWindow.Show();
             }
         }
-
 
         private void App_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
         {
@@ -104,7 +111,7 @@ namespace SmartCommander
                     OptionsModel.Instance.Width = desktop.MainWindow.Bounds.Width;
                     OptionsModel.Instance.Top = desktop.MainWindow.Bounds.Top;
                     OptionsModel.Instance.Height = desktop.MainWindow.Bounds.Height;
-                    OptionsModel.Instance.IsMaximized = desktop.MainWindow.WindowState == Avalonia.Controls.WindowState.Maximized;
+                    OptionsModel.Instance.IsMaximized = desktop.MainWindow.WindowState == WindowState.Maximized;
                 }
             }
 
