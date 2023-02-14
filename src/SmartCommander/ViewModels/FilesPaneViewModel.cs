@@ -247,7 +247,7 @@ namespace SmartCommander.ViewModels
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    Process.Start("less", CurrentItem.FullName);
+                    LaunchProcess("less", CurrentItem.FullName);
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
@@ -266,7 +266,7 @@ namespace SmartCommander.ViewModels
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    Process.Start("vi", CurrentItem.FullName);
+                    LaunchProcess("vi", CurrentItem.FullName);
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
@@ -277,6 +277,15 @@ namespace SmartCommander.ViewModels
             {
                 MessageBox_Show(null, "Can't edit the folder", "Alert", ButtonEnum.Ok);
             }
+        }
+
+        private void LaunchProcess(string program, string argument)
+        {
+            var process = new Process();
+            process.StartInfo.FileName = "x-terminal-emulator"; // Use the default terminal emulator
+            process.StartInfo.Arguments = $"-e {program} \"{argument}\""; // Specify the command to run in the new terminal window
+            process.StartInfo.UseShellExecute = false; // Required to use the terminal emulator
+            process.Start();
         }
 
         public bool NonEmptyFolder()
