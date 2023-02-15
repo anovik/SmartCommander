@@ -6,6 +6,10 @@ A two-panel cross-platform open source file manager based on Avalonia. Supports 
 
 ## How to build
 
+Ensure you have .NET 6 SDK (or later) installed.
+```
+dotnet build src --configuration Release
+```
 ## Main features
 
 - Configurable interface (you can fully manage panels, columns, operations, themes, etc.)
