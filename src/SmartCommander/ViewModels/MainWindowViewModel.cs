@@ -91,7 +91,8 @@ namespace SmartCommander.ViewModels
 
         public void Exit()
         {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            if (Application.Current != null &&
+                Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {    
                 desktopLifetime.Shutdown();
             }

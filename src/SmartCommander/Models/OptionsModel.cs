@@ -13,7 +13,13 @@ namespace SmartCommander.Models
         {
             Directory.CreateDirectory(_settingsDir);
             if (File.Exists(_settingsPath))
-                Instance = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
+            { 
+                var options = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
+                if (options != null)
+                {
+                    Instance = options;
+                }
+            }
         }
         public void Save() => File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(this));
 

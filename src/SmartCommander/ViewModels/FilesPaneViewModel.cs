@@ -101,7 +101,8 @@ namespace SmartCommander.ViewModels
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
 
         public FilesPaneViewModel()
-        {          
+        {
+            _mainVM = new MainWindowViewModel();
         }
 
         public FilesPaneViewModel(MainWindowViewModel mainVM)
