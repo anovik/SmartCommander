@@ -17,9 +17,12 @@ namespace SmartCommander.Views
             if (OperatingSystem.IsWindows())
             {
                 var driveInfos = DriveInfo.GetDrives();
-                ComboBox comboBox = this.Find<ComboBox>("driveCombo");
-                comboBox.ItemsSource = driveInfos.Select(k => k.Name).ToList();
-                comboBox.SelectedIndex = 0;
+                ComboBox? comboBox = this.Find<ComboBox>("driveCombo");
+                if (comboBox != null)
+                {
+                    comboBox.ItemsSource = driveInfos.Select(k => k.Name).ToList();
+                    comboBox.SelectedIndex = 0;
+                }
             }
         }
 
