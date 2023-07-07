@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
@@ -325,18 +326,11 @@ namespace SmartCommander.ViewModels
 
         private void SetTheme()
         {
-            var themeStyle = Application.Current.Styles[0];
-            FluentTheme? fluentTheme = themeStyle as FluentTheme;
-            if (fluentTheme == null)
-                return;
-            //if (OptionsModel.Instance.IsDarkThemeEnabled)
-            //{                
-            //    fluentTheme.Mode = FluentThemeMode.Dark;
-            //}
-            //else
-            //{
-            //    fluentTheme.Mode = FluentThemeMode.Light;
-            //}
+            if (Application.Current != null)
+            {
+                Application.Current.RequestedThemeVariant = OptionsModel.Instance.IsDarkThemeEnabled ?
+                    ThemeVariant.Dark : ThemeVariant.Light;
+            }
         }
 
         public void CreateNewFolder()
