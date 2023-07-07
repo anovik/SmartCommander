@@ -56,7 +56,7 @@ namespace SmartCommander.ViewModels
             get { return string.Format("Files: {0}, folders: {1}.", _totalFiles, _totalFolders); }
         }
 
-        public FileViewModel CurrentItem { get; set; }
+        public FileViewModel? CurrentItem { get; set; }
 
         public SortingBy Sorting
         {
@@ -242,6 +242,8 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
+            if (CurrentItem == null)
+                return;
             if (!CurrentItem.IsFolder)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -261,6 +263,8 @@ namespace SmartCommander.ViewModels
 
         public void Edit()
         {
+            if (CurrentItem == null)
+                return;
             if (!CurrentItem.IsFolder)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -290,14 +294,18 @@ namespace SmartCommander.ViewModels
         public bool NonEmptyFolder()
         {
             return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty &&
-                CurrentItem.IsFolder &&
-                !IsDirectoryEmpty(CurrentItem.FullName);
+                 CurrentItem!.IsFolder &&
+                !IsDirectoryEmpty(CurrentItem!.FullName);
         }
 
         public void Delete()
         {
             try
             {
+                if (CurrentItem == null)
+                {
+                    return;
+                }
                 if (CurrentItem.IsFolder)
                 {
                     Directory.Delete(CurrentItem.FullName, true);
@@ -330,6 +338,10 @@ namespace SmartCommander.ViewModels
 
         private void ProcessCurrentItem()
         {
+            if (CurrentItem == null)
+            {
+                return;
+            }
             if (CurrentItem.IsFolder)
             {
                 if (CurrentItem.FullName == "..")

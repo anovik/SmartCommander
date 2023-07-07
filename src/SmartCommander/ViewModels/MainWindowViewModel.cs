@@ -197,6 +197,8 @@ namespace SmartCommander.ViewModels
 
         public async Task Copy()
         {
+            if (SelectedPane.CurrentItem == null)
+                return;
             var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);            
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
@@ -243,6 +245,10 @@ namespace SmartCommander.ViewModels
         {
             if (result == ButtonResult.Yes)
             {
+                if (SelectedPane.CurrentItem == null)
+                {
+                    return;
+                }
                 string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
                 File.Copy(SelectedPane.CurrentItem.FullName, destFile, true);
                 SelectedPane.Update();
@@ -252,6 +258,10 @@ namespace SmartCommander.ViewModels
 
         public async Task Move()
         {
+            if (SelectedPane.CurrentItem == null)
+            {
+                return;
+            }
             var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
@@ -304,6 +314,10 @@ namespace SmartCommander.ViewModels
         {
             if (result == ButtonResult.Yes)
             {
+                if (SelectedPane.CurrentItem == null)
+                {
+                    return;
+                }
                 string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
                 File.Move(SelectedPane.CurrentItem.FullName, destFile, true);
                 SelectedPane.Update();
@@ -351,6 +365,10 @@ namespace SmartCommander.ViewModels
 
         public void Delete()
         {            
+            if (SelectedPane.CurrentItem == null)
+            {
+                return;
+            }
             MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " +
                 SelectedPane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
         }
@@ -359,6 +377,10 @@ namespace SmartCommander.ViewModels
         {
             if (result == ButtonResult.Yes)
             {
+                if (SelectedPane.CurrentItem == null)
+                {
+                    return;
+                }
                 if (SelectedPane.NonEmptyFolder())
                 {
                     MessageBox_Show(DeleteAnswerNonEmptyFolder, "The folder is not empty. Are you sure you would like to delete " +
