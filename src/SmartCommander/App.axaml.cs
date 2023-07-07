@@ -49,12 +49,18 @@ namespace SmartCommander
                 if (windowState == WindowState.Minimized)
                 {
                     mainWindow?.Hide();
-                    trayIcon.IsVisible = true;
+                    if (trayIcon != null)
+                    {
+                        trayIcon.IsVisible = true;
+                    }
                 }
                 else
                 {                   
                     mainWindow?.Show();
-                    trayIcon.IsVisible = false;
+                    if (trayIcon != null)
+                    {
+                        trayIcon.IsVisible = false;
+                    }
                 }
             }         
         }
@@ -93,7 +99,7 @@ namespace SmartCommander
         private void App_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
         {
             var desktop = sender as ClassicDesktopStyleApplicationLifetime;
-            if (desktop != null)
+            if (desktop != null && desktop.MainWindow != null)
             {
                 MainWindowViewModel? viewModel = desktop.MainWindow.DataContext as MainWindowViewModel;
                 if (viewModel != null)
@@ -104,7 +110,7 @@ namespace SmartCommander
             }
             if (OptionsModel.Instance.SaveWindowPositionSize)
             {                
-                if (desktop != null)
+                if (desktop != null && desktop.MainWindow != null)
                 {
                     OptionsModel.Instance.Left = desktop.MainWindow.Bounds.Left;
                     OptionsModel.Instance.Width = desktop.MainWindow.Bounds.Width;

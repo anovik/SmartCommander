@@ -35,7 +35,7 @@
       </ComboBox>
     </Grid>
 		<ScrollViewer Margin="5" Grid.Row="1">			
-	    <DataGrid IsTabStop="True" Items="{Binding FoldersFilesList}" AutoGenerateColumns="False"
+	    <DataGrid IsTabStop="True" ItemsSource="{Binding FoldersFilesList}" AutoGenerateColumns="False"
 				  CanUserResizeColumns="True"
 				  CanUserSortColumns="True"	
 				  SelectedItem="{Binding CurrentItem}"

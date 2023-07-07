@@ -329,14 +329,14 @@ namespace SmartCommander.ViewModels
             FluentTheme? fluentTheme = themeStyle as FluentTheme;
             if (fluentTheme == null)
                 return;
-            if (OptionsModel.Instance.IsDarkThemeEnabled)
-            {                
-                fluentTheme.Mode = FluentThemeMode.Dark;
-            }
-            else
-            {
-                fluentTheme.Mode = FluentThemeMode.Light;
-            }
+            //if (OptionsModel.Instance.IsDarkThemeEnabled)
+            //{                
+            //    fluentTheme.Mode = FluentThemeMode.Dark;
+            //}
+            //else
+            //{
+            //    fluentTheme.Mode = FluentThemeMode.Light;
+            //}
         }
 
         public void CreateNewFolder()

@@ -1,8 +1,6 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Platform;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
@@ -29,7 +27,7 @@ namespace SmartCommander.ViewModels
 
     public class FilesPaneViewModel : ViewModelBase
     {
-        private string _currentDirectory;
+        private string _currentDirectory = "";
 
         private int _totalFiles = 0;
         private int _totalFolders = 0;
@@ -103,8 +101,7 @@ namespace SmartCommander.ViewModels
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
 
         public FilesPaneViewModel()
-        {
-
+        {          
         }
 
         public FilesPaneViewModel(MainWindowViewModel mainVM)
@@ -115,10 +112,11 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             _mainVM = mainVM;
         }
+  
 
-        public ReactiveCommand<Unit, Unit> EnterCommand { get; }
-        public ReactiveCommand<Unit, Unit> ViewCommand { get; }
-        public ReactiveCommand<Unit, Unit> EditCommand { get; }
+        public ReactiveCommand<Unit, Unit>? EnterCommand { get; } 
+        public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
+        public ReactiveCommand<Unit, Unit>? EditCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -369,7 +367,7 @@ namespace SmartCommander.ViewModels
                 isParent = true;
             }
 
-            if (IsWindows)
+            if (OperatingSystem.IsWindows())
             {
                 FileInfo f = new FileInfo(CurrentDirectory);
                 SelectedDrive = Path.GetPathRoot(f.FullName);
@@ -473,18 +471,10 @@ namespace SmartCommander.ViewModels
                 CurrentItem = (isParent && filesFoldersList.Count > 1) ?
                     filesFoldersList[1] : filesFoldersList[0];
             }
-        }
+        }      
 
-        bool IsWindows
-        {
-            get
-            {
-                return AvaloniaLocator.Current.GetService<IRuntimePlatform>().GetRuntimeInfo().OperatingSystem == OperatingSystemType.WinNT;
-            }
-        }
-
-        string _selectedDrive;
-        string SelectedDrive
+        string? _selectedDrive;
+        string? SelectedDrive
         {
             get { return _selectedDrive; }
             set 

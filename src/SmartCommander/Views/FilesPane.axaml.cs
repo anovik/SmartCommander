@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -13,11 +14,11 @@ namespace SmartCommander.Views
         {
             InitializeComponent();
 
-            if (AvaloniaLocator.Current.GetService<IRuntimePlatform>().GetRuntimeInfo().OperatingSystem == OperatingSystemType.WinNT)
+            if (OperatingSystem.IsWindows())
             {
                 var driveInfos = DriveInfo.GetDrives();
                 ComboBox comboBox = this.Find<ComboBox>("driveCombo");
-                comboBox.Items = driveInfos.Select(k => k.Name).ToList();
+                comboBox.ItemsSource = driveInfos.Select(k => k.Name).ToList();
                 comboBox.SelectedIndex = 0;
             }
         }
