@@ -1,9 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
-using Avalonia.Themes.Fluent;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Enums;
+using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
 using System;
@@ -350,18 +348,19 @@ namespace SmartCommander.ViewModels
 
         public void CreateNewFolder()
         {           
-            MessageBoxInput_Show(CreateNewFolderAnswer, "Folder", "Create New Folder");            
+            // TODO: there is no input box in 3.0, need to create own dialog
+            //MessageBoxInput_Show(CreateNewFolderAnswer, "Folder", "Create New Folder");            
         }
 
-        public void CreateNewFolderAnswer(MessageWindowResultDTO result)
-        {
-            if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
-            {                
-                SelectedPane.CreateNewFolder(result.Message);
-                SelectedPane.Update();
-                SecondPane.Update();
-            }
-        }
+        //public void CreateNewFolderAnswer(MessageWindowResultDTO result)
+        //{
+        //    if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
+        //    {                
+        //        SelectedPane.CreateNewFolder(result.Message);
+        //        SelectedPane.Update();
+        //        SecondPane.Update();
+        //    }
+        //}
 
         public void Delete()
         {            
