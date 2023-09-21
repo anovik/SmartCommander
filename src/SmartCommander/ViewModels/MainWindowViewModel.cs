@@ -347,20 +347,19 @@ namespace SmartCommander.ViewModels
         }
 
         public void CreateNewFolder()
-        {           
-            // TODO: there is no input box in 3.0, need to create own dialog
-            //MessageBoxInput_Show(CreateNewFolderAnswer, "Folder", "Create New Folder");            
+        {  
+            MessageBoxInput_Show(CreateNewFolderAnswer, "Create New Folder");            
         }
 
-        //public void CreateNewFolderAnswer(MessageWindowResultDTO result)
-        //{
-        //    if (result.Button == "Confirm" && !string.IsNullOrEmpty(result.Message))
-        //    {                
-        //        SelectedPane.CreateNewFolder(result.Message);
-        //        SelectedPane.Update();
-        //        SecondPane.Update();
-        //    }
-        //}
+        public void CreateNewFolderAnswer(string result)
+        {
+            if (!string.IsNullOrEmpty(result))
+            {
+                SelectedPane.CreateNewFolder(result);
+                SelectedPane.Update();
+                SecondPane.Update();
+            }
+        }
 
         public void Delete()
         {            
