@@ -195,6 +195,7 @@ namespace SmartCommander.ViewModels
 
         public async Task Copy()
         {
+            // TODO: check CurrentItems instead
             if (SelectedPane.CurrentItem == null)
                 return;
             var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);            
@@ -256,6 +257,7 @@ namespace SmartCommander.ViewModels
 
         public async Task Move()
         {
+            // TODO: check CurrentItems instead
             if (SelectedPane.CurrentItem == null)
             {
                 return;
@@ -363,6 +365,7 @@ namespace SmartCommander.ViewModels
 
         public void Delete()
         {            
+            // TODO: check CurrentItems instead
             if (SelectedPane.CurrentItem == null)
             {
                 return;
@@ -373,6 +376,7 @@ namespace SmartCommander.ViewModels
 
         public void DeleteAnswer(ButtonResult result)
         {
+            // TODO: check CurrentItems instead
             if (result == ButtonResult.Yes)
             {
                 if (SelectedPane.CurrentItem == null)

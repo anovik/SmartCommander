@@ -58,6 +58,8 @@ namespace SmartCommander.ViewModels
 
         public FileViewModel? CurrentItem { get; set; }
 
+        public List<FileViewModel> CurrentItems { get; set; }
+
         public SortingBy Sorting
         {
             get => _sorting;
