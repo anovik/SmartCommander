@@ -98,6 +98,7 @@ namespace SmartCommander.ViewModels
 
         public Brush GridBorderBrush => IsSelected ? new SolidColorBrush(Colors.LightSkyBlue) : new SolidColorBrush(Colors.Transparent);
 
+        // TODO: track changes in item properties through CollectionChanged
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
 
         public FilesPaneViewModel()
@@ -187,8 +188,9 @@ namespace SmartCommander.ViewModels
 
         public void BeginningEdit(object sender, object parameter)
         {
+            // TODO: exclude .. row from editing as well
             DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;
-            if (args != null)
+            if (args != null && args.Column.DisplayIndex != 0)
             {
                 args.Cancel = true;
             }
