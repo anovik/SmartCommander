@@ -35,14 +35,13 @@
       </ComboBox>
     </Grid>
 		<ScrollViewer Margin="5" Grid.Row="1">			
-	    <DataGrid IsTabStop="True" ItemsSource="{Binding FoldersFilesList}" AutoGenerateColumns="False"
-				  CanUserResizeColumns="True"
+	    <DataGrid IsTabStop="True" 
+				  ItemsSource="{Binding FoldersFilesList}" 
+				  AutoGenerateColumns="False"
+				  CanUserResizeColumns="True" 
 				  CanUserSortColumns="True"	
 				  SelectedItem="{Binding CurrentItem}"
-          BorderBrush="{Binding GridBorderBrush}" BorderThickness="1">
-			<DataGrid.KeyBindings>
-				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />
-			</DataGrid.KeyBindings>
+          BorderBrush="{Binding GridBorderBrush}" BorderThickness="1">			
 			<DataGrid.Styles>
 				<Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
 					<Setter Property="IsVisible" Value="False" />
@@ -79,7 +78,7 @@
 			</ia:EventTriggerBehavior>
 		   <ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
 			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
-			</ia:EventTriggerBehavior>
+			</ia:EventTriggerBehavior>			
 		  </i:Interaction.Behaviors>
 		</DataGrid>		
 		</ScrollViewer>

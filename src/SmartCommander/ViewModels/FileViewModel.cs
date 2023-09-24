@@ -53,18 +53,23 @@ namespace SmartCommander.ViewModels
                 {
                     return;
                 }
+
+                string destination = "";
                 
                 if (IsFolder)
                 {
-                    string destination = Path.Combine(Path.GetDirectoryName(FullName), value);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName), value);
                     Directory.Move(FullName, destination);
                 }
                 else
                 {
-                    string destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
                     File.Move(FullName, destination);
                 }
+                name = value;
+                FullName = destination;
                 this.RaisePropertyChanged(nameof(Name));
+                this.RaisePropertyChanged(nameof(FullName));
             }
         }
 
