@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.IO;
 
 namespace SmartCommander.ViewModels
 {
-    public class FileViewModel
+    public class FileViewModel : ViewModelBase
     {
         private string name = "";
         public FileViewModel()
@@ -63,12 +64,13 @@ namespace SmartCommander.ViewModels
                     string destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
                     File.Move(FullName, destination);
                 }
+                this.RaisePropertyChanged(nameof(Name));
             }
         }
 
         public string Extension { get; set; } = "";
         public string Size { get; set; } = "";
         public DateTime DateCreated { get; set; }
-        public bool IsFolder { get; set; }
+        public bool IsFolder { get; set; } 
     }
 }
