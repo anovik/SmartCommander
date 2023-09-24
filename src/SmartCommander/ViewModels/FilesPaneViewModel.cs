@@ -92,6 +92,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
+      
         public bool IsCurrentDirectoryDisplayed
         {
             get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
@@ -109,13 +110,11 @@ namespace SmartCommander.ViewModels
 
         public FilesPaneViewModel(MainWindowViewModel mainVM)
         {
-            CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            EnterCommand = ReactiveCommand.Create(Enter);
+            CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);           
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
-            _mainVM = mainVM;
-        }
-  
+            _mainVM = mainVM;           
+        }   
 
         public ReactiveCommand<Unit, Unit>? EnterCommand { get; } 
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
@@ -188,34 +187,36 @@ namespace SmartCommander.ViewModels
         }
 
         public void BeginningEdit(object sender, object parameter)
-        {
-            DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;
-            if (args != null)
-            {
+        {          
+            DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;          
+            if (args != null && 
+                args.Column.DisplayIndex != 0)
+            {                
                 args.Cancel = true;
             }
-        }
+            if (args != null &&
+                CurrentItem != null &&
+                CurrentItem.FullName == "..")
+            {
+                args.Cancel = true;
+            }      
+        }    
+
 
         public void Tapped(object sender, object parameter)
         {
             _mainVM.SelectedPane = this;
         }
 
-
-        public void Enter()
-        {
-            ProcessCurrentItem();
-        }
-
         public void DoubleTapped(object sender, object parameter)
-        {
-           var args = parameter as TappedEventArgs;
+        {          
+            var args = parameter as TappedEventArgs;
             if (args != null)
             {
-                var source = args.Source as Control;
+                var source = args.Source as Control;            
                 if (source != null && 
                     (source.TemplatedParent is DataGridCell || source.Parent is DataGridCell))
-                {
+                {                     
                     ProcessCurrentItem();
                 }
             }
@@ -339,7 +340,7 @@ namespace SmartCommander.ViewModels
         }
 
         private void ProcessCurrentItem()
-        {
+        {       
             if (CurrentItem == null)
             {
                 return;
@@ -369,7 +370,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)
+        private void GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
         {
             if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
                 return;
