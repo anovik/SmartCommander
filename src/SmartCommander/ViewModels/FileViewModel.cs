@@ -1,10 +1,12 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.IO;
 
 namespace SmartCommander.ViewModels
 {
-    public class FileViewModel
+    public class FileViewModel : ViewModelBase
     {
+        private string name = "";
         public FileViewModel()
         {
 
@@ -15,8 +17,8 @@ namespace SmartCommander.ViewModels
             FullName = fullName;
             IsFolder = isFolder;
             if (isFolder)
-            {   
-                Name = Path.GetFileName(fullName);
+            {
+                name = Path.GetFileName(fullName);
                 Extension = "";
                 Size = "Folder";
                 DateCreated = File.GetCreationTime(fullName);
@@ -25,12 +27,12 @@ namespace SmartCommander.ViewModels
             {
                 if (string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(fullName)))
                 {
-                    Name = Path.GetFileName(fullName);
+                    name = Path.GetFileName(fullName);
                     Extension = "";
                 }
                 else
                 {
-                    Name = Path.GetFileNameWithoutExtension(fullName);
+                    name = Path.GetFileNameWithoutExtension(fullName);
                     Extension = Path.GetExtension(fullName).TrimStart('.');
                 }
                 Size = new FileInfo(fullName).Length.ToString();
@@ -39,10 +41,41 @@ namespace SmartCommander.ViewModels
         }
 
         public string FullName { get; set; } = "";
-        public string Name { get; set; } = "";
+        public string Name 
+        { 
+            get
+            {
+                return name;
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value) || value == name)
+                {
+                    return;
+                }
+
+                string destination = "";
+                
+                if (IsFolder)
+                {
+                    destination = Path.Combine(Path.GetDirectoryName(FullName), value);
+                    Directory.Move(FullName, destination);
+                }
+                else
+                {
+                    destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
+                    File.Move(FullName, destination);
+                }
+                name = value;
+                FullName = destination;
+                this.RaisePropertyChanged(nameof(Name));
+                this.RaisePropertyChanged(nameof(FullName));
+            }
+        }
+
         public string Extension { get; set; } = "";
         public string Size { get; set; } = "";
         public DateTime DateCreated { get; set; }
-        public bool IsFolder { get; set; }
+        public bool IsFolder { get; set; } 
     }
 }
