@@ -70,6 +70,24 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Folder.
+        /// </summary>
+        public static string Folder {
+            get {
+                return ResourceManager.GetString("Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Found: .
+        /// </summary>
+        public static string NotFound {
+            get {
+                return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
         public static string OK {

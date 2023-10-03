@@ -120,6 +120,12 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Not Found: </value>
+  </data>
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>

@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using SmartCommander.Assets;
 using System;
 using System.IO;
 
@@ -20,7 +21,7 @@ namespace SmartCommander.ViewModels
             {
                 name = Path.GetFileName(fullName);
                 Extension = "";
-                Size = "Folder";
+                Size = Resources.Folder;
                 DateCreated = File.GetCreationTime(fullName);
             }
             else
