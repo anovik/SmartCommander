@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
 using System.IO;
@@ -213,7 +214,7 @@ namespace SmartCommander.ViewModels
                     }
                     catch
                     {
-                        MessageBox_Show(null, "Can't move folder here", "Alert");
+                        MessageBox_Show(null, "Can't move folder here", Resources.Alert);
                     }
                 }
                 else
@@ -222,7 +223,7 @@ namespace SmartCommander.ViewModels
                     string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
                     if (destFile == SelectedPane.CurrentItem.FullName)
                     {
-                        MessageBox_Show(null, "Can't copy file to itself", "Alert");
+                        MessageBox_Show(null, "Can't copy file to itself", Resources.Alert);
                     }
                     else if (!File.Exists(destFile))
                     {                        
@@ -233,7 +234,7 @@ namespace SmartCommander.ViewModels
                     else
                     {
                         MessageBox_Show(CopyFileExists, "File already exists. Are you sure you would like to rewrite " +
-                            destFile + " ?", "Alert", ButtonEnum.YesNo);
+                            destFile + " ?", Resources.Alert, ButtonEnum.YesNo);
                     }
                 }               
             }
@@ -271,7 +272,7 @@ namespace SmartCommander.ViewModels
                     {
                         if (SelectedPane.CurrentItem.FullName == SecondPane.CurrentDirectory)
                         {
-                            MessageBox_Show(null, "Can't move folder to itself", "Alert");
+                            MessageBox_Show(null, "Can't move folder to itself", Resources.Alert);
                             return;
                         }
                         string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
@@ -282,7 +283,7 @@ namespace SmartCommander.ViewModels
                     }
                     catch
                     {
-                        MessageBox_Show(null, "Can't move folder here", "Alert");
+                        MessageBox_Show(null, "Can't move folder here", Resources.Alert);
                     }
                 }
                 else
@@ -291,7 +292,7 @@ namespace SmartCommander.ViewModels
                     string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
                     if (destFile == SelectedPane.CurrentItem.FullName)
                     {
-                        MessageBox_Show(null, "Can't move file to itself", "Alert");
+                        MessageBox_Show(null, "Can't move file to itself", Resources.Alert);
                     }
                     else if (!File.Exists(destFile))
                     {                        
@@ -302,7 +303,7 @@ namespace SmartCommander.ViewModels
                     else
                     {
                         MessageBox_Show(MoveFileExists, "File already exists. Are you sure you would like to rewrite " +
-                            destFile + " ?", "Alert", ButtonEnum.YesNo);
+                            destFile + " ?", Resources.Alert, ButtonEnum.YesNo);
                     }
                 }             
             }
@@ -368,7 +369,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
             MessageBox_Show(DeleteAnswer, "Are you sure you would like to delete " +
-                SelectedPane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);            
+                SelectedPane.CurrentItem.Name + " ?", Resources.Alert, ButtonEnum.YesNo);            
         }
 
         public void DeleteAnswer(ButtonResult result)
@@ -382,7 +383,7 @@ namespace SmartCommander.ViewModels
                 if (SelectedPane.NonEmptyFolder())
                 {
                     MessageBox_Show(DeleteAnswerNonEmptyFolder, "The folder is not empty. Are you sure you would like to delete " +
-                        SelectedPane.CurrentItem.Name + " ?", "Alert", ButtonEnum.YesNo);
+                        SelectedPane.CurrentItem.Name + " ?",  Resources.Alert, ButtonEnum.YesNo);
                 }
                 else
                 {

@@ -117,20 +117,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Alert" xml:space="preserve">
+    <value>Alert</value>
+  </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="CopyTo" xml:space="preserve">
     <value>Copy {0} to:</value>
   </data>
+  <data name="DarkTheme" xml:space="preserve">
+    <value>Dark Theme</value>
+  </data>
   <data name="Date" xml:space="preserve">
     <value>Date</value>
+  </data>
+  <data name="DisplayCommandLine" xml:space="preserve">
+    <value>Display Command Line</value>
+  </data>
+  <data name="DisplayCurrentDirectory" xml:space="preserve">
+    <value>Display Current Directory</value>
+  </data>
+  <data name="DisplayFunctionKeys" xml:space="preserve">
+    <value>Display Function Keys</value>
   </data>
   <data name="Extension" xml:space="preserve">
     <value>Extension</value>
   </data>
   <data name="Folder" xml:space="preserve">
     <value>Folder</value>
+  </data>
+  <data name="LightTheme" xml:space="preserve">
+    <value>Light Theme</value>
   </data>
   <data name="MoveTo" xml:space="preserve">
     <value>Move {0} to:</value>
@@ -143,6 +161,18 @@
   </data>
   <data name="OK" xml:space="preserve">
     <value>OK</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveWindowPositionSize" xml:space="preserve">
+    <value>Save Window Position and Size</value>
+  </data>
+  <data name="ShowHiddenFiles" xml:space="preserve">
+    <value>Show Hidden/System Files</value>
+  </data>
+  <data name="ShowNonEmptyConfirmation" xml:space="preserve">
+    <value>Show Confirmation when Deleting Non-empty Directory</value>
   </data>
   <data name="Size" xml:space="preserve">
     <value>Size</value>

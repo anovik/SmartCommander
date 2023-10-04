@@ -61,6 +61,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alert.
+        /// </summary>
+        public static string Alert {
+            get {
+                return ResourceManager.GetString("Alert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Cancel {
@@ -79,11 +88,47 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dark Theme.
+        /// </summary>
+        public static string DarkTheme {
+            get {
+                return ResourceManager.GetString("DarkTheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Date.
         /// </summary>
         public static string Date {
             get {
                 return ResourceManager.GetString("Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Command Line.
+        /// </summary>
+        public static string DisplayCommandLine {
+            get {
+                return ResourceManager.GetString("DisplayCommandLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Current Directory.
+        /// </summary>
+        public static string DisplayCurrentDirectory {
+            get {
+                return ResourceManager.GetString("DisplayCurrentDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display Function Keys.
+        /// </summary>
+        public static string DisplayFunctionKeys {
+            get {
+                return ResourceManager.GetString("DisplayFunctionKeys", resourceCulture);
             }
         }
         
@@ -102,6 +147,15 @@ namespace SmartCommander.Assets {
         public static string Folder {
             get {
                 return ResourceManager.GetString("Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Light Theme.
+        /// </summary>
+        public static string LightTheme {
+            get {
+                return ResourceManager.GetString("LightTheme", resourceCulture);
             }
         }
         
@@ -138,6 +192,42 @@ namespace SmartCommander.Assets {
         public static string OK {
             get {
                 return ResourceManager.GetString("OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Window Position and Size.
+        /// </summary>
+        public static string SaveWindowPositionSize {
+            get {
+                return ResourceManager.GetString("SaveWindowPositionSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Hidden/System Files.
+        /// </summary>
+        public static string ShowHiddenFiles {
+            get {
+                return ResourceManager.GetString("ShowHiddenFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Confirmation when Deleting Non-empty Directory.
+        /// </summary>
+        public static string ShowNonEmptyConfirmation {
+            get {
+                return ResourceManager.GetString("ShowNonEmptyConfirmation", resourceCulture);
             }
         }
         

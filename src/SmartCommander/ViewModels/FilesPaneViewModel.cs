@@ -259,7 +259,7 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-                MessageBox_Show(null, "Can't view the folder", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, "Can't view the folder", Resources.Alert, ButtonEnum.Ok);
             }
         }
 
@@ -280,7 +280,7 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-                MessageBox_Show(null, "Can't edit the folder", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, "Can't edit the folder", Resources.Alert, ButtonEnum.Ok);
             }
         }
 
@@ -332,7 +332,7 @@ namespace SmartCommander.ViewModels
             string newFolder = Path.Combine(CurrentDirectory, name);
             if (Directory.Exists(newFolder))
             {
-                MessageBox_Show(null, "The folder already exists", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, "The folder already exists", Resources.Alert, ButtonEnum.Ok);
                 return;
             }
             Directory.CreateDirectory(newFolder);
@@ -496,7 +496,7 @@ namespace SmartCommander.ViewModels
             {           
                 if (!Directory.Exists(value))
                 {
-                    MessageBox_Show(null, "The drive is not available", "Alert", ButtonEnum.Ok); 
+                    MessageBox_Show(null, "The drive is not available", Resources.Alert, ButtonEnum.Ok); 
                     return;
                 }
 
