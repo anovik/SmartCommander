@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
 using System.Collections.Generic;
@@ -131,7 +132,7 @@ namespace SmartCommander.ViewModels
             if (args != null)
             {
                 var header = args.Column.Header.ToString();
-                if (header == "Name")
+                if (header == Resources.Name)
                 {
                     if (Sorting == SortingBy.SortingByName)
                     {
@@ -143,7 +144,7 @@ namespace SmartCommander.ViewModels
                         Ascending = true;
                     }
                 }
-                if (header == "Extension")
+                if (header == Resources.Extension)
                 {
                     if (Sorting == SortingBy.SortingByExt)
                     {
@@ -155,7 +156,7 @@ namespace SmartCommander.ViewModels
                         Ascending = true;
                     }
                 }
-                if (header == "Size")
+                if (header == Resources.Size)
                 {
                     if (Sorting == SortingBy.SortingBySize)
                     {
@@ -167,7 +168,7 @@ namespace SmartCommander.ViewModels
                         Ascending = true;
                     }
                 }
-                if (header == "Date")
+                if (header == Resources.Date)
                 {
                     if (Sorting == SortingBy.SortingByDate)
                     {
