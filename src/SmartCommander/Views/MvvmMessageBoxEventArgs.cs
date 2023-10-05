@@ -2,6 +2,7 @@
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
+using SmartCommander.Assets;
 using System;
 using System.Threading.Tasks;
 
@@ -49,13 +50,13 @@ namespace SmartCommander.Views
                     MinWidth = 300,
                     InputParams = new InputParams() { },
                     ButtonDefinitions = new[] {
-                        new ButtonDefinition {Name = "Ok"},
-                        new ButtonDefinition {Name = "Cancel", IsCancel = true, IsDefault = true}
+                        new ButtonDefinition {Name = Resources.OK},
+                        new ButtonDefinition {Name = Resources.Cancel, IsCancel = true, IsDefault = true}
                     },
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 });
             var result = await messageBoxWindow.ShowAsPopupAsync(owner);          
-            resultInputAction?.Invoke(result == "Ok" ? messageBoxWindow.InputValue : "");
+            resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
         }
     }
 }

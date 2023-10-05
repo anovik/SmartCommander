@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Alert" xml:space="preserve">
+    <value>Alert</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CantCopyFileToItself" xml:space="preserve">
+    <value>Can't copy file to itself</value>
+  </data>
+  <data name="CantEditFolder" xml:space="preserve">
+    <value>Can't edit the folder</value>
+  </data>
+  <data name="CantMoveFileToItself" xml:space="preserve">
+    <value>Can't move file to itself</value>
+  </data>
+  <data name="CantMoveFolderHere" xml:space="preserve">
+    <value>Can't move folder here</value>
+  </data>
+  <data name="CantMoveFolderToItself" xml:space="preserve">
+    <value>Can't move folder to itself</value>
+  </data>
+  <data name="CantViewFolder" xml:space="preserve">
+    <value>Can't view the folder</value>
+  </data>
+  <data name="CopyTo" xml:space="preserve">
+    <value>Copy {0} to:</value>
+  </data>
+  <data name="CreateNewFolder" xml:space="preserve">
+    <value>Create New Folder</value>
+  </data>
+  <data name="CurrentDirectoryName" xml:space="preserve">
+    <value>Current directory name</value>
+  </data>
+  <data name="CurrentDirInfo" xml:space="preserve">
+    <value>Files: {0}, folders: {1}.</value>
+  </data>
+  <data name="DarkTheme" xml:space="preserve">
+    <value>Dark Theme</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value>Are you sure you would like to delete {0}?</value>
+  </data>
+  <data name="DeleteConfirmationNonEmpty" xml:space="preserve">
+    <value>The folder is not empty. Are you sure you would like to delete {0}?</value>
+  </data>
+  <data name="DisplayCommandLine" xml:space="preserve">
+    <value>Display Command Line</value>
+  </data>
+  <data name="DisplayCurrentDirectory" xml:space="preserve">
+    <value>Display Current Directory</value>
+  </data>
+  <data name="DisplayFunctionKeys" xml:space="preserve">
+    <value>Display Function Keys</value>
+  </data>
+  <data name="DriveNotAvailable" xml:space="preserve">
+    <value>The drive is not available</value>
+  </data>
+  <data name="ErrorNoPane" xml:space="preserve">
+    <value>Error: no pane selected</value>
+  </data>
+  <data name="Extension" xml:space="preserve">
+    <value>Extension</value>
+  </data>
+  <data name="F3View" xml:space="preserve">
+    <value>F3 View</value>
+  </data>
+  <data name="F4Edit" xml:space="preserve">
+    <value>F4 Edit</value>
+  </data>
+  <data name="F5Copy" xml:space="preserve">
+    <value>F5 Copy</value>
+  </data>
+  <data name="F6Move" xml:space="preserve">
+    <value>F6 Move</value>
+  </data>
+  <data name="F7CreateNewFolder" xml:space="preserve">
+    <value>F7 Create Folder</value>
+  </data>
+  <data name="F8Delete" xml:space="preserve">
+    <value>F8 Delete</value>
+  </data>
+  <data name="FileExistsRewrite" xml:space="preserve">
+    <value>File already exists. Are you sure you would like to rewrite {0}?</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="FolderExists" xml:space="preserve">
+    <value>The folder already exists</value>
+  </data>
+  <data name="LightTheme" xml:space="preserve">
+    <value>Light Theme</value>
+  </data>
+  <data name="MenuConfiguration" xml:space="preserve">
+    <value>_Configuration</value>
+  </data>
+  <data name="MenuExit" xml:space="preserve">
+    <value>_Exit</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="MenuOptions" xml:space="preserve">
+    <value>_Options</value>
+  </data>
+  <data name="MenuSortByDate" xml:space="preserve">
+    <value>Sort by _date</value>
+  </data>
+  <data name="MenuSortByExtension" xml:space="preserve">
+    <value>Sort by _extension</value>
+  </data>
+  <data name="MenuSortByName" xml:space="preserve">
+    <value>Sort by _name</value>
+  </data>
+  <data name="MenuSortBySize" xml:space="preserve">
+    <value>Sort by _size</value>
+  </data>
+  <data name="MenuView" xml:space="preserve">
+    <value>_View</value>
+  </data>
+  <data name="MoveTo" xml:space="preserve">
+    <value>Move {0} to:</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Not Found: </value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveSettingsOnExit" xml:space="preserve">
+    <value>Save Settings on Exit</value>
+  </data>
+  <data name="SaveWindowPositionSize" xml:space="preserve">
+    <value>Save Window Position and Size</value>
+  </data>
+  <data name="ShowHiddenFiles" xml:space="preserve">
+    <value>Show Hidden/System Files</value>
+  </data>
+  <data name="ShowNonEmptyConfirmation" xml:space="preserve">
+    <value>Show Confirmation when Deleting Non-empty Directory</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+</root>

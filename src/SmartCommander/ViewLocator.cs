@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using SmartCommander.Assets;
 using SmartCommander.ViewModels;
 using System;
 
@@ -18,7 +19,7 @@ namespace SmartCommander
             }
             else
             {
-                return new TextBlock { Text = "Not Found: " + name };
+                return new TextBlock { Text = Resources.NotFound + name };
             }
         }
 

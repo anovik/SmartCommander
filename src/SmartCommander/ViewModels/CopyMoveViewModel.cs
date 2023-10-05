@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using ReactiveUI;
+using SmartCommander.Assets;
 using System.Reactive;
 
 namespace SmartCommander.ViewModels
@@ -22,7 +23,8 @@ namespace SmartCommander.ViewModels
 
         public string Directory { get; set; }
 
-        public string CopyText => (IsCopying? "Copy '" : "Move '") + Item.Name + "' to:";
+        public string CopyText => (IsCopying? string.Format(Resources.CopyTo, Item.Name) :
+            string.Format(Resources.MoveTo, Item.Name));
 
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
