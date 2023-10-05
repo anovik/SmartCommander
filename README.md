@@ -13,10 +13,12 @@ dotnet build src --configuration Release
 ## Main features
 
 - Configurable interface (you can fully manage panels, columns, operations, themes, etc.)
+- 
+![alt SmartCommanderOptions](https://github.com/anovik/SmartCommander/blob/main/img/dark_options.png)
+  
 - All main operations with files/folders are supported(view, edit, copy, move, delete, etc.)
 - Unicode support
-
-
+- Localization
 
 ## License
 
