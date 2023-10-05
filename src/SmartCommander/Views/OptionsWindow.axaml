@@ -9,7 +9,7 @@
         Icon="/Assets/main.ico"
 		WindowStartupLocation="CenterOwner"      
 		xmlns:assets="clr-namespace:SmartCommander.Assets"
-        Title="Options">
+        Title="{x:Static assets:Resources.Options}">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"></RowDefinition>
@@ -35,9 +35,9 @@
       <TabItem Header="Operation">
         <StackPanel>
           <CheckBox IsChecked="{Binding IsHiddenSystemFilesDisplayed}"
-					Content="{x:Static assets:Resources.DarkTheme}"></CheckBox>
-          <CheckBox IsChecked="{Binding SaveSettingsOnExit}"
 					Content="{x:Static assets:Resources.ShowHiddenFiles}"></CheckBox>
+          <CheckBox IsChecked="{Binding SaveSettingsOnExit}"
+					Content="{x:Static assets:Resources.SaveSettingsOnExit}"></CheckBox>
           <CheckBox IsChecked="{Binding ConfirmationWhenDeleteNonEmpty}"
 					Content="{x:Static assets:Resources.ShowNonEmptyConfirmation}"></CheckBox>
         </StackPanel>

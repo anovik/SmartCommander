@@ -466,11 +466,29 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        public static string Options {
+            get {
+                return ResourceManager.GetString("Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
         public static string Save {
             get {
                 return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Settings on Exit.
+        /// </summary>
+        public static string SaveSettingsOnExit {
+            get {
+                return ResourceManager.GetString("SaveSettingsOnExit", resourceCulture);
             }
         }
         

@@ -252,8 +252,14 @@
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
   <data name="Save" xml:space="preserve">
     <value>Save</value>
+  </data>
+  <data name="SaveSettingsOnExit" xml:space="preserve">
+    <value>Save Settings on Exit</value>
   </data>
   <data name="SaveWindowPositionSize" xml:space="preserve">
     <value>Save Window Position and Size</value>
