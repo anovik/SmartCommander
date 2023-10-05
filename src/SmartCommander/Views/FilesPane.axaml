@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:assets="clr-namespace:SmartCommander.Assets"
              x:Class="SmartCommander.Views.FilesPane">
 
 	<Design.DataContext>
@@ -60,10 +61,10 @@
           </ContextMenu>          
         </DataGrid.ContextMenu>
 			<DataGrid.Columns>
-				<DataGridTextColumn Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
-				<DataGridTextColumn Header="Extension" Binding="{Binding Extension}"></DataGridTextColumn>
-				<DataGridTextColumn Header="Size" Binding="{Binding Size}"></DataGridTextColumn>
-				<DataGridTextColumn Header="Date" Binding="{Binding DateCreated}"></DataGridTextColumn>
+				<DataGridTextColumn Header="{x:Static assets:Resources.Name}" Binding="{Binding Name}"></DataGridTextColumn>
+				<DataGridTextColumn Header="{x:Static assets:Resources.Extension}" Binding="{Binding Extension}"></DataGridTextColumn>
+				<DataGridTextColumn Header="{x:Static assets:Resources.Size}" Binding="{Binding Size}"></DataGridTextColumn>
+				<DataGridTextColumn Header="{x:Static assets:Resources.Date}" Binding="{Binding DateCreated}"></DataGridTextColumn>
 			</DataGrid.Columns>
 			
 		  <i:Interaction.Behaviors>		

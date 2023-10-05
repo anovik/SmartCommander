@@ -1,4 +1,3 @@
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 using SmartCommander.Models;

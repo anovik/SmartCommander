@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace SmartCommander.ViewModels
 
         public string CurrentDirectoryInfo
         {
-            get { return string.Format("Files: {0}, folders: {1}.", _totalFiles, _totalFolders); }
+            get { return string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders); }
         }
 
         public FileViewModel? CurrentItem { get; set; }
@@ -131,7 +132,7 @@ namespace SmartCommander.ViewModels
             if (args != null)
             {
                 var header = args.Column.Header.ToString();
-                if (header == "Name")
+                if (header == Resources.Name)
                 {
                     if (Sorting == SortingBy.SortingByName)
                     {
@@ -143,7 +144,7 @@ namespace SmartCommander.ViewModels
                         Ascending = true;
                     }
                 }
-                if (header == "Extension")
+                if (header == Resources.Extension)
                 {
                     if (Sorting == SortingBy.SortingByExt)
                     {
@@ -155,7 +156,7 @@ namespace SmartCommander.ViewModels
                         Ascending = true;
                     }
                 }
-                if (header == "Size")
+                if (header == Resources.Size)
                 {
                     if (Sorting == SortingBy.SortingBySize)
                     {
@@ -167,7 +168,7 @@ namespace SmartCommander.ViewModels
                         Ascending = true;
                     }
                 }
-                if (header == "Date")
+                if (header == Resources.Date)
                 {
                     if (Sorting == SortingBy.SortingByDate)
                     {
@@ -258,7 +259,7 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-                MessageBox_Show(null, "Can't view the folder", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, Resources.CantViewFolder, Resources.Alert, ButtonEnum.Ok);
             }
         }
 
@@ -279,7 +280,7 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-                MessageBox_Show(null, "Can't edit the folder", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, Resources.CantEditFolder, Resources.Alert, ButtonEnum.Ok);
             }
         }
 
@@ -331,7 +332,7 @@ namespace SmartCommander.ViewModels
             string newFolder = Path.Combine(CurrentDirectory, name);
             if (Directory.Exists(newFolder))
             {
-                MessageBox_Show(null, "The folder already exists", "Alert", ButtonEnum.Ok);
+                MessageBox_Show(null, Resources.FolderExists, Resources.Alert, ButtonEnum.Ok);
                 return;
             }
             Directory.CreateDirectory(newFolder);
@@ -495,7 +496,7 @@ namespace SmartCommander.ViewModels
             {           
                 if (!Directory.Exists(value))
                 {
-                    MessageBox_Show(null, "The drive is not available", "Alert", ButtonEnum.Ok); 
+                    MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok); 
                     return;
                 }
 

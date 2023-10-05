@@ -7,7 +7,8 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SmartCommander.Views.MainWindow"
         Icon="/Assets/main.ico"
-				WindowStartupLocation="CenterScreen"
+		xmlns:assets="clr-namespace:SmartCommander.Assets"
+		WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         Title="SmartCommander">
 
@@ -39,17 +40,18 @@
 		</Grid.RowDefinitions>
 
     <Menu >
-      <MenuItem Header="_File" IsTabStop="False">
-        <MenuItem Header="_Exit" Command="{Binding ExitCommand}" IsTabStop="False"></MenuItem>        		  
+      <MenuItem Header="{x:Static assets:Resources.MenuFile}" IsTabStop="False">
+        <MenuItem Header="{x:Static assets:Resources.MenuExit}" 
+				  Command="{Binding ExitCommand}" IsTabStop="False"></MenuItem>        		  
       </MenuItem>
-      <MenuItem Header="_View" IsTabStop="False">
-		  <MenuItem Header="Sort by _name" Command="{Binding SortNameCommand}"></MenuItem>
-		  <MenuItem Header="Sort by _extension" Command="{Binding SortExtensionCommand}"></MenuItem>
-		  <MenuItem Header="Sort by _size"  Command="{Binding SortSizeCommand}"></MenuItem>
-		  <MenuItem Header="Sort by _date" Command="{Binding SortDateCommand}"></MenuItem>
+      <MenuItem Header="{x:Static assets:Resources.MenuView}" IsTabStop="False">
+		  <MenuItem Header="{x:Static assets:Resources.MenuSortByName}" Command="{Binding SortNameCommand}"></MenuItem>
+		  <MenuItem Header="{x:Static assets:Resources.MenuSortByExtension}" Command="{Binding SortExtensionCommand}"></MenuItem>
+		  <MenuItem Header="{x:Static assets:Resources.MenuSortBySize}"  Command="{Binding SortSizeCommand}"></MenuItem>
+		  <MenuItem Header="{x:Static assets:Resources.MenuSortByDate}" Command="{Binding SortDateCommand}"></MenuItem>
 	  </MenuItem>
-      <MenuItem Header="_Configuration" IsTabStop="False" >
-		  <MenuItem Header="_Options" Command="{Binding OptionsCommand}"></MenuItem>
+      <MenuItem Header="{x:Static assets:Resources.MenuConfiguration}" IsTabStop="False" >
+		  <MenuItem Header="{x:Static assets:Resources.MenuOptions}" Command="{Binding OptionsCommand}"></MenuItem>
       </MenuItem>
     </Menu>
 
@@ -61,7 +63,8 @@
 			<ColumnDefinition Width="Auto"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<TextBlock VerticalAlignment="Center">Current directory name</TextBlock>
+		<TextBlock VerticalAlignment="Center"
+				   Text="{x:Static assets:Resources.CurrentDirectoryName}"></TextBlock>
 		<TextBox IsTabStop="False" Grid.Column="1" Text="{Binding CommandText}">
 			<TextBox.KeyBindings>
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />				
@@ -77,12 +80,18 @@
 			<ColumnDefinition Width="*"></ColumnDefinition>
 			<ColumnDefinition Width="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Command="{Binding F3Command}">F3 View</Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="1" Command="{Binding F4Command}">F4 Edit</Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="2" Command="{Binding F5Command}">F5 Copy</Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="3" Command="{Binding F6Command}">F6 Move</Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="4" Command="{Binding F7Command}">F7 Create Folder</Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="5" Command="{Binding F8Command}">F8 Delete</Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Command="{Binding F3Command}" 
+				Content="{x:Static assets:Resources.F3View}"></Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="1" Command="{Binding F4Command}"
+				Content="{x:Static assets:Resources.F4Edit}"></Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="2" Command="{Binding F5Command}"
+				Content="{x:Static assets:Resources.F5Copy}"></Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="3" Command="{Binding F6Command}"
+				Content="{x:Static assets:Resources.F6Move}"></Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="4" Command="{Binding F7Command}"
+				Content="{x:Static assets:Resources.F7CreateNewFolder}"></Button>
+		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="5" Command="{Binding F8Command}"
+				Content="{x:Static assets:Resources.F8Delete}"></Button>
 	</Grid>
 		
 </Grid>
