@@ -79,11 +79,92 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t copy file to itself.
+        /// </summary>
+        public static string CantCopyFileToItself {
+            get {
+                return ResourceManager.GetString("CantCopyFileToItself", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t edit the folder.
+        /// </summary>
+        public static string CantEditFolder {
+            get {
+                return ResourceManager.GetString("CantEditFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t move file to itself.
+        /// </summary>
+        public static string CantMoveFileToItself {
+            get {
+                return ResourceManager.GetString("CantMoveFileToItself", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t move folder here.
+        /// </summary>
+        public static string CantMoveFolderHere {
+            get {
+                return ResourceManager.GetString("CantMoveFolderHere", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t move folder to itself.
+        /// </summary>
+        public static string CantMoveFolderToItself {
+            get {
+                return ResourceManager.GetString("CantMoveFolderToItself", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t view the folder.
+        /// </summary>
+        public static string CantViewFolder {
+            get {
+                return ResourceManager.GetString("CantViewFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copy {0} to:.
         /// </summary>
         public static string CopyTo {
             get {
                 return ResourceManager.GetString("CopyTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create New Folder.
+        /// </summary>
+        public static string CreateNewFolder {
+            get {
+                return ResourceManager.GetString("CreateNewFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current directory name.
+        /// </summary>
+        public static string CurrentDirectoryName {
+            get {
+                return ResourceManager.GetString("CurrentDirectoryName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: {0}, folders: {1}..
+        /// </summary>
+        public static string CurrentDirInfo {
+            get {
+                return ResourceManager.GetString("CurrentDirInfo", resourceCulture);
             }
         }
         
@@ -102,6 +183,24 @@ namespace SmartCommander.Assets {
         public static string Date {
             get {
                 return ResourceManager.GetString("Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you would like to delete {0}?.
+        /// </summary>
+        public static string DeleteConfirmation {
+            get {
+                return ResourceManager.GetString("DeleteConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder is not empty. Are you sure you would like to delete {0}?.
+        /// </summary>
+        public static string DeleteConfirmationNonEmpty {
+            get {
+                return ResourceManager.GetString("DeleteConfirmationNonEmpty", resourceCulture);
             }
         }
         
@@ -133,11 +232,92 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The drive is not available.
+        /// </summary>
+        public static string DriveNotAvailable {
+            get {
+                return ResourceManager.GetString("DriveNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: no pane selected.
+        /// </summary>
+        public static string ErrorNoPane {
+            get {
+                return ResourceManager.GetString("ErrorNoPane", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extension.
         /// </summary>
         public static string Extension {
             get {
                 return ResourceManager.GetString("Extension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F3 View.
+        /// </summary>
+        public static string F3View {
+            get {
+                return ResourceManager.GetString("F3View", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F4 Edit.
+        /// </summary>
+        public static string F4Edit {
+            get {
+                return ResourceManager.GetString("F4Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F5 Copy.
+        /// </summary>
+        public static string F5Copy {
+            get {
+                return ResourceManager.GetString("F5Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F6 Move.
+        /// </summary>
+        public static string F6Move {
+            get {
+                return ResourceManager.GetString("F6Move", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F7 Create Folder.
+        /// </summary>
+        public static string F7CreateNewFolder {
+            get {
+                return ResourceManager.GetString("F7CreateNewFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F8 Delete.
+        /// </summary>
+        public static string F8Delete {
+            get {
+                return ResourceManager.GetString("F8Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File already exists. Are you sure you would like to rewrite {0}?.
+        /// </summary>
+        public static string FileExistsRewrite {
+            get {
+                return ResourceManager.GetString("FileExistsRewrite", resourceCulture);
             }
         }
         
@@ -151,11 +331,101 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The folder already exists.
+        /// </summary>
+        public static string FolderExists {
+            get {
+                return ResourceManager.GetString("FolderExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Light Theme.
         /// </summary>
         public static string LightTheme {
             get {
                 return ResourceManager.GetString("LightTheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Configuration.
+        /// </summary>
+        public static string MenuConfiguration {
+            get {
+                return ResourceManager.GetString("MenuConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Exit.
+        /// </summary>
+        public static string MenuExit {
+            get {
+                return ResourceManager.GetString("MenuExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _File.
+        /// </summary>
+        public static string MenuFile {
+            get {
+                return ResourceManager.GetString("MenuFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Options.
+        /// </summary>
+        public static string MenuOptions {
+            get {
+                return ResourceManager.GetString("MenuOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sort by _date.
+        /// </summary>
+        public static string MenuSortByDate {
+            get {
+                return ResourceManager.GetString("MenuSortByDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sort by _extension.
+        /// </summary>
+        public static string MenuSortByExtension {
+            get {
+                return ResourceManager.GetString("MenuSortByExtension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sort by _name.
+        /// </summary>
+        public static string MenuSortByName {
+            get {
+                return ResourceManager.GetString("MenuSortByName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sort by _size.
+        /// </summary>
+        public static string MenuSortBySize {
+            get {
+                return ResourceManager.GetString("MenuSortBySize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _View.
+        /// </summary>
+        public static string MenuView {
+            get {
+                return ResourceManager.GetString("MenuView", resourceCulture);
             }
         }
         
