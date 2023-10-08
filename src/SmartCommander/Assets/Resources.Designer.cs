@@ -340,6 +340,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} items.
+        /// </summary>
+        public static string ItemsNumber {
+            get {
+                return ResourceManager.GetString("ItemsNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Light Theme.
         /// </summary>
         public static string LightTheme {

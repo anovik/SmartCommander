@@ -88,6 +88,8 @@ namespace SmartCommander.ViewModels
         public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;        
         public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
 
+        private FileViewModel? currentItem;
+
         public void Exit()
         {
             if (Application.Current != null &&
@@ -195,11 +197,12 @@ namespace SmartCommander.ViewModels
         }
 
         public async Task Copy()
-        {
-            // TODO: check CurrentItems instead
-            if (SelectedPane.CurrentItem == null)
+        {            
+            if (SelectedPane.CurrentItems.Count < 1)
                 return;
-            var copy = new CopyMoveViewModel(true, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);            
+            var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
+             string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
+            var copy = new CopyMoveViewModel(true, text, SecondPane.CurrentDirectory);            
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
             {
@@ -236,6 +239,7 @@ namespace SmartCommander.ViewModels
                         }
                         else
                         {
+                            currentItem = item;
                             MessageBox_Show(CopyFileExists, string.Format(Resources.FileExistsRewrite, destFile),
                                 Resources.Alert, ButtonEnum.YesNo);
                         }
@@ -245,29 +249,28 @@ namespace SmartCommander.ViewModels
         }
 
         public void CopyFileExists(ButtonResult result)
-        {
-            // TODO: item instead of CurrentItem
+        {            
             if (result == ButtonResult.Yes)
             {
-                if (SelectedPane.CurrentItem == null)
+                if (currentItem == null)
                 {
                     return;
                 }
-                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
-                File.Copy(SelectedPane.CurrentItem.FullName, destFile, true);
+                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(currentItem.FullName));
+                File.Copy(currentItem.FullName, destFile, true);
                 SelectedPane.Update();
                 SecondPane.Update();
+                currentItem = null;
             }
         }      
 
         public async Task Move()
         {
-            // TODO: check CurrentItems instead
-            if (SelectedPane.CurrentItem == null)
-            {
+            if (SelectedPane.CurrentItems.Count < 1)
                 return;
-            }
-            var copy = new CopyMoveViewModel(false, SelectedPane.CurrentItem, SecondPane.CurrentDirectory);
+            var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
+               string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
+            var copy = new CopyMoveViewModel(false, text, SecondPane.CurrentDirectory);
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
             {
@@ -310,6 +313,7 @@ namespace SmartCommander.ViewModels
                         }
                         else
                         {
+                            currentItem = item;
                             MessageBox_Show(MoveFileExists, string.Format(Resources.FileExistsRewrite, destFile),
                                 Resources.Alert, ButtonEnum.YesNo);
                         }
@@ -319,16 +323,15 @@ namespace SmartCommander.ViewModels
         }
 
         public void MoveFileExists(ButtonResult result)
-        {
-            // TODO: item instead of CurrentItem
+        {           
             if (result == ButtonResult.Yes)
             {
-                if (SelectedPane.CurrentItem == null)
+                if (currentItem == null)
                 {
                     return;
                 }
-                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(SelectedPane.CurrentItem.FullName));
-                File.Move(SelectedPane.CurrentItem.FullName, destFile, true);
+                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(currentItem.FullName));
+                File.Move(currentItem.FullName, destFile, true);
                 SelectedPane.Update();
                 SecondPane.Update();
             }
@@ -373,37 +376,39 @@ namespace SmartCommander.ViewModels
         }
 
         public void Delete()
-        {            
-            // TODO: check CurrentItems instead
-            if (SelectedPane.CurrentItem == null)
-            {
+        {           
+            if (SelectedPane.CurrentItems.Count < 1)
                 return;
-            }
+            var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
+                string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             MessageBox_Show(DeleteAnswer,
-                string.Format(Resources.DeleteConfirmation, SelectedPane.CurrentItem.Name), 
+                string.Format(Resources.DeleteConfirmation, text), 
                 Resources.Alert,
                 ButtonEnum.YesNo);            
         }
 
         public void DeleteAnswer(ButtonResult result)
-        {
-            // TODO: check CurrentItems instead
+        {          
             if (result == ButtonResult.Yes)
             {
-                if (SelectedPane.CurrentItem == null)
+                foreach (var item in SelectedPane.CurrentItems)
                 {
-                    return;
-                }
-                if (SelectedPane.NonEmptyFolder())
-                {
-                    MessageBox_Show(DeleteAnswerNonEmptyFolder, 
-                        string.Format(Resources.DeleteConfirmationNonEmpty, SelectedPane.CurrentItem.Name),
-                        Resources.Alert,
-                        ButtonEnum.YesNo);
-                }
-                else
-                {
-                    DeleteItem();
+                    if (item == null)
+                    {
+                        continue;
+                    }
+                    if (SelectedPane.NonEmptyFolder())
+                    {
+                        currentItem = item;
+                        MessageBox_Show(DeleteAnswerNonEmptyFolder,
+                            string.Format(Resources.DeleteConfirmationNonEmpty, item.Name),
+                            Resources.Alert,
+                            ButtonEnum.YesNo);
+                    }
+                    else
+                    {
+                        DeleteItem(item);
+                    }
                 }
             }
         }
@@ -412,13 +417,14 @@ namespace SmartCommander.ViewModels
         {
             if (result == ButtonResult.Yes)
             {
-                DeleteItem();
+                DeleteItem(currentItem);
             }
+            currentItem = null;
         }
 
-        public void DeleteItem()
+        public void DeleteItem(FileViewModel? item)
         {
-            SelectedPane.Delete();
+            SelectedPane.Delete(item);
             SelectedPane.Update();
             SecondPane.Update();
         }

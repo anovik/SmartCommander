@@ -210,6 +210,9 @@
   <data name="FolderExists" xml:space="preserve">
     <value>The folder already exists</value>
   </data>
+  <data name="ItemsNumber" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
   <data name="LightTheme" xml:space="preserve">
     <value>Light Theme</value>
   </data>
