@@ -288,7 +288,7 @@ namespace SmartCommander.ViewModels
                             }
                             string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
                             CopyDirectory(item.FullName, destFolder, true);
-                            Directory.Delete(item.FullName, true);
+                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
                             SelectedPane.Update();
                             SecondPane.Update();
                         }

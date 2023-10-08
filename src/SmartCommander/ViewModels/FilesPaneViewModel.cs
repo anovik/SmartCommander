@@ -325,7 +325,7 @@ namespace SmartCommander.ViewModels
                 }
                 if (item.IsFolder)
                 {
-                    Directory.Delete(item.FullName, true);
+                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
                 }
                 else
                 {
