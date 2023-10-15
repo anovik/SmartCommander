@@ -86,9 +86,7 @@ namespace SmartCommander.ViewModels
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
 
         public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;        
-        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
-
-        private FileViewModel? currentItem;
+        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;      
 
         public void Exit()
         {
@@ -238,20 +236,20 @@ namespace SmartCommander.ViewModels
                             SecondPane.Update();
                         }
                         else
-                        {
-                            currentItem = item;
+                        {                            
                             MessageBox_Show(CopyFileExists, string.Format(Resources.FileExistsRewrite, destFile),
-                                Resources.Alert, ButtonEnum.YesNo);
+                                Resources.Alert, ButtonEnum.YesNo, parameter:item);
                         }
                     }
                 }
             }
         }
 
-        public void CopyFileExists(ButtonResult result)
+        public void CopyFileExists(ButtonResult result, object? parameter)
         {            
             if (result == ButtonResult.Yes)
             {
+                FileViewModel? currentItem = parameter as FileViewModel;
                 if (currentItem == null)
                 {
                     return;
@@ -259,8 +257,7 @@ namespace SmartCommander.ViewModels
                 string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(currentItem.FullName));
                 File.Copy(currentItem.FullName, destFile, true);
                 SelectedPane.Update();
-                SecondPane.Update();
-                currentItem = null;
+                SecondPane.Update();             
             }
         }      
 
@@ -312,20 +309,20 @@ namespace SmartCommander.ViewModels
                             SecondPane.Update();
                         }
                         else
-                        {
-                            currentItem = item;
+                        {                         
                             MessageBox_Show(MoveFileExists, string.Format(Resources.FileExistsRewrite, destFile),
-                                Resources.Alert, ButtonEnum.YesNo);
+                                Resources.Alert, ButtonEnum.YesNo, parameter: item);
                         }
                     }
                 }
             }
         }
 
-        public void MoveFileExists(ButtonResult result)
+        public void MoveFileExists(ButtonResult result, object? parameter)
         {           
             if (result == ButtonResult.Yes)
             {
+                FileViewModel? currentItem = parameter as FileViewModel;
                 if (currentItem == null)
                 {
                     return;
@@ -387,7 +384,7 @@ namespace SmartCommander.ViewModels
                 ButtonEnum.YesNo);            
         }
 
-        public void DeleteAnswer(ButtonResult result)
+        public void DeleteAnswer(ButtonResult result, object? parameter)
         {          
             if (result == ButtonResult.Yes)
             {
@@ -398,12 +395,13 @@ namespace SmartCommander.ViewModels
                         continue;
                     }
                     if (SelectedPane.NonEmptyFolder())
-                    {
-                        currentItem = item;
+                    {                       
                         MessageBox_Show(DeleteAnswerNonEmptyFolder,
                             string.Format(Resources.DeleteConfirmationNonEmpty, item.Name),
                             Resources.Alert,
-                            ButtonEnum.YesNo);
+                            ButtonEnum.YesNo,
+                            parameter: item);
+
                     }
                     else
                     {
@@ -413,13 +411,16 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public void DeleteAnswerNonEmptyFolder(ButtonResult result)
+        public void DeleteAnswerNonEmptyFolder(ButtonResult result, object? parameter)
         {
             if (result == ButtonResult.Yes)
             {
-                DeleteItem(currentItem);
-            }
-            currentItem = null;
+                FileViewModel? currentItem = parameter as FileViewModel;
+                if (currentItem != null)
+                {
+                    DeleteItem(currentItem);
+                }
+            }           
         }
 
         public void DeleteItem(FileViewModel? item)
