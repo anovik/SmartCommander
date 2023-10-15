@@ -9,35 +9,38 @@ using System.Threading.Tasks;
 namespace SmartCommander.Views
 {
     public class MvvmMessageBoxEventArgs : EventArgs
-    {        public MvvmMessageBoxEventArgs(Action<ButtonResult>? resultAction,
+    {        public MvvmMessageBoxEventArgs(Action<ButtonResult, object?>? resultAction,
                                             Action<string>? resultInputAction,
                                             string messageBoxText, 
                                             string caption = "", 
                                             ButtonEnum button = ButtonEnum.Ok, 
-                                            Icon icon = Icon.None)
+                                            Icon icon = Icon.None,
+                                            object? parameter = null)
         {
             this.resultAction = resultAction;
             this.resultInputAction = resultInputAction;
             this.messageBoxText = messageBoxText;
             this.caption = caption;
             this.button = button;
-            this.icon = icon;       
+            this.icon = icon;
+            this.parameter = parameter;
         }
 
-        Action<ButtonResult>? resultAction;
+        Action<ButtonResult, object?>? resultAction;
         Action<string>? resultInputAction;
 
         string messageBoxText;
         string caption;
         ButtonEnum button;
-        Icon icon;   
+        Icon icon;
+        object? parameter;
 
         public async Task Show(Window owner)
         {
             var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
             var  result = await messageBoxWindow.ShowAsPopupAsync(owner);
-            resultAction?.Invoke(result);
+            resultAction?.Invoke(result, parameter);
         }
 
         public async Task ShowInput(Window owner)

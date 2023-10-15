@@ -79,7 +79,10 @@
 			</ia:EventTriggerBehavior>
 		   <ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
 			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
-			</ia:EventTriggerBehavior>			
+			</ia:EventTriggerBehavior>
+			  <ia:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding #FoldersFilesList}">
+				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
+			  </ia:EventTriggerBehavior>
 		  </i:Interaction.Behaviors>
 		</DataGrid>		
 		</ScrollViewer>

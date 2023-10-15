@@ -59,6 +59,8 @@ namespace SmartCommander.ViewModels
 
         public FileViewModel? CurrentItem { get; set; }
 
+        public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
+
         public SortingBy Sorting
         {
             get => _sorting;
@@ -91,7 +93,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-      
+
         public bool IsCurrentDirectoryDisplayed
         {
             get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
@@ -109,13 +111,13 @@ namespace SmartCommander.ViewModels
 
         public FilesPaneViewModel(MainWindowViewModel mainVM)
         {
-            CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);           
+            CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
-            _mainVM = mainVM;           
-        }   
+            _mainVM = mainVM;
+        }
 
-        public ReactiveCommand<Unit, Unit>? EnterCommand { get; } 
+        public ReactiveCommand<Unit, Unit>? EnterCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
 
@@ -186,11 +188,11 @@ namespace SmartCommander.ViewModels
         }
 
         public void BeginningEdit(object sender, object parameter)
-        {          
-            DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;          
-            if (args != null && 
+        {
+            DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;
+            if (args != null &&
                 args.Column.DisplayIndex != 0)
-            {                
+            {
                 args.Cancel = true;
             }
             if (args != null &&
@@ -198,9 +200,22 @@ namespace SmartCommander.ViewModels
                 CurrentItem.FullName == "..")
             {
                 args.Cancel = true;
-            }      
-        }    
+            }
+        }
 
+        public void SelectionChanged(object sender, object parameter)
+        {
+            SelectionChangedEventArgs? args = parameter as SelectionChangedEventArgs;
+            if (args != null)
+            {
+                DataGrid? grid = args.Source as DataGrid;
+                if (grid != null)
+                {
+                    // non-bindable property
+                    CurrentItems = grid.SelectedItems.Cast<FileViewModel>().ToList();
+                }
+            }
+        }
 
         public void Tapped(object sender, object parameter)
         {
@@ -300,21 +315,21 @@ namespace SmartCommander.ViewModels
                 !IsDirectoryEmpty(CurrentItem!.FullName);
         }
 
-        public void Delete()
+        public void Delete(FileViewModel? item)
         {
             try
             {
-                if (CurrentItem == null)
+                if (item == null)
                 {
                     return;
                 }
-                if (CurrentItem.IsFolder)
+                if (item.IsFolder)
                 {
-                    Directory.Delete(CurrentItem.FullName, true);
+                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
                 }
                 else
                 {
-                    File.Delete(CurrentItem.FullName);
+                    File.Delete(item.FullName);
                 }
             }
             catch
