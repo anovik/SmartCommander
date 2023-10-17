@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using SmartCommander.Assets;
 using System;
+using System.Drawing;
 using System.IO;
 
 namespace SmartCommander.ViewModels
@@ -23,6 +24,7 @@ namespace SmartCommander.ViewModels
                 Extension = "";
                 Size = Resources.Folder;
                 DateCreated = File.GetCreationTime(fullName);
+                ImageSource = "Assets/folder.png";
             }
             else
             {
@@ -38,7 +40,9 @@ namespace SmartCommander.ViewModels
                 }
                 Size = new FileInfo(fullName).Length.ToString();
                 DateCreated = File.GetCreationTime(fullName);
+                ImageSource = "Assets/file.png";
             }
+           
         }
 
         public string FullName { get; set; } = "";
@@ -78,5 +82,7 @@ namespace SmartCommander.ViewModels
         public string Size { get; set; } = "";
         public DateTime DateCreated { get; set; }
         public bool IsFolder { get; set; } 
+
+        public string? ImageSource { get; set; }
     }
 }

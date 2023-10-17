@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-						 xmlns:vm="using:SmartCommander.ViewModels"
+			 xmlns:vm="using:SmartCommander.ViewModels"
+			 xmlns:converter="using:SmartCommander.Converters"
              xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
              xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,6 +9,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 xmlns:assets="clr-namespace:SmartCommander.Assets"
              x:Class="SmartCommander.Views.FilesPane">
+
+	<UserControl.Resources>
+		<converter:BitmapValueConverter x:Key="variableImage"/>
+	</UserControl.Resources>
 
 	<Design.DataContext>
 		<vm:FilesPaneViewModel/>
@@ -61,6 +66,15 @@
           </ContextMenu>          
         </DataGrid.ContextMenu>
 			<DataGrid.Columns>
+				<DataGridTemplateColumn Header="" Width="20" MaxWidth="20">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<Image VerticalAlignment="Center" HorizontalAlignment="Center" 
+								   Source="{Binding ImageSource, Converter={StaticResource variableImage}}"
+									Width="16"/>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 				<DataGridTextColumn Header="{x:Static assets:Resources.Name}" Binding="{Binding Name}"></DataGridTextColumn>
 				<DataGridTextColumn Header="{x:Static assets:Resources.Extension}" Binding="{Binding Extension}"></DataGridTextColumn>
 				<DataGridTextColumn Header="{x:Static assets:Resources.Size}" Binding="{Binding Size}"></DataGridTextColumn>

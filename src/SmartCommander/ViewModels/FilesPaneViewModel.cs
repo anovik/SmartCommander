@@ -191,7 +191,7 @@ namespace SmartCommander.ViewModels
         {
             DataGridBeginningEditEventArgs? args = parameter as DataGridBeginningEditEventArgs;
             if (args != null &&
-                args.Column.DisplayIndex != 0)
+                args.Column.DisplayIndex != 1)
             {
                 args.Cancel = true;
             }
