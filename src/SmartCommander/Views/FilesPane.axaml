@@ -46,6 +46,7 @@
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 
 				  CanUserSortColumns="True"	
+				  Background="Transparent"
 				  SelectedItem="{Binding CurrentItem}"
           BorderBrush="{Binding GridBorderBrush}" BorderThickness="1">			
 			<DataGrid.Styles>
@@ -60,9 +61,13 @@
 				</Style>
 			</DataGrid.Styles>
         <DataGrid.ContextMenu>
-          <ContextMenu>            
+          <ContextMenu MinWidth="100">            
             <MenuItem Header="View" Command="{Binding ViewCommand}"></MenuItem>
             <MenuItem Header="Edit" Command="{Binding EditCommand}"></MenuItem>
+			<Separator></Separator>
+			<MenuItem Header="Copy" Command="{Binding CopyCommand}"></MenuItem>
+			<MenuItem Header="Cut" Command="{Binding CutCommand}"></MenuItem>
+			<MenuItem Header="Paste" Command="{Binding PasteCommand}"></MenuItem>
           </ContextMenu>          
         </DataGrid.ContextMenu>
 			<DataGrid.Columns>
