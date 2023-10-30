@@ -39,9 +39,8 @@
 			</TextBox>
       <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}">      
       </ComboBox>
-    </Grid>
-		<ScrollViewer Margin="5" Grid.Row="1">			
-	    <DataGrid IsTabStop="True" 
+    </Grid>	
+	    <DataGrid Margin="5" Grid.Row="1" IsTabStop="True"				
 				  ItemsSource="{Binding FoldersFilesList}" 
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 
@@ -75,10 +74,10 @@
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
-				<DataGridTextColumn Header="{x:Static assets:Resources.Name}" Binding="{Binding Name}"></DataGridTextColumn>
-				<DataGridTextColumn Header="{x:Static assets:Resources.Extension}" Binding="{Binding Extension}"></DataGridTextColumn>
-				<DataGridTextColumn Header="{x:Static assets:Resources.Size}" Binding="{Binding Size}"></DataGridTextColumn>
-				<DataGridTextColumn Header="{x:Static assets:Resources.Date}" Binding="{Binding DateCreated}"></DataGridTextColumn>
+				<DataGridTextColumn Width="2*" Header="{x:Static assets:Resources.Name}" Binding="{Binding Name}"></DataGridTextColumn>
+				<DataGridTextColumn Width="*" Header="{x:Static assets:Resources.Extension}" Binding="{Binding Extension}"></DataGridTextColumn>
+				<DataGridTextColumn Width="*" Header="{x:Static assets:Resources.Size}" Binding="{Binding Size}"></DataGridTextColumn>
+				<DataGridTextColumn Width="*" Header="{x:Static assets:Resources.Date}" Binding="{Binding DateCreated}"></DataGridTextColumn>
 			</DataGrid.Columns>
 			
 		  <i:Interaction.Behaviors>		
@@ -98,8 +97,7 @@
 				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
 			  </ia:EventTriggerBehavior>
 		  </i:Interaction.Behaviors>
-		</DataGrid>		
-		</ScrollViewer>
+		</DataGrid>				
 		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
 	</Grid>
 </UserControl>
