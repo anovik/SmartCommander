@@ -1,10 +1,14 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
 using SmartCommander.Models;
+using SmartCommander.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -114,12 +118,18 @@ namespace SmartCommander.ViewModels
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
+            CopyCommand = ReactiveCommand.Create(Copy);
+            CutCommand = ReactiveCommand.Create(Cut);
+            PasteCommand = ReactiveCommand.Create(Paste);
             _mainVM = mainVM;
         }
 
         public ReactiveCommand<Unit, Unit>? EnterCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
+        public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
+        public ReactiveCommand<Unit, Unit>? CutCommand { get; }
+        public ReactiveCommand<Unit, Unit>? PasteCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -296,6 +306,42 @@ namespace SmartCommander.ViewModels
             else
             {
                 MessageBox_Show(null, Resources.CantEditFolder, Resources.Alert, ButtonEnum.Ok);
+            }
+        }
+
+        public async void Copy()
+        {
+            if (CurrentItem == null)
+                return;
+            if (Application.Current != null &&
+               Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                var clipboard = desktopLifetime.MainWindow?.Clipboard;
+                if (clipboard != null)
+                {
+                    var dataObject = new DataObject();
+                    dataObject.Set(DataFormats.Files, CurrentItem.FullName);
+                    await clipboard.SetDataObjectAsync(dataObject);
+                }
+            }         
+        }
+
+        public void Cut()
+        {
+            if (CurrentItem == null)
+                return;
+        }
+
+        public async void Paste()
+        {
+            if (Application.Current != null &&
+             Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                var clipboard = desktopLifetime.MainWindow?.Clipboard;
+                if (clipboard != null)
+                {
+                    var obj = await clipboard.GetDataAsync(DataFormats.Files);                          
+                }
             }
         }
 
