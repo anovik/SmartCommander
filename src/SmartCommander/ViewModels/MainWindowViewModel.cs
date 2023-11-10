@@ -199,6 +199,11 @@ namespace SmartCommander.ViewModels
         {            
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
+            if (SelectedPane.CurrentDirectory == SecondPane.CurrentDirectory)
+            {
+                MessageBox_Show(null, Resources.CantCopyFileToItself, Resources.Alert);
+                return;
+            }
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
              string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             var copy = new CopyMoveViewModel(true, text, SecondPane.CurrentDirectory);            
@@ -251,15 +256,8 @@ namespace SmartCommander.ViewModels
                 {
                     // copy file
                     string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                    // TODO: move this check to the top level
-                    if (destFile == item.FullName)
-                    {
-                        MessageBox_Show(null, Resources.CantCopyFileToItself, Resources.Alert);
-                    }
-                    else
-                    {                 
-                        File.Copy(item.FullName, destFile, overwrite);                   
-                    }
+                    File.Copy(item.FullName, destFile, overwrite);                
+                   
                 }
             }
             SelectedPane.Update();
@@ -270,6 +268,11 @@ namespace SmartCommander.ViewModels
         {
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
+            if (SelectedPane.CurrentDirectory == SecondPane.CurrentDirectory)
+            {
+                MessageBox_Show(null, Resources.CantMoveFileToItself, Resources.Alert);
+                return;
+            }
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
                string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             var copy = new CopyMoveViewModel(false, text, SecondPane.CurrentDirectory);
@@ -283,7 +286,7 @@ namespace SmartCommander.ViewModels
                     text = duplicates.Count == 1 ? Path.GetFileName(duplicates[0]) :
                         string.Format(Resources.ItemsNumber, duplicates.Count);
                     MessageBox_Show(MoveFileExists, string.Format(Resources.FileExistsRewrite, text),
-                     Resources.Alert, ButtonEnum.YesNoCancel);
+                        Resources.Alert, ButtonEnum.YesNoCancel);
                 }
                 else
                 {
@@ -328,16 +331,8 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     // move file
-                    string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                    // TODO: move this check to the top level
-                    if (destFile == item.FullName)
-                    {
-                        MessageBox_Show(null, Resources.CantMoveFileToItself, Resources.Alert);
-                    }
-                    else
-                    {              
-                        File.Move(item.FullName, destFile, overwrite);                  
-                    }
+                    string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                           
+                    File.Move(item.FullName, destFile, overwrite);  
                 }
             }
             SelectedPane.Update();

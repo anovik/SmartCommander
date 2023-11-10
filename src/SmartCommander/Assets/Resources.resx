@@ -124,13 +124,13 @@
     <value>Cancel</value>
   </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
-    <value>Can't copy file to itself</value>
+    <value>Can't copy files to the same directory</value>
   </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Can't edit the folder</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
-    <value>Can't move file to itself</value>
+    <value>Can't move files to the same directory</value>
   </data>
   <data name="CantMoveFolderHere" xml:space="preserve">
     <value>Can't move folder here</value>

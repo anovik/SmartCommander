@@ -39,7 +39,21 @@ namespace SmartCommander
         {
             var duplicates = new List<string>();
 
-            // TODO: iterate through selectedItems
+            foreach (var item in selectedItems)
+            {
+                string targetFilePath = Path.Combine(destpath, item.Name);
+                if (item.IsFolder)
+                {
+                    EnumerateDuplicates(item.FullName, targetFilePath, ref duplicates);
+                }
+                else
+                {                    
+                    if (File.Exists(targetFilePath))
+                    {
+                        duplicates.Add(item.FullName);
+                    }
+                }
+            }
 
             return duplicates;
         }
@@ -104,6 +118,35 @@ namespace SmartCommander
                     CopyDirectory(subDir.FullName, newDestinationDir, true);
                 }
             }
+        }
+
+        static internal void EnumerateDuplicates(string sourceDir, string destinationDir, ref List<string> duplicates)
+        {
+            // Get information about the source directory
+            var dir = new DirectoryInfo(sourceDir);
+
+            // Check if the source directory exists
+            if (!dir.Exists)
+                throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
+
+            // Cache directories before we start copying
+            DirectoryInfo[] dirs = dir.GetDirectories();       
+
+            // Get the files in the source directory and copy to the destination directory
+            foreach (FileInfo file in dir.GetFiles())
+            {
+                string targetFilePath = Path.Combine(destinationDir, file.Name);               
+                if (File.Exists(targetFilePath))
+                {
+                    duplicates.Add(file.FullName);
+                }
+            }       
+            
+            foreach (DirectoryInfo subDir in dirs)
+            {
+                string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                EnumerateDuplicates(subDir.FullName, newDestinationDir, ref duplicates);
+            }            
         }
     }
 }
