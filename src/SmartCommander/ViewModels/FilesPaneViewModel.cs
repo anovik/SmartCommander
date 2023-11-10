@@ -306,14 +306,7 @@ namespace SmartCommander.ViewModels
             process.StartInfo.Arguments = $"-e {program} \"{argument}\""; // Specify the command to run in the new terminal window
             process.StartInfo.UseShellExecute = false; // Required to use the terminal emulator
             process.Start();
-        }
-
-        public bool NonEmptyFolder()
-        {
-            return OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty &&
-                 CurrentItem!.IsFolder &&
-                !IsDirectoryEmpty(CurrentItem!.FullName);
-        }
+        }      
 
         public void Delete(FileViewModel? item)
         {
@@ -335,12 +328,7 @@ namespace SmartCommander.ViewModels
             catch
             {
             }
-        }
-
-        public bool IsDirectoryEmpty(string path)
-        {
-            return !Directory.EnumerateFileSystemEntries(path).Any();
-        }
+        }      
 
         public void CreateNewFolder(string name)
         {

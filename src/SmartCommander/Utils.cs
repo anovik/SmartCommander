@@ -1,6 +1,8 @@
-﻿using SmartCommander.ViewModels;
+﻿using SmartCommander.Models;
+using SmartCommander.ViewModels;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SmartCommander
 {
@@ -43,12 +45,28 @@ namespace SmartCommander
         }
 
         static internal List<string> GetNonEmptyFolders(List<FileViewModel> selectedItems)
-        {
+        {           
             var nonEmptyFolders = new List<string>();
 
-            // TODO: iterate through selectedItems
+            if (!OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty)
+            {
+                return nonEmptyFolders;
+            }          
+
+            foreach (var item in selectedItems)
+            {
+               if (item.IsFolder && !IsDirectoryEmpty(item.FullName))
+                {
+                    nonEmptyFolders.Add(item.FullName);
+                }
+            }
 
             return nonEmptyFolders;
+        }
+        
+        static internal bool IsDirectoryEmpty(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
         static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
