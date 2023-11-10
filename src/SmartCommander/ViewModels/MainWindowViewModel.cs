@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
@@ -204,44 +205,14 @@ namespace SmartCommander.ViewModels
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
             {
-                foreach (var item in SelectedPane.CurrentItems)
-                {
-                    if (item.IsFolder)
-                    {
-                        // copy folder
-                        try
-                        {
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            CopyDirectory(item.FullName, destFolder, true);
-                            SelectedPane.Update();
-                            SecondPane.Update();
-                        }
-                        catch
-                        {
-                            MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
-                        }
-                    }
-                    else
-                    {
-                        // copy file
-                        string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        if (destFile == item.FullName)
-                        {
-                            MessageBox_Show(null, Resources.CantCopyFileToItself, Resources.Alert);
-                        }
-                        else if (!File.Exists(destFile))
-                        {
-                            File.Copy(item.FullName, destFile, false);
-                            SelectedPane.Update();
-                            SecondPane.Update();
-                        }
-                        else
-                        {                            
-                            MessageBox_Show(CopyFileExists, string.Format(Resources.FileExistsRewrite, destFile),
-                                Resources.Alert, ButtonEnum.YesNo, parameter:item);
-                        }
-                    }
-                }
+                // TODO: get duplicated files and ask user yesnocancel
+
+                var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
+
+                //MessageBox_Show(CopyFileExists, string.Format(Resources.FileExistsRewrite, destFile),
+                // Resources.Alert, ButtonEnum.YesNo, parameter: item);
+
+                CopySelectedFiles();
             }
         }
 
@@ -249,17 +220,45 @@ namespace SmartCommander.ViewModels
         {            
             if (result == ButtonResult.Yes)
             {
-                FileViewModel? currentItem = parameter as FileViewModel;
-                if (currentItem == null)
-                {
-                    return;
-                }
-                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(currentItem.FullName));
-                File.Copy(currentItem.FullName, destFile, true);
-                SelectedPane.Update();
-                SecondPane.Update();             
+                CopySelectedFiles();
             }
         }      
+
+        private void CopySelectedFiles()
+        {
+            foreach (var item in SelectedPane.CurrentItems)
+            {
+                if (item.IsFolder)
+                {
+                    // copy folder
+                    try
+                    {
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                        Utils.CopyDirectory(item.FullName, destFolder, true);
+                    
+                    }
+                    catch
+                    {
+                        MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);                    }
+                }
+                else
+                {
+                    // copy file
+                    string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                    if (destFile == item.FullName)
+                    {
+                        MessageBox_Show(null, Resources.CantCopyFileToItself, Resources.Alert);
+                    }
+                    else
+                    {
+                        // TODO: check file is in duplicates
+                        File.Copy(item.FullName, destFile, false);                   
+                    }
+                }
+            }
+            SelectedPane.Update();
+            SecondPane.Update();
+        }
 
         public async Task Move()
         {
@@ -271,50 +270,14 @@ namespace SmartCommander.ViewModels
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
             {
-                foreach (var item in SelectedPane.CurrentItems)
-                {
-                    if (item.IsFolder)
-                    {
-                        // move folder
-                        try
-                        {
-                            if (item.FullName == SecondPane.CurrentDirectory)
-                            {
-                                MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
-                                return;
-                            }
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            CopyDirectory(item.FullName, destFolder, true);
-                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
-                            SelectedPane.Update();
-                            SecondPane.Update();
-                        }
-                        catch
-                        {
-                            MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
-                        }
-                    }
-                    else
-                    {
-                        // move file
-                        string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        if (destFile == item.FullName)
-                        {
-                            MessageBox_Show(null, Resources.CantMoveFileToItself, Resources.Alert);
-                        }
-                        else if (!File.Exists(destFile))
-                        {
-                            File.Move(item.FullName, destFile, false);
-                            SelectedPane.Update();
-                            SecondPane.Update();
-                        }
-                        else
-                        {                         
-                            MessageBox_Show(MoveFileExists, string.Format(Resources.FileExistsRewrite, destFile),
-                                Resources.Alert, ButtonEnum.YesNo, parameter: item);
-                        }
-                    }
-                }
+                // TODO: get duplicated files and ask user yesnocancel
+
+                var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
+
+                //  MessageBox_Show(MoveFileExists, string.Format(Resources.FileExistsRewrite, destFile),
+                // Resources.Alert, ButtonEnum.YesNo, parameter: item);
+
+                MoveSelectedItems();
             }
         }
 
@@ -322,16 +285,50 @@ namespace SmartCommander.ViewModels
         {           
             if (result == ButtonResult.Yes)
             {
-                FileViewModel? currentItem = parameter as FileViewModel;
-                if (currentItem == null)
-                {
-                    return;
-                }
-                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(currentItem.FullName));
-                File.Move(currentItem.FullName, destFile, true);
-                SelectedPane.Update();
-                SecondPane.Update();
+                MoveSelectedItems();
             }
+        }
+
+        private void MoveSelectedItems()
+        {
+            foreach (var item in SelectedPane.CurrentItems)
+            {
+                if (item.IsFolder)
+                {
+                    // move folder
+                    try
+                    {
+                        if (item.FullName == SecondPane.CurrentDirectory)
+                        {
+                            MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
+                            return;
+                        }
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                        Utils.CopyDirectory(item.FullName, destFolder, true);
+                        Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
+                    }
+                    catch
+                    {
+                        MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                    }
+                }
+                else
+                {
+                    // move file
+                    string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                    if (destFile == item.FullName)
+                    {
+                        MessageBox_Show(null, Resources.CantMoveFileToItself, Resources.Alert);
+                    }
+                    else
+                    {
+                        // TODO: check file is in duplicates
+                        File.Move(item.FullName, destFile, false);                  
+                    }
+                }
+            }
+            SelectedPane.Update();
+            SecondPane.Update();
         }
 
         public async Task ShowOptions()
@@ -385,28 +382,22 @@ namespace SmartCommander.ViewModels
         }
 
         public void DeleteAnswer(ButtonResult result, object? parameter)
-        {          
+        {   
             if (result == ButtonResult.Yes)
-            {
-                foreach (var item in SelectedPane.CurrentItems)
+            {    
+                var nonEmptyFolders = Utils.GetNonEmptyFolders(SelectedPane.CurrentItems);
+                if (nonEmptyFolders != null && nonEmptyFolders.Count > 0)
                 {
-                    if (item == null)
-                    {
-                        continue;
-                    }
-                    if (SelectedPane.NonEmptyFolder())
-                    {                       
-                        MessageBox_Show(DeleteAnswerNonEmptyFolder,
-                            string.Format(Resources.DeleteConfirmationNonEmpty, item.Name),
-                            Resources.Alert,
-                            ButtonEnum.YesNo,
-                            parameter: item);
-
-                    }
-                    else
-                    {
-                        DeleteItem(item);
-                    }
+                    // TODO:  ask user
+                    //MessageBox_Show(DeleteAnswerNonEmptyFolder,
+                    //    string.Format(Resources.DeleteConfirmationNonEmpty, item.Name),
+                    //    Resources.Alert,
+                    //    ButtonEnum.YesNo,
+                    //    parameter: item);
+                }
+                else
+                {
+                    DeleteSelectedItems();
                 }
             }
         }
@@ -415,56 +406,24 @@ namespace SmartCommander.ViewModels
         {
             if (result == ButtonResult.Yes)
             {
-                FileViewModel? currentItem = parameter as FileViewModel;
-                if (currentItem != null)
-                {
-                    DeleteItem(currentItem);
-                }
+                DeleteSelectedItems();
+                SelectedPane.Update();
+                SecondPane.Update();
             }           
-        }
+        }    
 
-        public void DeleteItem(FileViewModel? item)
+        private void DeleteSelectedItems()
         {
-            SelectedPane.Delete(item);
-            SelectedPane.Update();
-            SecondPane.Update();
-        }
-
-        static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
-        {
-            // Get information about the source directory
-            var dir = new DirectoryInfo(sourceDir);
-
-            // Check if the source directory exists
-            if (!dir.Exists)
-                throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
-
-            // Cache directories before we start copying
-            DirectoryInfo[] dirs = dir.GetDirectories();
-
-            // Create the destination directory
-            Directory.CreateDirectory(destinationDir);
-
-            // Get the files in the source directory and copy to the destination directory
-            foreach (FileInfo file in dir.GetFiles())
+            foreach (var item in SelectedPane.CurrentItems)
             {
-                string targetFilePath = Path.Combine(destinationDir, file.Name);
-                if (File.Exists(targetFilePath))
+                if (item == null)
                 {
-                    Utils.SetNormalFileAttributes(targetFilePath);
+                    continue;
                 }
-                file.CopyTo(targetFilePath, true);
-            }
 
-            // If recursive and copying subdirectories, recursively call this method
-            if (recursive)
-            {
-                foreach (DirectoryInfo subDir in dirs)
-                {
-                    string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir, true);
-                }
+                // TODO: check if non-empty folder
+                SelectedPane.Delete(item);
             }
-        }
+        }     
     }
 }
