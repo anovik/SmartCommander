@@ -1,5 +1,6 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
@@ -48,6 +49,7 @@ namespace SmartCommander.ViewModels
                 RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
             }
             SetTheme();
+            progress = new Progress<int>(v => Progress_Show(v));
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -72,6 +74,8 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel RightFileViewModel { get; }
 
         private string _commandText = "";
+
+        IProgress<int> progress;
         public string CommandText
         {
             get { return _commandText; }
@@ -234,34 +238,42 @@ namespace SmartCommander.ViewModels
             }
         }      
 
-        private void CopySelectedFiles(bool overwrite)
+        private async void CopySelectedFiles(bool overwrite)
         {
+            await Task.Run(() => CopySelectedFilesAsync(overwrite));
+
+            SelectedPane.Update();
+            SecondPane.Update();
+        }
+
+        private void CopySelectedFilesAsync(bool overwrite)
+        {
+            progress?.Report(0);
+            int counter = 0;
             foreach (var item in SelectedPane.CurrentItems)
             {
                 if (item.IsFolder)
-                {
-                    // copy folder
+                {                
                     try
                     {
                         string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        Utils.CopyDirectory(item.FullName, destFolder, true);                    
+                        Utils.CopyDirectory(item.FullName, destFolder, true);
                     }
                     catch
-                    {
-                        MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                    {                        
+                        MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);                        
                         return;
                     }
                 }
                 else
-                {
-                    // copy file
+                {                  
                     string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                    File.Copy(item.FullName, destFile, overwrite);                
-                   
-                }
+                    File.Copy(item.FullName, destFile, overwrite);
+
+                }              
+                progress?.Report(++counter * 100 / SelectedPane.CurrentItems.Count);
             }
-            SelectedPane.Update();
-            SecondPane.Update();
+            progress?.Report(100);
         }
 
         public async Task Move()
@@ -303,18 +315,26 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void MoveSelectedItems(bool overwrite)
+        private async void MoveSelectedItems(bool overwrite)
         {
+            await Task.Run(() => MoveSelectedItemsAsync(overwrite));
+            SelectedPane.Update();
+            SecondPane.Update();
+        }
+
+        private void MoveSelectedItemsAsync(bool overwrite)
+        {
+            progress?.Report(0);
+            int counter = 0;
             foreach (var item in SelectedPane.CurrentItems)
             {
                 if (item.IsFolder)
-                {
-                    // move folder
+                {                   
                     try
                     {
                         // TODO: move this check to the top level
                         if (item.FullName == SecondPane.CurrentDirectory)
-                        {
+                        {                           
                             MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                             return;
                         }
@@ -329,14 +349,13 @@ namespace SmartCommander.ViewModels
                     }
                 }
                 else
-                {
-                    // move file
+                {                   
                     string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                           
                     File.Move(item.FullName, destFile, overwrite);  
                 }
+                progress?.Report(++counter * 100 / SelectedPane.CurrentItems.Count);
             }
-            SelectedPane.Update();
-            SecondPane.Update();
+            progress?.Report(100);
         }
 
         public async Task ShowOptions()
@@ -405,7 +424,7 @@ namespace SmartCommander.ViewModels
                         parameter: nonEmptyFolders);
                 }
                 else
-                {
+                {                
                     DeleteSelectedItems(true, nonEmptyFolders);
                 }
             }
@@ -416,13 +435,20 @@ namespace SmartCommander.ViewModels
             if (result != ButtonResult.Cancel)
             {
                 DeleteSelectedItems(result == ButtonResult.Yes, parameter as List<string>);
-                SelectedPane.Update();
-                SecondPane.Update();
             }           
-        }    
+        }
 
-        private void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
+        private async void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
         {
+            await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders));
+            SelectedPane.Update();
+            SecondPane.Update();
+        }
+
+        private void DeleteSelectedItemsAsync(bool overwrite, List<string>? nonEmptyFolders)
+        {
+            progress?.Report(0);
+            int counter = 0;
             foreach (var item in SelectedPane.CurrentItems)
             {
                 if (item == null)
@@ -435,7 +461,10 @@ namespace SmartCommander.ViewModels
                     continue;
                 }
                 SelectedPane.Delete(item);
+
+                progress?.Report(++counter * 100 / SelectedPane.CurrentItems.Count);
             }
+            progress?.Report(100);
         }     
     }
 }

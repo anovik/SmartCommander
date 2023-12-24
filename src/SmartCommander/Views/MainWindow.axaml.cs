@@ -9,6 +9,7 @@ namespace SmartCommander.Views
 {
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
+        ProgressWindow _progressWindow = new ProgressWindow();
         public MainWindow() 
         {
             Opened += OnOpened;
@@ -16,7 +17,6 @@ namespace SmartCommander.Views
 
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
-
            
         }        
 
@@ -71,7 +71,23 @@ namespace SmartCommander.Views
                 vm.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.LeftFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.RightFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
+
+                vm.ProgressRequest += View_ProgressRequest;
             }
+        }
+
+        private void View_ProgressRequest(object? sender, int e)
+        {
+            // TODO: hangs after closing          
+            if (e == 0)
+            {
+                _progressWindow.Show();
+            }
+            if (e >= 100)
+            {
+                _progressWindow.Hide();
+            }
+            _progressWindow.SetProgress(e);
         }
 
         async void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)

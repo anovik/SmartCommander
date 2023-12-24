@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
+			 Width="400" Height="150"
+			 WindowStartupLocation="CenterOwner"
+			 ExtendClientAreaChromeHints="NoChrome"
+			 ExtendClientAreaToDecorationsHint="True"
+			 Topmost="True"
+             x:Class="SmartCommander.Views.ProgressWindow">
+	<StackPanel Margin="20">
+		<TextBlock>Operation in Progress:</TextBlock>
+		<ProgressBar  Margin="20" Height="20" Name="progressBar"
+					  Minimum="0" Maximum="100" 
+					  ShowProgressText="True"/>	
+	</StackPanel>
+</Window>

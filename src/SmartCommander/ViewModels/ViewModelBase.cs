@@ -9,6 +9,15 @@ namespace SmartCommander.ViewModels
     {
         public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxRequest;
         public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxInputRequest;
+        public event EventHandler<int>? ProgressRequest;
+
+        protected void Progress_Show(int value)
+        {
+            if (this.ProgressRequest != null)
+            {
+                this.ProgressRequest(this, value);
+            }
+        }
 
         protected void MessageBox_Show(Action<ButtonResult, object?>? resultAction, string messageBoxText, string caption = "",
             ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None, object? parameter = null)
