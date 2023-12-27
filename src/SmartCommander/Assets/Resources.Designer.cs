@@ -79,7 +79,7 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t copy file to itself.
+        ///   Looks up a localized string similar to Can&apos;t copy files to the same directory.
         /// </summary>
         public static string CantCopyFileToItself {
             get {
@@ -97,7 +97,7 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t move file to itself.
+        ///   Looks up a localized string similar to Can&apos;t move files to the same directory.
         /// </summary>
         public static string CantMoveFileToItself {
             get {
@@ -471,6 +471,15 @@ namespace SmartCommander.Assets {
         public static string OK {
             get {
                 return ResourceManager.GetString("OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation in Progress:.
+        /// </summary>
+        public static string OperationInProgress {
+            get {
+                return ResourceManager.GetString("OperationInProgress", resourceCulture);
             }
         }
         

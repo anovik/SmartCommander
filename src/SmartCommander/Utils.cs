@@ -41,7 +41,7 @@ namespace SmartCommander
 
             foreach (var item in selectedItems)
             {
-                string targetFilePath = Path.Combine(destpath, item.Name);
+                string targetFilePath = Path.Combine(destpath, Path.GetFileName(item.FullName));
                 if (item.IsFolder)
                 {
                     EnumerateDuplicates(item.FullName, targetFilePath, ref duplicates);
