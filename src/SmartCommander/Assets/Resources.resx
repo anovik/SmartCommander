@@ -255,6 +255,9 @@
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="OperationInProgress" xml:space="preserve">
+    <value>Operation in Progress:</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>Options</value>
   </data>

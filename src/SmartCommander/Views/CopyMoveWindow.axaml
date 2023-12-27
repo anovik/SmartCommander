@@ -16,7 +16,7 @@
       <RowDefinition Height="Auto"></RowDefinition>
       <RowDefinition Height="Auto"></RowDefinition>
     </Grid.RowDefinitions>
-    <TextBlock Margin="10" Text="{Binding CopyText}"></TextBlock>
+    <TextBlock Margin="10" Text="{Binding CopyText}" TextWrapping="Wrap"></TextBlock>
     <TextBlock Margin="10"  Grid.Row="1" Text="{Binding Directory}"></TextBlock>
     <StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
       <Button Margin="5" Command="{Binding OKCommand}"  CommandParameter="{Binding $parent[Window]}" 

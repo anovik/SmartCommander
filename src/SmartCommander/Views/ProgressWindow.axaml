@@ -8,9 +8,10 @@
 			 ExtendClientAreaChromeHints="NoChrome"
 			 ExtendClientAreaToDecorationsHint="True"
 			 Topmost="True"
+		     xmlns:assets="clr-namespace:SmartCommander.Assets"
              x:Class="SmartCommander.Views.ProgressWindow">
 	<StackPanel Margin="20">
-		<TextBlock>Operation in Progress:</TextBlock>
+		<TextBlock Text="{x:Static assets:Resources.OperationInProgress}"></TextBlock>
 		<ProgressBar  Margin="20" Height="20" Name="progressBar"
 					  Minimum="0" Maximum="100" 
 					  ShowProgressText="True"/>	

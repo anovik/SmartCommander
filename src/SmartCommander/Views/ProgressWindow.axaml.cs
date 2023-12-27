@@ -5,8 +5,7 @@ namespace SmartCommander.Views
     public partial class ProgressWindow : Window
     {
         public ProgressWindow()
-        {
-            // TODO: move Operation in Progress to resources
+        {            
             InitializeComponent();
         }
 

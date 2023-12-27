@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 using SmartCommander.Models;
@@ -13,11 +14,15 @@ namespace SmartCommander.Views
         public MainWindow() 
         {
             Opened += OnOpened;
-            InitializeComponent();
+            InitializeComponent();           
 
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
-           
+
+            Closing += (s, e) =>
+            {
+                _progressWindow.Close();
+            };
         }        
 
         private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
@@ -77,8 +82,7 @@ namespace SmartCommander.Views
         }
 
         private void View_ProgressRequest(object? sender, int e)
-        {
-            // TODO: hangs after closing          
+        {          
             if (e == 0)
             {
                 _progressWindow.Show();
