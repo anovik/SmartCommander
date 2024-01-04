@@ -200,30 +200,38 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit();
         }
 
-        public void Zip()
+        public async void Zip()
         {
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
+           
+            await Task.Run(() => ZipAsync());
+            SecondPane.Update();
+        }
 
-            // TODO: move to thread
-
+        public void ZipAsync()
+        {
             // TODO: insert correct name
 
             // TODO: check what happens if archive already exists
 
             var zipName = Path.Combine(SecondPane.CurrentDirectory, "test.zip");
+            progress?.Report(0);
+            int counter = 0;
+
+            var items = SelectedPane.CurrentItems;
 
             using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
-                foreach (var item in SelectedPane.CurrentItems)
+                foreach (var item in items)
                 {
                     zip.CreateEntryFromFile(item.FullName, Path.GetFileName(item.FullName), CompressionLevel.Optimal);
 
                     // TODO: in case of folder iterate through its files
 
-                    // TODO: report the progress
+                    progress?.Report(counter++ / items.Count);
                 }
 
-            SecondPane.Update();
+            progress?.Report(100);           
         }
 
         public async Task Copy()
