@@ -1,6 +1,5 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
@@ -8,10 +7,12 @@ using SmartCommander.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Application = Avalonia.Application;
+using File = System.IO.File;
 
 namespace SmartCommander.ViewModels
 {
@@ -197,6 +198,32 @@ namespace SmartCommander.ViewModels
         public void Edit()
         {            
             SelectedPane.Edit();
+        }
+
+        public void Zip()
+        {
+            if (SelectedPane.CurrentItems.Count < 1)
+                return;
+
+            // TODO: move to thread
+
+            // TODO: insert correct name
+
+            // TODO: check what happens if archive already exists
+
+            var zipName = Path.Combine(SecondPane.CurrentDirectory, "test.zip");
+
+            using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
+                foreach (var item in SelectedPane.CurrentItems)
+                {
+                    zip.CreateEntryFromFile(item.FullName, Path.GetFileName(item.FullName), CompressionLevel.Optimal);
+
+                    // TODO: in case of folder iterate through its files
+
+                    // TODO: report the progress
+                }
+
+            SecondPane.Update();
         }
 
         public async Task Copy()

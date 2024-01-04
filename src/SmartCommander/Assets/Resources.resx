@@ -177,6 +177,9 @@
   <data name="DriveNotAvailable" xml:space="preserve">
     <value>The drive is not available</value>
   </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="ErrorNoPane" xml:space="preserve">
     <value>Error: no pane selected</value>
   </data>
@@ -278,5 +281,11 @@
   </data>
   <data name="Size" xml:space="preserve">
     <value>Size</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="Zip" xml:space="preserve">
+    <value>Zip</value>
   </data>
 </root>
