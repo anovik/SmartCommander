@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Threading;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
@@ -35,19 +36,24 @@ namespace SmartCommander.Views
         Icon icon;
         object? parameter;
 
-        public async Task Show(Window owner)
+        public void Show(Window owner)
         {
-            var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+            _ = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
-            var  result = await messageBoxWindow.ShowAsPopupAsync(owner);
-            resultAction?.Invoke(result, parameter);
+                var result = await messageBoxWindow.ShowAsPopupAsync(owner);
+                resultAction?.Invoke(result, parameter);
+            });
         }
 
-        public async Task ShowInput(Window owner)
+        public void ShowInput(Window owner)
         {
-            var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+            _ = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxCustom(new MessageBoxCustomParams()
-                {                 
+                {
                     ContentHeader = caption,
                     ContentMessage = messageBoxText,
                     MinWidth = 300,
@@ -58,8 +64,9 @@ namespace SmartCommander.Views
                     },
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 });
-            var result = await messageBoxWindow.ShowAsPopupAsync(owner);          
-            resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
+                var result = await messageBoxWindow.ShowAsPopupAsync(owner);
+                resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
+            });
         }
     }
 }

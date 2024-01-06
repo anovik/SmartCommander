@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using SmartCommander.Assets;
 using System;
-using System.Drawing;
 using System.IO;
 
 namespace SmartCommander.ViewModels

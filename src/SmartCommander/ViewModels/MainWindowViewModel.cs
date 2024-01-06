@@ -1,5 +1,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using Avalonia.Styling;
+using DynamicData;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
@@ -206,29 +208,62 @@ namespace SmartCommander.ViewModels
                 return;
            
             await Task.Run(() => ZipAsync());
-            SecondPane.Update();
+            SelectedPane.Update();
         }
 
         public void ZipAsync()
         {
-            // TODO: insert correct name
-
-            // TODO: check what happens if archive already exists
-
-            var zipName = Path.Combine(SecondPane.CurrentDirectory, "test.zip");
+            if (SelectedPane.CurrentItems.Count < 1)
+                return;       
+          
+            var zipName = Path.Combine(SelectedPane.CurrentDirectory, SelectedPane.CurrentItems[0].Name + ".zip");
+            if (File.Exists(zipName))
+            {
+                MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
+                return;
+            }
             progress?.Report(0);
-            int counter = 0;
+            long counter = 0;
 
             var items = SelectedPane.CurrentItems;
+            List<Tuple<string, string>> itemsToProcess = new();
+            foreach(var item in items)
+            {
+                itemsToProcess.Add(Tuple.Create("", item.FullName));
+            }
+
+            long totalItemsCount = itemsToProcess.Count;
 
             using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
-                foreach (var item in items)
+                while(itemsToProcess.Count > 0)
                 {
-                    zip.CreateEntryFromFile(item.FullName, Path.GetFileName(item.FullName), CompressionLevel.Optimal);
+                    var item = itemsToProcess[0];
+                    var entryPath = item.Item1 as string;
+                    var path = item.Item2 as string;
+                    if (Directory.Exists(path))
+                    {
+                        var newEntryPath = Path.Combine(entryPath, new DirectoryInfo(path).Name);
+                        foreach (var folder in Directory.GetDirectories(path))
+                        {
+                            itemsToProcess.Add(Tuple.Create(newEntryPath, folder));
+                            totalItemsCount++;
+                        }
+                        foreach (var file in Directory.GetFiles(path))
+                        {
+                            itemsToProcess.Add(Tuple.Create(newEntryPath, file));
+                            totalItemsCount++; 
+                        }                       
+                    }
+                    else if (File.Exists(path))
+                    {
+                        zip.CreateEntryFromFile(sourceFileName: path, 
+                            entryName: Path.Combine(item.Item1, Path.GetFileName(path)), 
+                            CompressionLevel.Optimal);
+                    }
 
-                    // TODO: in case of folder iterate through its files
+                    itemsToProcess.Remove(item);
 
-                    progress?.Report(counter++ / items.Count);
+                    progress?.Report(Convert.ToInt32(counter++ * 100 / totalItemsCount));
                 }
 
             progress?.Report(100);           

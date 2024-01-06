@@ -70,6 +70,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Archive {0} already exists..
+        /// </summary>
+        public static string ArchiveExists {
+            get {
+                return ResourceManager.GetString("ArchiveExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Cancel {
