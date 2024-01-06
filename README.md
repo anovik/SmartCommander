@@ -26,10 +26,14 @@ dotnet build src --configuration Release
 ![alt SmartCommanderOptions](https://github.com/anovik/SmartCommander/blob/main/img/dark_options.png)
   
 - All main operations with files/folders are supported(view, edit, copy, move, create new folder, delete, etc.)
+
+- Creating of ZIP archives 
   
 - Unicode support
   
 - Localization
+
+- Long operations are performed in the background
 
 ## License
 
