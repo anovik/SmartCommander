@@ -60,8 +60,9 @@
 			</DataGrid.Styles>
         <DataGrid.ContextMenu>
           <ContextMenu>            
-            <MenuItem Header="View" Command="{Binding ViewCommand}"></MenuItem>
-            <MenuItem Header="Edit" Command="{Binding EditCommand}"></MenuItem>
+            <MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}"></MenuItem>
+            <MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}"></MenuItem>
+			<MenuItem Header="{x:Static assets:Resources.Zip}" Command="{Binding ZipCommand}"></MenuItem>
           </ContextMenu>          
         </DataGrid.ContextMenu>
 			<DataGrid.Columns>

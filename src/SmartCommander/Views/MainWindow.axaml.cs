@@ -53,11 +53,11 @@ namespace SmartCommander.Views
             {               
                 if (OptionsModel.Instance.IsMaximized)
                 {
-                    WindowState = Avalonia.Controls.WindowState.Maximized;
+                    WindowState = WindowState.Maximized;
                 }
                 else
                 {
-                    WindowState = Avalonia.Controls.WindowState.Normal;                    
+                    WindowState = WindowState.Normal;                    
                     this.Arrange(new Avalonia.Rect(OptionsModel.Instance.Left, OptionsModel.Instance.Top, OptionsModel.Instance.Width, OptionsModel.Instance.Height));
                 }
             }
@@ -94,14 +94,14 @@ namespace SmartCommander.Views
             _progressWindow.SetProgress(e);
         }
 
-        async void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)
+        void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)
         {
-            await e.Show(this);
+            e.Show(this);
         }
 
-        async void View_MessageBoxInputRequest(object? sender, MvvmMessageBoxEventArgs e)
+        void View_MessageBoxInputRequest(object? sender, MvvmMessageBoxEventArgs e)
         {
-            await e.ShowInput(this);
+            e.ShowInput(this);
         }
     }
 }

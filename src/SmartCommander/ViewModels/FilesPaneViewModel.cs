@@ -114,12 +114,14 @@ namespace SmartCommander.ViewModels
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
+            ZipCommand = ReactiveCommand.Create(Zip);
             _mainVM = mainVM;
         }
 
         public ReactiveCommand<Unit, Unit>? EnterCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
+        public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -297,6 +299,11 @@ namespace SmartCommander.ViewModels
             {
                 MessageBox_Show(null, Resources.CantEditFolder, Resources.Alert, ButtonEnum.Ok);
             }
+        }
+
+        public void Zip()
+        {
+            _mainVM.Zip();
         }
 
         private void LaunchProcess(string program, string argument)
