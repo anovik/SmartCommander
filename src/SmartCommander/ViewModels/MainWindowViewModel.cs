@@ -12,6 +12,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Application = Avalonia.Application;
 using File = System.IO.File;
@@ -76,15 +77,19 @@ namespace SmartCommander.ViewModels
 
         public FilesPaneViewModel RightFileViewModel { get; }
 
-        private string _commandText = "";
+        private string commandText = "";
 
         IProgress<int> progress;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        CancellationToken token;
+
         public string CommandText
         {
-            get { return _commandText; }
+            get { return commandText; }
             set
             {
-                _commandText = value;              
+                commandText = value;              
                 this.RaisePropertyChanged("CommandText");               
             }
         }
@@ -206,13 +211,18 @@ namespace SmartCommander.ViewModels
         {
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
-           
-            await Task.Run(() => ZipAsync());
+
+            token = tokenSource.Token;
+            await Task.Run(() => ZipAsync(token));
             SelectedPane.Update();
         }
 
-        public void ZipAsync()
+        public void ZipAsync(CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+            {           
+                ct.ThrowIfCancellationRequested();
+            }
             if (SelectedPane.CurrentItems.Count < 1)
                 return;       
           
@@ -237,6 +247,10 @@ namespace SmartCommander.ViewModels
             using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
                 while(itemsToProcess.Count > 0)
                 {
+                    if (ct.IsCancellationRequested)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                    }
                     var item = itemsToProcess[0];
                     var entryPath = item.Item1 as string;
                     var path = item.Item2 as string;
@@ -310,23 +324,33 @@ namespace SmartCommander.ViewModels
 
         private async void CopySelectedFiles(bool overwrite)
         {
-            await Task.Run(() => CopySelectedFilesAsync(overwrite));
+            token = tokenSource.Token;
+            await Task.Run(() => CopySelectedFilesAsync(overwrite, token));
 
             SelectedPane.Update();
             SecondPane.Update();
         }
 
-        private void CopySelectedFilesAsync(bool overwrite)
+        private void CopySelectedFilesAsync(bool overwrite, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+            {
+                ct.ThrowIfCancellationRequested();
+            }
             progress?.Report(0);
             int counter = 0;
             foreach (var item in SelectedPane.CurrentItems)
             {
+                if (ct.IsCancellationRequested)
+                {
+                    ct.ThrowIfCancellationRequested();
+                }
                 if (item.IsFolder)
                 {                
                     try
                     {
                         string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                        // TODO: pass cancellation token
                         Utils.CopyDirectory(item.FullName, destFolder, true);
                     }
                     catch
@@ -387,17 +411,26 @@ namespace SmartCommander.ViewModels
 
         private async void MoveSelectedItems(bool overwrite)
         {
-            await Task.Run(() => MoveSelectedItemsAsync(overwrite));
+            token = tokenSource.Token;
+            await Task.Run(() => MoveSelectedItemsAsync(overwrite, token));
             SelectedPane.Update();
             SecondPane.Update();
         }
 
-        private void MoveSelectedItemsAsync(bool overwrite)
+        private void MoveSelectedItemsAsync(bool overwrite,CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+            {
+                ct.ThrowIfCancellationRequested();
+            }
             progress?.Report(0);
             int counter = 0;
             foreach (var item in SelectedPane.CurrentItems)
             {
+                if (ct.IsCancellationRequested)
+                {
+                    ct.ThrowIfCancellationRequested();
+                }
                 if (item.IsFolder)
                 {                   
                     try
@@ -409,6 +442,7 @@ namespace SmartCommander.ViewModels
                             return;
                         }
                         string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                        // TODO: pass cancellation token
                         Utils.CopyDirectory(item.FullName, destFolder, true);
                         Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
                     }
@@ -510,17 +544,26 @@ namespace SmartCommander.ViewModels
 
         private async void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
         {
-            await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders));
+            token = tokenSource.Token;
+            await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders, token));
             SelectedPane.Update();
             SecondPane.Update();
         }
 
-        private void DeleteSelectedItemsAsync(bool overwrite, List<string>? nonEmptyFolders)
+        private void DeleteSelectedItemsAsync(bool overwrite, List<string>? nonEmptyFolders, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+            {
+                ct.ThrowIfCancellationRequested();
+            }
             progress?.Report(0);
             int counter = 0;
             foreach (var item in SelectedPane.CurrentItems)
             {
+                if (ct.IsCancellationRequested)
+                {
+                    ct.ThrowIfCancellationRequested();
+                }
                 if (item == null)
                 {
                     continue;
