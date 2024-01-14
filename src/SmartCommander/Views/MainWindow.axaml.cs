@@ -21,6 +21,13 @@ namespace SmartCommander.Views
 
             Closing += (s, e) =>
             {
+                // TODO: ask do we want to stop background operations
+                MainWindowViewModel? vm = DataContext as MainWindowViewModel;
+                if (vm != null)
+                {
+                    vm.Cancel();
+                }
+
                 _progressWindow.Close();
             };
         }        

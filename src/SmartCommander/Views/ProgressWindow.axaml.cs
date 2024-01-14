@@ -4,6 +4,10 @@ namespace SmartCommander.Views
 {
     public partial class ProgressWindow : Window
     {
+        // TODO: move Cancel to resources
+        // TODO: process Cancel and exit -> call Cancel()
+        // TODO: try to disable minimize
+        // TODO: insert icon
         public ProgressWindow()
         {            
             InitializeComponent();

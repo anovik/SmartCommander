@@ -1,7 +1,5 @@
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Platform.Storage;
 using Avalonia.Styling;
-using DynamicData;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
@@ -73,7 +71,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> TabCommand { get; }
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
 
-        public FilesPaneViewModel LeftFileViewModel { get; } 
+        public FilesPaneViewModel LeftFileViewModel { get; }
 
         public FilesPaneViewModel RightFileViewModel { get; }
 
@@ -81,16 +79,15 @@ namespace SmartCommander.ViewModels
 
         IProgress<int> progress;
 
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-        CancellationToken token;
+        CancellationTokenSource tokenSource;       
 
         public string CommandText
         {
             get { return commandText; }
             set
             {
-                commandText = value;              
-                this.RaisePropertyChanged("CommandText");               
+                commandText = value;
+                this.RaisePropertyChanged("CommandText");
             }
         }
 
@@ -98,14 +95,14 @@ namespace SmartCommander.ViewModels
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
 
-        public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;        
-        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;      
+        public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
+        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
 
         public void Exit()
         {
             if (Application.Current != null &&
                 Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-            {    
+            {
                 desktopLifetime.Shutdown();
             }
         }
@@ -142,7 +139,7 @@ namespace SmartCommander.ViewModels
             }
             else if (RightFileViewModel.IsSelected)
             {
-                SelectedPane = LeftFileViewModel;       
+                SelectedPane = LeftFileViewModel;
             }
         }
 
@@ -176,45 +173,54 @@ namespace SmartCommander.ViewModels
                 }
                 throw new Exception(Resources.ErrorNoPane);
             }
-            set 
+            set
             {
                 if (RightFileViewModel == value && !RightFileViewModel.IsSelected)
                 {
                     LeftFileViewModel.IsSelected = false;
-                    RightFileViewModel.IsSelected = true;                    
+                    RightFileViewModel.IsSelected = true;
                 }
                 else if (LeftFileViewModel == value && !LeftFileViewModel.IsSelected)
                 {
                     RightFileViewModel.IsSelected = false;
                     LeftFileViewModel.IsSelected = true;
-                }             
+                }
             }
         }
 
         public void Execute()
-        {            
-            SelectedPane.Execute(CommandText);   
+        {
+            SelectedPane.Execute(CommandText);
             CommandText = "";
         }
 
         public void View()
-        {            
+        {
             SelectedPane.View();
         }
 
         public void Edit()
-        {            
+        {
             SelectedPane.Edit();
         }
 
-        public async void Zip()
+        public void Cancel()
+        {
+            if (tokenSource != null)
+            {
+                tokenSource.Cancel();
+            }            
+        }
+
+    public async void Zip()
         {
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
 
-            token = tokenSource.Token;
-            await Task.Run(() => ZipAsync(token));
+            tokenSource = new CancellationTokenSource();
+            await Task.Run(() => ZipAsync(tokenSource.Token));
             SelectedPane.Update();
+            tokenSource.Dispose();
         }
 
         public void ZipAsync(CancellationToken ct)
@@ -324,11 +330,12 @@ namespace SmartCommander.ViewModels
 
         private async void CopySelectedFiles(bool overwrite)
         {
-            token = tokenSource.Token;
-            await Task.Run(() => CopySelectedFilesAsync(overwrite, token));
+            tokenSource = new CancellationTokenSource();
+            await Task.Run(() => CopySelectedFilesAsync(overwrite, tokenSource.Token));
 
             SelectedPane.Update();
             SecondPane.Update();
+            tokenSource.Dispose();
         }
 
         private void CopySelectedFilesAsync(bool overwrite, CancellationToken ct)
@@ -349,9 +356,8 @@ namespace SmartCommander.ViewModels
                 {                
                     try
                     {
-                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        // TODO: pass cancellation token
-                        Utils.CopyDirectory(item.FullName, destFolder, true);
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                  
+                        Utils.CopyDirectory(item.FullName, destFolder, true, ct);
                     }
                     catch
                     {                        
@@ -411,8 +417,8 @@ namespace SmartCommander.ViewModels
 
         private async void MoveSelectedItems(bool overwrite)
         {
-            token = tokenSource.Token;
-            await Task.Run(() => MoveSelectedItemsAsync(overwrite, token));
+            tokenSource = new CancellationTokenSource();
+            await Task.Run(() => MoveSelectedItemsAsync(overwrite, tokenSource.Token));
             SelectedPane.Update();
             SecondPane.Update();
         }
@@ -441,9 +447,8 @@ namespace SmartCommander.ViewModels
                             MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                             return;
                         }
-                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        // TODO: pass cancellation token
-                        Utils.CopyDirectory(item.FullName, destFolder, true);
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                    
+                        Utils.CopyDirectory(item.FullName, destFolder, true, ct);
                         Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
                     }
                     catch
@@ -544,10 +549,11 @@ namespace SmartCommander.ViewModels
 
         private async void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
         {
-            token = tokenSource.Token;
-            await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders, token));
+            tokenSource = new CancellationTokenSource();
+            await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders, tokenSource.Token));
             SelectedPane.Update();
             SecondPane.Update();
+            tokenSource.Dispose();
         }
 
         private void DeleteSelectedItemsAsync(bool overwrite, List<string>? nonEmptyFolders, CancellationToken ct)
