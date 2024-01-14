@@ -10,7 +10,7 @@ namespace SmartCommander.Views
 {
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        ProgressWindow _progressWindow = new ProgressWindow();
+        ProgressWindow progressWindow;
         public MainWindow() 
         {
             Opened += OnOpened;
@@ -19,16 +19,20 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
 
+            progressWindow = new ProgressWindow();
+
             Closing += (s, e) =>
-            {
-                // TODO: ask do we want to stop background operations
+            {              
                 MainWindowViewModel? vm = DataContext as MainWindowViewModel;
                 if (vm != null)
                 {
-                    vm.Cancel();
+                    if (!vm.Cancel())
+                    {
+                        e.Cancel = true;
+                    }
                 }
 
-                _progressWindow.Close();
+                progressWindow.Close();
             };
         }        
 
@@ -73,6 +77,7 @@ namespace SmartCommander.Views
 
             if (vm != null)
             {
+                progressWindow.ViewModel = vm;
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
 
@@ -89,16 +94,16 @@ namespace SmartCommander.Views
         }
 
         private void View_ProgressRequest(object? sender, int e)
-        {          
+        {   
             if (e == 0)
             {
-                _progressWindow.Show();
+                progressWindow.Show();
             }
             if (e >= 100)
             {
-                _progressWindow.Hide();
+                progressWindow.Hide();
             }
-            _progressWindow.SetProgress(e);
+            progressWindow.SetProgress(e);
         }
 
         void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)

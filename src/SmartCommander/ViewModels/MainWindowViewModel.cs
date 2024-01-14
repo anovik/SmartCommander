@@ -79,7 +79,7 @@ namespace SmartCommander.ViewModels
 
         IProgress<int> progress;
 
-        CancellationTokenSource tokenSource;       
+        SmartCancellationTokenSource? tokenSource;       
 
         public string CommandText
         {
@@ -204,12 +204,14 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit();
         }
 
-        public void Cancel()
+        public bool Cancel()
         {
-            if (tokenSource != null)
+            if (tokenSource != null && !tokenSource.IsDisposed)
             {
-                tokenSource.Cancel();
+                // TODO: ask whether we need to stop background operations
+                tokenSource.Cancel();               
             }            
+            return true;
         }
 
     public async void Zip()
@@ -217,7 +219,7 @@ namespace SmartCommander.ViewModels
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
 
-            tokenSource = new CancellationTokenSource();
+            tokenSource = new SmartCancellationTokenSource();
             await Task.Run(() => ZipAsync(tokenSource.Token));
             SelectedPane.Update();
             tokenSource.Dispose();
@@ -330,7 +332,7 @@ namespace SmartCommander.ViewModels
 
         private async void CopySelectedFiles(bool overwrite)
         {
-            tokenSource = new CancellationTokenSource();
+            tokenSource = new SmartCancellationTokenSource();
             await Task.Run(() => CopySelectedFilesAsync(overwrite, tokenSource.Token));
 
             SelectedPane.Update();
@@ -358,9 +360,10 @@ namespace SmartCommander.ViewModels
                     {
                         string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                  
                         Utils.CopyDirectory(item.FullName, destFolder, true, ct);
-                    }
-                    catch
-                    {                        
+                    }                 
+                    catch(Exception ex)
+                    {               
+                        // TODO: process cancelled operation
                         MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);                        
                         return;
                     }
@@ -417,7 +420,7 @@ namespace SmartCommander.ViewModels
 
         private async void MoveSelectedItems(bool overwrite)
         {
-            tokenSource = new CancellationTokenSource();
+            tokenSource = new SmartCancellationTokenSource();
             await Task.Run(() => MoveSelectedItemsAsync(overwrite, tokenSource.Token));
             SelectedPane.Update();
             SecondPane.Update();
@@ -549,7 +552,7 @@ namespace SmartCommander.ViewModels
 
         private async void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
         {
-            tokenSource = new CancellationTokenSource();
+            tokenSource = new SmartCancellationTokenSource();
             await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders, tokenSource.Token));
             SelectedPane.Update();
             SecondPane.Update();

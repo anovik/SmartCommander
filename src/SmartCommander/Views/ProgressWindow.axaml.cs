@@ -1,16 +1,34 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using SmartCommander.ViewModels;
 
 namespace SmartCommander.Views
 {
     public partial class ProgressWindow : Window
-    {
-        // TODO: move Cancel to resources
-        // TODO: process Cancel and exit -> call Cancel()
-        // TODO: try to disable minimize
-        // TODO: insert icon
+    {                
+        public MainWindowViewModel? ViewModel { get; set; }
         public ProgressWindow()
         {            
             InitializeComponent();
+            Closing += ProgressWindow_Closing;
+            cancelButton.Click += CancelButton_Click;           
+        }
+
+
+        private void CancelButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (ViewModel != null && ViewModel.Cancel())
+            {
+                Hide();
+            }
+        }
+
+        private void ProgressWindow_Closing(object? sender, WindowClosingEventArgs e)
+        {
+            if (ViewModel != null && ViewModel.Cancel())
+            {
+                Hide();
+            }
         }
 
         public void SetProgress(int value)
