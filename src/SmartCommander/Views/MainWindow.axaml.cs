@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.ReactiveUI;
+using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
@@ -10,7 +11,7 @@ namespace SmartCommander.Views
 {
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        ProgressWindow _progressWindow = new ProgressWindow();
+        ProgressWindow progressWindow;
         public MainWindow() 
         {
             Opened += OnOpened;
@@ -19,9 +20,38 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
 
-            Closing += (s, e) =>
+            progressWindow = new ProgressWindow();
+
+            Closing += async (s, e) =>
             {
-                _progressWindow.Close();
+                if (!e.IsProgrammatic)
+                {
+                    MainWindowViewModel? vm = DataContext as MainWindowViewModel;
+                    if (vm != null)
+                    {
+                        if (vm.IsBackgroundOperation)
+                        {
+                            e.Cancel = true;
+                            var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                            .GetMessageBoxStandard(Assets.Resources.Alert,
+                                Assets.Resources.StopBackground + Environment.NewLine,
+                                ButtonEnum.YesNo,
+                                MsBox.Avalonia.Enums.Icon.Question);
+                            var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                            if (result == ButtonResult.Yes)
+                            {
+                                vm.Cancel();
+                                this.Close();
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
+                    }
+
+                    progressWindow.Close();
+                }
             };
         }        
 
@@ -66,6 +96,7 @@ namespace SmartCommander.Views
 
             if (vm != null)
             {
+                progressWindow.ViewModel = vm;
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
 
@@ -82,16 +113,16 @@ namespace SmartCommander.Views
         }
 
         private void View_ProgressRequest(object? sender, int e)
-        {          
+        {   
             if (e == 0)
             {
-                _progressWindow.Show();
+                progressWindow.Show();
             }
             if (e >= 100)
             {
-                _progressWindow.Hide();
+                progressWindow.Hide();
             }
-            _progressWindow.SetProgress(e);
+            progressWindow.SetProgress(e);
         }
 
         void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)

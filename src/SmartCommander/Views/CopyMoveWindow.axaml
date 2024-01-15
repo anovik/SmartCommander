@@ -9,6 +9,7 @@
         ShowInTaskbar="False"
 		xmlns:assets="clr-namespace:SmartCommander.Assets"
         Icon="/Assets/main.ico"
+		CanResize="False"
         Title="SmartCommander">
   <Grid>
     <Grid.RowDefinitions>
