@@ -285,6 +285,9 @@
   <data name="Size" xml:space="preserve">
     <value>Size</value>
   </data>
+  <data name="StopBackground" xml:space="preserve">
+    <value>Would you like to stop the background operation?</value>
+  </data>
   <data name="View" xml:space="preserve">
     <value>View</value>
   </data>

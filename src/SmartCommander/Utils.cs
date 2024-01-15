@@ -3,6 +3,7 @@ using SmartCommander.ViewModels;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace SmartCommander
 {
@@ -83,8 +84,12 @@ namespace SmartCommander
             return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
-        static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+        static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+            {
+                ct.ThrowIfCancellationRequested();
+            }
             // Get information about the source directory
             var dir = new DirectoryInfo(sourceDir);
 
@@ -101,6 +106,10 @@ namespace SmartCommander
             // Get the files in the source directory and copy to the destination directory
             foreach (FileInfo file in dir.GetFiles())
             {
+                if (ct.IsCancellationRequested)
+                {
+                    ct.ThrowIfCancellationRequested();
+                }
                 string targetFilePath = Path.Combine(destinationDir, file.Name);
                 if (File.Exists(targetFilePath))
                 {
@@ -114,8 +123,12 @@ namespace SmartCommander
             {
                 foreach (DirectoryInfo subDir in dirs)
                 {
+                    if (ct.IsCancellationRequested)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                    }
                     string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir, true);
+                    CopyDirectory(subDir.FullName, newDestinationDir, true, ct);
                 }
             }
         }
