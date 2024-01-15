@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.ReactiveUI;
+using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
@@ -21,15 +22,30 @@ namespace SmartCommander.Views
 
             progressWindow = new ProgressWindow();
 
-            Closing += (s, e) =>
+            Closing += async (s, e) =>
             {              
                 MainWindowViewModel? vm = DataContext as MainWindowViewModel;
                 if (vm != null)
                 {
-                    if (!vm.Cancel())
+                    if (vm.IsBackgroundOperation)
                     {
-                        e.Cancel = true;
-                    }
+                        var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                        .GetMessageBoxStandard(Assets.Resources.Alert,
+                            Assets.Resources.StopBackground + Environment.NewLine, 
+                            ButtonEnum.YesNoCancel,
+                            MsBox.Avalonia.Enums.Icon.Question);
+                        // TODO: test message box
+                        var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                        if (result == ButtonResult.No)
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+                        if (result == ButtonResult.Yes)
+                        {
+                            vm.Cancel();
+                        }
+                    }                  
                 }
 
                 progressWindow.Close();

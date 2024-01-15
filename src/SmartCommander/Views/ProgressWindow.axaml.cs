@@ -1,37 +1,63 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SmartCommander.ViewModels;
+using SmartCommander.Assets;
+using System;
+using MsBox.Avalonia.Enums;
+using System.Threading.Tasks;
 
 namespace SmartCommander.Views
 {
     public partial class ProgressWindow : Window
-    {                
+    {
         public MainWindowViewModel? ViewModel { get; set; }
         public ProgressWindow()
-        {            
+        {
             InitializeComponent();
             Closing += ProgressWindow_Closing;
-            cancelButton.Click += CancelButton_Click;           
+            cancelButton.Click += CancelButton_Click;
         }
 
 
-        private void CancelButton_Click(object? sender, RoutedEventArgs e)
+        private async void CancelButton_Click(object? sender, RoutedEventArgs e)
         {
-            if (ViewModel != null && ViewModel.Cancel())
+            await Cancel();
+        }
+
+        private async void ProgressWindow_Closing(object? sender, WindowClosingEventArgs e)
+        {
+            if (!await Cancel())
             {
-                Hide();
+                e.Cancel = true;
             }
         }
 
-        private void ProgressWindow_Closing(object? sender, WindowClosingEventArgs e)
+        private async Task<bool> Cancel()
         {
-            if (ViewModel != null && ViewModel.Cancel())
+            if (ViewModel != null && ViewModel.IsBackgroundOperation)
             {
-                Hide();
+                var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                .GetMessageBoxStandard(Assets.Resources.Alert, 
+                    Assets.Resources.StopBackground + Environment.NewLine, 
+                    ButtonEnum.YesNoCancel, 
+                    MsBox.Avalonia.Enums.Icon.Question);
+                // TODO: test message box
+                var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                if (result == ButtonResult.No)
+                {
+                    return false;
+                }
+                if (result == ButtonResult.Yes)
+                {
+                    ViewModel.Cancel();
+                    Hide();
+                }
             }
+            return true;
         }
 
-        public void SetProgress(int value)
+
+    public void SetProgress(int value)
         {
             if (value < 0)
             {

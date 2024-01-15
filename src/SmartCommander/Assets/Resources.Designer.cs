@@ -565,6 +565,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Would you like to stop the background operation?.
+        /// </summary>
+        public static string StopBackground {
+            get {
+                return ResourceManager.GetString("StopBackground", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to View.
         /// </summary>
         public static string View {

@@ -79,7 +79,7 @@ namespace SmartCommander.ViewModels
 
         IProgress<int> progress;
 
-        SmartCancellationTokenSource? tokenSource;       
+        SmartCancellationTokenSource? tokenSource;
 
         public string CommandText
         {
@@ -204,17 +204,17 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit();
         }
 
-        public bool Cancel()
+        public bool IsBackgroundOperation { get { return tokenSource != null && !tokenSource.IsDisposed; } }
+
+        public void Cancel()
         {
             if (tokenSource != null && !tokenSource.IsDisposed)
-            {
-                // TODO: ask whether we need to stop background operations
+            {               
                 tokenSource.Cancel();               
-            }            
-            return true;
+            } 
         }
 
-    public async void Zip()
+        public async void Zip()
         {
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
@@ -358,12 +358,16 @@ namespace SmartCommander.ViewModels
                 {                
                     try
                     {
-                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                  
+                        string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));  
+                        // TODO: check how cancel exception works
                         Utils.CopyDirectory(item.FullName, destFolder, true, ct);
-                    }                 
-                    catch(Exception ex)
-                    {               
-                        // TODO: process cancelled operation
+                    }    
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch
+                    {  
                         MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);                        
                         return;
                     }
@@ -453,6 +457,10 @@ namespace SmartCommander.ViewModels
                         string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                    
                         Utils.CopyDirectory(item.FullName, destFolder, true, ct);
                         Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
                     }
                     catch
                     {
