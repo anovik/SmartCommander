@@ -7,7 +7,7 @@ namespace SmartCommander.ViewModels
 {
     public class FileViewModel : ViewModelBase
     {
-        private string name = "";
+        private string _name = "";
         public FileViewModel()
         {
 
@@ -19,7 +19,7 @@ namespace SmartCommander.ViewModels
             IsFolder = isFolder;
             if (isFolder)
             {
-                name = Path.GetFileName(fullName);
+                _name = Path.GetFileName(fullName);
                 Extension = "";
                 Size = Resources.Folder;
                 DateCreated = File.GetCreationTime(fullName);
@@ -29,12 +29,12 @@ namespace SmartCommander.ViewModels
             {
                 if (string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(fullName)))
                 {
-                    name = Path.GetFileName(fullName);
+                    _name = Path.GetFileName(fullName);
                     Extension = "";
                 }
                 else
                 {
-                    name = Path.GetFileNameWithoutExtension(fullName);
+                    _name = Path.GetFileNameWithoutExtension(fullName);
                     Extension = Path.GetExtension(fullName).TrimStart('.');
                 }
                 Size = new FileInfo(fullName).Length.ToString();
@@ -49,11 +49,11 @@ namespace SmartCommander.ViewModels
         { 
             get
             {
-                return name;
+                return _name;
             }
             set
             {
-                if (string.IsNullOrEmpty(value) || value == name)
+                if (string.IsNullOrEmpty(value) || value == _name)
                 {
                     return;
                 }
@@ -70,7 +70,7 @@ namespace SmartCommander.ViewModels
                     destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
                     File.Move(FullName, destination);
                 }
-                name = value;
+                _name = value;
                 FullName = destination;
                 this.RaisePropertyChanged(nameof(Name));
                 this.RaisePropertyChanged(nameof(FullName));

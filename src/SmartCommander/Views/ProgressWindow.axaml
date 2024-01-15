@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
 			 Width="400" Height="150"
 			 WindowStartupLocation="CenterOwner"
-			 Topmost="True"
+			 Topmost="False"
 			 CanResize="False"
 		     ShowInTaskbar="False"
 			 xmlns:assets="clr-namespace:SmartCommander.Assets"

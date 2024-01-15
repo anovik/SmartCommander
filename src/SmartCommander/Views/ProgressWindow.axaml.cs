@@ -1,9 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using SmartCommander.ViewModels;
-using SmartCommander.Assets;
-using System;
 using MsBox.Avalonia.Enums;
+using SmartCommander.ViewModels;
+using System;
 using System.Threading.Tasks;
 
 namespace SmartCommander.Views
@@ -26,38 +25,32 @@ namespace SmartCommander.Views
 
         private async void ProgressWindow_Closing(object? sender, WindowClosingEventArgs e)
         {
-            if (!await Cancel())
+            if (!e.IsProgrammatic)
             {
                 e.Cancel = true;
-            }
+                await Cancel();
+            }           
         }
 
-        private async Task<bool> Cancel()
+        private async Task Cancel()
         {
             if (ViewModel != null && ViewModel.IsBackgroundOperation)
             {
                 var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard(Assets.Resources.Alert, 
                     Assets.Resources.StopBackground + Environment.NewLine, 
-                    ButtonEnum.YesNoCancel, 
+                    ButtonEnum.YesNo, 
                     MsBox.Avalonia.Enums.Icon.Question);
-                // TODO: test message box
-                var result = await messageBoxWindow.ShowAsPopupAsync(this);
-                if (result == ButtonResult.No)
-                {
-                    return false;
-                }
+                var result = await messageBoxWindow.ShowAsync();       
                 if (result == ButtonResult.Yes)
                 {
                     ViewModel.Cancel();
                     Hide();
                 }
-            }
-            return true;
+            }          
         }
 
-
-    public void SetProgress(int value)
+        public void SetProgress(int value)
         {
             if (value < 0)
             {

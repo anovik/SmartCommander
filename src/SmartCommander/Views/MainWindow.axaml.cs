@@ -23,32 +23,35 @@ namespace SmartCommander.Views
             progressWindow = new ProgressWindow();
 
             Closing += async (s, e) =>
-            {              
-                MainWindowViewModel? vm = DataContext as MainWindowViewModel;
-                if (vm != null)
+            {
+                if (!e.IsProgrammatic)
                 {
-                    if (vm.IsBackgroundOperation)
+                    MainWindowViewModel? vm = DataContext as MainWindowViewModel;
+                    if (vm != null)
                     {
-                        var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
-                        .GetMessageBoxStandard(Assets.Resources.Alert,
-                            Assets.Resources.StopBackground + Environment.NewLine, 
-                            ButtonEnum.YesNoCancel,
-                            MsBox.Avalonia.Enums.Icon.Question);
-                        // TODO: test message box
-                        var result = await messageBoxWindow.ShowAsPopupAsync(this);
-                        if (result == ButtonResult.No)
+                        if (vm.IsBackgroundOperation)
                         {
                             e.Cancel = true;
-                            return;
+                            var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                            .GetMessageBoxStandard(Assets.Resources.Alert,
+                                Assets.Resources.StopBackground + Environment.NewLine,
+                                ButtonEnum.YesNo,
+                                MsBox.Avalonia.Enums.Icon.Question);
+                            var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                            if (result == ButtonResult.Yes)
+                            {
+                                vm.Cancel();
+                                this.Close();
+                            }
+                            else
+                            {
+                                return;
+                            }
                         }
-                        if (result == ButtonResult.Yes)
-                        {
-                            vm.Cancel();
-                        }
-                    }                  
-                }
+                    }
 
-                progressWindow.Close();
+                    progressWindow.Close();
+                }
             };
         }        
 
