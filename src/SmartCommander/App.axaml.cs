@@ -6,6 +6,9 @@ using ReactiveUI;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using SmartCommander.Views;
+using System.IO.Pipes;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace SmartCommander
 {
@@ -38,6 +41,8 @@ namespace SmartCommander
 
                 ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime).ShutdownRequested += App_ShutdownRequested;                
             }
+
+            StartServer();
 
             base.OnFrameworkInitializationCompleted();
         }
@@ -124,6 +129,31 @@ namespace SmartCommander
             {
                 OptionsModel.Instance.Save();
             }
+        }
+
+        void StartServer()
+        {
+            Task.Run(() =>
+            {
+                var server = new NamedPipeServerStream("SmartCommanderActivation");
+                server.WaitForConnection();
+                StreamReader reader = new StreamReader(server);
+                while (true)
+                {
+                    var line = reader.ReadLine();
+                    if (line == "ActivateSmartCommander")
+                    {
+                        // TODO: check from tray
+                        if (mainWindow != null)
+                        {
+                            mainWindow.Activate();
+                            mainWindow.Show();
+                        }
+                    }
+                    Task.Delay(500);
+                   // TODO: recreate the pipe
+                }
+            });
         }
     }
 }

@@ -1,9 +1,8 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
-using MsBox.Avalonia.Enums;
-using MsBox.Avalonia;
 using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
 
 namespace SmartCommander
@@ -25,24 +24,33 @@ namespace SmartCommander
                 {
                     _lockFile = File.Open(Path.Combine(dir, ".lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                     _lockFile.Lock(0, 0);
-                }
+                }              
                 BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);
-                // TODO: start listening to messages
+                .StartWithClassicDesktopLifetime(args);               
             }
             catch
             {
-                // TODO: send message to activate another instance of application
+                var client = new NamedPipeClientStream("SmartCommanderActivation");
+                client.Connect();               
+                StreamWriter writer = new StreamWriter(client);
+
+                writer.WriteLine("ActivateSmartCommander");
+                writer.Flush();
+
                 return;
             }
-           
+
         }
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()                
+            => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
                 .UseReactiveUI();
+
+      
     }
+
+   
 }
