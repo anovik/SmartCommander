@@ -84,6 +84,32 @@ namespace SmartCommander
             return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
+        static internal void CopyFile(string source, string dest, bool delete, bool overwrite, CancellationToken ct)
+        {
+            if (ct.IsCancellationRequested)
+            {
+                ct.ThrowIfCancellationRequested();
+            }
+
+            if (!overwrite)
+            {
+                // TODO: check if file exists, then return
+            }
+
+            if (delete)
+            {
+                // TODO: check if files on the same drive, then just move and return
+            }
+
+            // TODO: copy file in chunks
+
+            if (delete)
+            {
+                //File.Delete(dest);
+            }
+        }
+
+        // TODO: maybe need to pass overwrite
         static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
@@ -115,7 +141,7 @@ namespace SmartCommander
                 {
                     Utils.SetNormalFileAttributes(targetFilePath);
                 }
-                file.CopyTo(targetFilePath, true);
+                CopyFile(file.FullName, targetFilePath, false, true, ct);              
             }
 
             // If recursive and copying subdirectories, recursively call this method

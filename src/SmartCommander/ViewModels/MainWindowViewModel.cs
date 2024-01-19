@@ -381,7 +381,7 @@ namespace SmartCommander.ViewModels
                     else
                     {
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        File.Copy(item.FullName, destFile, overwrite);
+                        Utils.CopyFile(item.FullName, destFile, false, overwrite, ct);                      
 
                     }
                     _progress?.Report(++counter * 100 / SelectedPane.CurrentItems.Count);
@@ -483,7 +483,7 @@ namespace SmartCommander.ViewModels
                     else
                     {
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        File.Move(item.FullName, destFile, overwrite);
+                        Utils.CopyFile(item.FullName, destFile, true, overwrite, ct);                       
                     }
                     _progress?.Report(++counter * 100 / SelectedPane.CurrentItems.Count);
                 }
