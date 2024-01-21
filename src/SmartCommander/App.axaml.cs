@@ -6,6 +6,10 @@ using ReactiveUI;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using SmartCommander.Views;
+using System.IO.Pipes;
+using System.IO;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace SmartCommander
 {
@@ -38,6 +42,8 @@ namespace SmartCommander
 
                 ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime).ShutdownRequested += App_ShutdownRequested;                
             }
+
+            StartServer();
 
             base.OnFrameworkInitializationCompleted();
         }
@@ -91,8 +97,10 @@ namespace SmartCommander
         {
             if (mainWindow != null)
             {
-                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.WindowState = WindowState.Maximized;              
+                mainWindow.Topmost = true;
                 mainWindow.Show();
+                mainWindow.Topmost = false;
             }
         }
 
@@ -124,6 +132,26 @@ namespace SmartCommander
             {
                 OptionsModel.Instance.Save();
             }
+        }
+
+        void StartServer()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    var server = new NamedPipeServerStream("SmartCommanderActivation");
+                    server.WaitForConnection();
+                    using (StreamReader reader = new StreamReader(server))
+                    {
+                        var line = reader.ReadLine();
+                        if (line == "ActivateSmartCommander")
+                        {                          
+                            Dispatcher.UIThread.Post(() => ShowApplication());
+                        }                   
+                    }                  
+                }
+            });
         }
     }
 }
