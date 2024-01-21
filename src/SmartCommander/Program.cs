@@ -16,6 +16,7 @@ namespace SmartCommander
         [STAThread]
         public static void Main(string[] args)
         {
+            var exception = false;
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmartCommander");
             Directory.CreateDirectory(dir);
             try
@@ -26,18 +27,27 @@ namespace SmartCommander
                     _lockFile.Lock(0, 0);
                 }              
                 BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);               
+                .StartWithClassicDesktopLifetime(args);   
             }
             catch
             {
-                var client = new NamedPipeClientStream("SmartCommanderActivation");
-                client.Connect();               
-                StreamWriter writer = new StreamWriter(client);
+                exception = true;
+            }
 
-                writer.WriteLine("ActivateSmartCommander");
-                writer.Flush();
+            if (exception)
+            {
+                try
+                {
+                    var client = new NamedPipeClientStream("SmartCommanderActivation");
+                    client.Connect(1000);
+                    using (StreamWriter writer = new StreamWriter(client))
+                    {
+                        writer.WriteLine("ActivateSmartCommander");
+                        writer.Flush();                    
+                    }
 
-                return;
+                }
+                catch { }
             }
 
         }

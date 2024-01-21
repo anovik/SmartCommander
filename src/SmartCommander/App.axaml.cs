@@ -9,6 +9,7 @@ using SmartCommander.Views;
 using System.IO.Pipes;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace SmartCommander
 {
@@ -96,8 +97,10 @@ namespace SmartCommander
         {
             if (mainWindow != null)
             {
-                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.WindowState = WindowState.Maximized;              
+                mainWindow.Topmost = true;
                 mainWindow.Show();
+                mainWindow.Topmost = false;
             }
         }
 
@@ -135,23 +138,18 @@ namespace SmartCommander
         {
             Task.Run(() =>
             {
-                var server = new NamedPipeServerStream("SmartCommanderActivation");
-                server.WaitForConnection();
-                StreamReader reader = new StreamReader(server);
                 while (true)
                 {
-                    var line = reader.ReadLine();
-                    if (line == "ActivateSmartCommander")
+                    var server = new NamedPipeServerStream("SmartCommanderActivation");
+                    server.WaitForConnection();
+                    using (StreamReader reader = new StreamReader(server))
                     {
-                        // TODO: check from tray
-                        if (mainWindow != null)
-                        {
-                            mainWindow.Activate();
-                            mainWindow.Show();
-                        }
-                    }
-                    Task.Delay(500);
-                   // TODO: recreate the pipe
+                        var line = reader.ReadLine();
+                        if (line == "ActivateSmartCommander")
+                        {                          
+                            Dispatcher.UIThread.Post(() => ShowApplication());
+                        }                   
+                    }                  
                 }
             });
         }
