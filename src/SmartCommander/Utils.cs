@@ -1,5 +1,6 @@
 ﻿using SmartCommander.Models;
 using SmartCommander.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,6 +35,12 @@ namespace SmartCommander
             FileInfo fileInfo = new FileInfo(path);
             fileInfo.Attributes = FileAttributes.Normal;
            
+        }
+
+        static internal long GetTotalSize(List<FileViewModel> selectedItems)
+        {
+            // TODO: implement size calculation
+            return 0;
         }
 
         static internal List<string> GetDuplicates(List<FileViewModel> selectedItems, string destpath)
@@ -92,25 +99,42 @@ namespace SmartCommander
             }
 
             if (!overwrite)
-            {
-                // TODO: check if file exists, then return
+            {              
+                if (File.Exists(dest))
+                {
+                    return;
+                }
             }
 
             if (delete)
             {
                 // TODO: check if files on the same drive, then just move and return
-            }
+            }        
 
-            // TODO: copy file in chunks
+            int bufferSize = 1024 * 1024; // 1MB
+
+            using (Stream from = new FileStream(source, FileMode.Open))
+            using (Stream to = new FileStream(dest, FileMode.OpenOrCreate))
+            {               
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
+                {
+                    if (ct.IsCancellationRequested)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                    }
+                    to.Write(buffer, 0, readCount);              
+                }
+            }
 
             if (delete)
             {
-                //File.Delete(dest);
+                File.Delete(source);
             }
         }
-
-        // TODO: maybe need to pass overwrite
-        static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive, CancellationToken ct)
+      
+        static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive, bool overwrite, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
             {
@@ -141,7 +165,7 @@ namespace SmartCommander
                 {
                     Utils.SetNormalFileAttributes(targetFilePath);
                 }
-                CopyFile(file.FullName, targetFilePath, false, true, ct);              
+                CopyFile(file.FullName, targetFilePath, delete: false, overwrite, ct);              
             }
 
             // If recursive and copying subdirectories, recursively call this method
@@ -154,7 +178,7 @@ namespace SmartCommander
                         ct.ThrowIfCancellationRequested();
                     }
                     string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir, true, ct);
+                    CopyDirectory(subDir.FullName, newDestinationDir, true, overwrite, ct);
                 }
             }
         }

@@ -354,6 +354,9 @@ namespace SmartCommander.ViewModels
                     ct.ThrowIfCancellationRequested();
                 }
                 _progress?.Report(0);
+
+                // TODO: get total file size
+
                 int counter = 0;
                 foreach (var item in SelectedPane.CurrentItems)
                 {
@@ -366,7 +369,8 @@ namespace SmartCommander.ViewModels
                         try
                         {
                             string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                        
-                            Utils.CopyDirectory(item.FullName, destFolder, true, ct);
+                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct);
+                            // TODO: plus processed directory size
                         }
                         catch (OperationCanceledException)
                         {
@@ -381,9 +385,11 @@ namespace SmartCommander.ViewModels
                     else
                     {
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        Utils.CopyFile(item.FullName, destFile, false, overwrite, ct);                      
+                        Utils.CopyFile(item.FullName, destFile, false, overwrite, ct);
+                        // TODO: plus processed file size
 
                     }
+                    // TODO: update progress calculation by size
                     _progress?.Report(++counter * 100 / SelectedPane.CurrentItems.Count);
                 }
                 _progress?.Report(100);
@@ -449,6 +455,7 @@ namespace SmartCommander.ViewModels
                     ct.ThrowIfCancellationRequested();
                 }
                 _progress?.Report(0);
+                // TODO: use progress algorithm from copy
                 int counter = 0;
                 foreach (var item in SelectedPane.CurrentItems)
                 {
@@ -467,7 +474,7 @@ namespace SmartCommander.ViewModels
                                 return;
                             }
                             string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            Utils.CopyDirectory(item.FullName, destFolder, true, ct);
+                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct);
                             Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
                         }
                         catch (OperationCanceledException)
@@ -591,6 +598,7 @@ namespace SmartCommander.ViewModels
                     ct.ThrowIfCancellationRequested();
                 }
                 _progress?.Report(0);
+                // TODO: use progress algorithm from copy
                 int counter = 0;
                 foreach (var item in SelectedPane.CurrentItems)
                 {
