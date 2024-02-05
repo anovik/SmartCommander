@@ -1,6 +1,5 @@
 ﻿using SmartCommander.Models;
 using SmartCommander.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,9 +37,39 @@ namespace SmartCommander
         }
 
         static internal long GetTotalSize(List<FileViewModel> selectedItems)
+        {          
+            long totalSize = 0;
+            foreach (var item in selectedItems)
+            {
+                string path = item.FullName;
+                if (item.IsFolder)
+                {
+                    totalSize += GetDirectorySize(new DirectoryInfo(path));
+                }
+                else
+                {
+                    totalSize += new FileInfo(path).Length;
+                }
+            }
+            return totalSize;
+        }
+
+        private static long GetDirectorySize(DirectoryInfo d)
         {
-            // TODO: implement size calculation
-            return 0;
+            long size = 0;
+            // Add file sizes.
+            FileInfo[] fis = d.GetFiles();
+            foreach (FileInfo fi in fis)
+            {
+                size += fi.Length;
+            }
+            // Add subdirectory sizes.
+            DirectoryInfo[] dis = d.GetDirectories();
+            foreach (DirectoryInfo di in dis)
+            {
+                size += GetDirectorySize(di);
+            }
+            return size;
         }
 
         static internal List<string> GetDuplicates(List<FileViewModel> selectedItems, string destpath)
