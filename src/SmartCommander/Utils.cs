@@ -138,23 +138,32 @@ namespace SmartCommander
             if (delete)
             {
                 // TODO: check if files on the same drive, then just move and return
-            }        
+            }
 
-            int bufferSize = 1024 * 1024; // 1MB
+            const int bufferSize = 1024 * 1024; // 1MB
+            const long limit = 10 * bufferSize;
 
-            using (Stream from = new FileStream(source, FileMode.Open))
-            using (Stream to = new FileStream(dest, FileMode.OpenOrCreate))
-            {               
-                int readCount;
-                byte[] buffer = new byte[bufferSize];
-                while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
+
+            if (new FileInfo(source).Length > limit)
+            {
+                using (Stream from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Write))
+                using (Stream to = new FileStream(dest, FileMode.OpenOrCreate))
                 {
-                    if (ct.IsCancellationRequested)
+                    int readCount;
+                    byte[] buffer = new byte[bufferSize];
+                    while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
                     {
-                        ct.ThrowIfCancellationRequested();
+                        if (ct.IsCancellationRequested)
+                        {
+                            ct.ThrowIfCancellationRequested();
+                        }
+                        to.Write(buffer, 0, readCount);
                     }
-                    to.Write(buffer, 0, readCount);              
                 }
+            }
+            else
+            {
+                File.Copy(source, dest, overwrite);
             }
 
             if (delete)
