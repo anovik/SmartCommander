@@ -1,6 +1,8 @@
 ﻿using SmartCommander.Models;
 using SmartCommander.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -9,6 +11,20 @@ namespace SmartCommander
 {
     static internal class Utils
     {
+        static int oldProgressValue = 0;
+        static internal void ReportProgress(IProgress<int>? progress, long processedSize, long totalSize)
+        {
+            if (progress == null)
+            {
+                return;
+            }
+            int newValue = totalSize == 0 ? 0 : Convert.ToInt32(processedSize * 100 / totalSize);
+            if (newValue != oldProgressValue)
+            {
+                oldProgressValue = newValue;
+                progress?.Report(newValue);
+            }
+        }
         static internal void DeleteDirectoryWithHiddenFiles(string path)
         {
             if (!Directory.Exists(path))
@@ -120,8 +136,17 @@ namespace SmartCommander
             return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
-        static internal void CopyFile(string source, string dest, bool delete, bool overwrite, CancellationToken ct)
+        static internal void CopyFile(string source, 
+                                      string dest,
+                                      bool delete, 
+                                      bool overwrite, 
+                                      CancellationToken ct,
+                                      IProgress<int>? progress, 
+                                      ref long processedSize, 
+                                      long totalSize)
         {
+            long size = new FileInfo(source).Length;
+            processedSize += size;
             if (ct.IsCancellationRequested)
             {
                 ct.ThrowIfCancellationRequested();
@@ -137,18 +162,25 @@ namespace SmartCommander
 
             if (delete)
             {
-                // TODO: check if files on the same drive, then just move and return
+                if (OperatingSystem.IsWindows())
+                {
+                    if (Path.GetPathRoot(source) == Path.GetPathRoot(dest))
+                    {                      
+                        File.Move(source, dest,overwrite);
+                        return;
+                    }                    
+                }
             }
 
             const int bufferSize = 1024 * 1024; // 1MB
-            const long limit = 10 * bufferSize;
+            const long limit = 10 * bufferSize;          
 
-
-            if (new FileInfo(source).Length > limit)
+            if (size > limit)
             {
                 using (Stream from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Write))
                 using (Stream to = new FileStream(dest, FileMode.OpenOrCreate))
                 {
+                    // TODO: report progress by chunks
                     int readCount;
                     byte[] buffer = new byte[bufferSize];
                     while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
@@ -170,9 +202,17 @@ namespace SmartCommander
             {
                 File.Delete(source);
             }
+            Utils.ReportProgress(progress, processedSize, totalSize);
         }
       
-        static internal void CopyDirectory(string sourceDir, string destinationDir, bool recursive, bool overwrite, CancellationToken ct)
+        static internal void CopyDirectory(string sourceDir, 
+                                           string destinationDir, 
+                                           bool recursive, 
+                                           bool overwrite, 
+                                           CancellationToken ct,
+                                           IProgress<int>? progress,
+                                           ref long processedSize,
+                                           long totalSize)
         {
             if (ct.IsCancellationRequested)
             {
@@ -203,7 +243,8 @@ namespace SmartCommander
                 {
                     Utils.SetNormalFileAttributes(targetFilePath);
                 }
-                CopyFile(file.FullName, targetFilePath, delete: false, overwrite, ct);              
+                CopyFile(file.FullName, targetFilePath, delete: false, overwrite, ct, 
+                    progress, ref processedSize, totalSize);              
             }
 
             // If recursive and copying subdirectories, recursively call this method
@@ -216,7 +257,8 @@ namespace SmartCommander
                         ct.ThrowIfCancellationRequested();
                     }
                     string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir, true, overwrite, ct);
+                    CopyDirectory(subDir.FullName, newDestinationDir, true, overwrite, ct,
+                        progress, ref processedSize, totalSize);
                 }
             }
         }

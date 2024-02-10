@@ -286,7 +286,7 @@ namespace SmartCommander.ViewModels
 
                         itemsToProcess.Remove(item);
 
-                        _progress?.Report(totalSize == 0 ? 0 : Convert.ToInt32(processedSize * 100 / totalSize));
+                        Utils.ReportProgress(_progress, processedSize, totalSize);                      
                     }
 
                 _progress?.Report(100);
@@ -365,12 +365,10 @@ namespace SmartCommander.ViewModels
                     if (item.IsFolder)
                     {
                         try
-                        {
-                            long size = Utils.GetTotalSize(new List<FileViewModel> { item });
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            // TODO: pass report to CopyDirectory
-                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct);
-                            processedSize += size;
+                        {                          
+                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                           
+                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct,
+                                _progress, ref processedSize, totalSize);                           
                         }
                         catch (OperationCanceledException)
                         {
@@ -383,14 +381,12 @@ namespace SmartCommander.ViewModels
                         }
                     }
                     else
-                    {
-                        long size = Utils.GetTotalSize(new List<FileViewModel> { item });
+                    {                       
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        Utils.CopyFile(item.FullName, destFile, false, overwrite, ct);
-                        processedSize += size;
-
-                    }                  
-                    _progress?.Report(totalSize == 0 ? 0 : Convert.ToInt32(processedSize*100 / totalSize));
+                        Utils.CopyFile(item.FullName, destFile, false, overwrite, ct,
+                                _progress, ref processedSize, totalSize);
+                    }
+                    Utils.ReportProgress(_progress, processedSize, totalSize);
                 }
                 _progress?.Report(100);
             }
@@ -472,13 +468,12 @@ namespace SmartCommander.ViewModels
                             {
                                 MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                                 return;
-                            }
-                            long size = Utils.GetTotalSize(new List<FileViewModel> { item });
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            // TODO: pass report to CopyDirectory
-                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct);
-                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
-                            processedSize += size;
+                            }                           
+                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName)); 
+                            // TODO: in case of the same drive faster to move
+                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct,
+                                _progress, ref processedSize, totalSize);
+                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                            
                         }
                         catch (OperationCanceledException)
                         {
@@ -491,13 +486,12 @@ namespace SmartCommander.ViewModels
                         }
                     }
                     else
-                    {
-                        long size = Utils.GetTotalSize(new List<FileViewModel> { item });
+                    {                       
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                        Utils.CopyFile(item.FullName, destFile, true, overwrite, ct);
-                        processedSize += size;
+                        Utils.CopyFile(item.FullName, destFile, true, overwrite, ct,
+                                _progress, ref processedSize, totalSize);                       
                     }
-                    _progress?.Report(totalSize == 0 ? 0 : Convert.ToInt32(processedSize * 100/ totalSize ));
+                    Utils.ReportProgress(_progress, processedSize, totalSize);
                 }
                 _progress?.Report(100);
             }
@@ -623,7 +617,7 @@ namespace SmartCommander.ViewModels
                     processedSize += Utils.GetTotalSize(new List<FileViewModel>() { item });
                     SelectedPane.Delete(item);
 
-                    _progress?.Report(totalSize == 0 ? 0 : Convert.ToInt32(processedSize *100 / totalSize));
+                    Utils.ReportProgress(_progress, processedSize, totalSize);
                 }
                 _progress?.Report(100);
               
