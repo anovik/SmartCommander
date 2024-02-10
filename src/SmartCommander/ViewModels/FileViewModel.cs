@@ -60,6 +60,7 @@ namespace SmartCommander.ViewModels
 
                 string destination = "";
                 
+                // moving here is fast since they are guaranteed to be on the same drive
                 if (IsFolder)
                 {
                     destination = Path.Combine(Path.GetDirectoryName(FullName), value);
@@ -68,7 +69,7 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
-                    File.Move(FullName, destination);
+                    File.Move(FullName, destination);                   
                 }
                 _name = value;
                 FullName = destination;
