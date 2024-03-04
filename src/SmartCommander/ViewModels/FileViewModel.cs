@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using SmartCommander.Assets;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SmartCommander.ViewModels
@@ -8,6 +9,14 @@ namespace SmartCommander.ViewModels
     public class FileViewModel : ViewModelBase
     {
         private string _name = "";
+        public static readonly List<string> ImageExtensions = new List<string>
+                { "jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png" };
+        public static readonly List<string> VideoExtensions = new List<string>
+                { "mp4", "mov", "avi", "wmv" };
+        public static readonly List<string> ArchiveExtensions = new List<string>
+                { "zip", "rar", "7z" };
+        public static readonly List<string> DocumentExtensions = new List<string>
+                { "doc", "docx", "txt","xslx", "xsl", "pdf" };
         public FileViewModel()
         {
 
@@ -39,11 +48,28 @@ namespace SmartCommander.ViewModels
                 }
                 Size = new FileInfo(fullName).Length.ToString();
                 DateCreated = File.GetCreationTime(fullName);
-                ImageSource = "Assets/file.png";
+                if (ImageExtensions.Contains(Extension.ToLower()))
+                {
+                    ImageSource = "Assets/image.png";
+                }
+                else if (VideoExtensions.Contains(Extension.ToLower()))
+                {
+                    ImageSource = "Assets/video.png";
+                }
+                else if (ArchiveExtensions.Contains(Extension.ToLower()))
+                {
+                    ImageSource = "Assets/archive.png";
+                }
+                else if (DocumentExtensions.Contains(Extension.ToLower()))
+                {
+                    ImageSource = "Assets/document.png";
+                }
+                else
+                {
+                    ImageSource = "Assets/file.png";
+                }
             }
-           
         }
-
         public string FullName { get; set; } = "";
         public string Name 
         { 
