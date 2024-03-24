@@ -46,7 +46,14 @@ namespace SmartCommander.ViewModels
             {
                 _currentDirectory = value;
                 GetFilesFolders(CurrentDirectory, FoldersFilesList);
-                // TODO: add to LatestDirectories
+                if (!LatestDirectories.Contains(value))
+                {
+                    if (LatestDirectories.Count > 15)
+                    {
+                        LatestDirectories.RemoveAt(LatestDirectories.Count - 1);
+                    }
+                    LatestDirectories.Insert(0, value);
+                }               
                 this.RaisePropertyChanged("CurrentDirectory");
                 this.RaisePropertyChanged("CurrentDirectoryInfo");
             }
