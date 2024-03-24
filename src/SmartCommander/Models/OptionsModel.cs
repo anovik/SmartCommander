@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 using static System.Environment;
 
@@ -11,15 +12,19 @@ namespace SmartCommander.Models
         static string _settingsPath = Path.Combine(_settingsDir, "settings.json");
         static OptionsModel()
         {
-            Directory.CreateDirectory(_settingsDir);
-            if (File.Exists(_settingsPath))
-            { 
-                var options = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
-                if (options != null)
+            try
+            {
+                Directory.CreateDirectory(_settingsDir);
+                if (File.Exists(_settingsPath))
                 {
-                    Instance = options;
+                    var options = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
+                    if (options != null)
+                    {
+                        Instance = options;
+                    }
                 }
             }
+            catch { }
         }
         public void Save() => File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(this));
 
@@ -53,6 +58,10 @@ namespace SmartCommander.Models
         public string RightPanePath { get; set; } = "";
 
         public bool IsDarkThemeEnabled { get; set; }
+
+        public List<string> LeftPaneLatestPaths = new List<string>();
+
+        public List<string> RightPaneLatestPaths = new List<string>();
 
     }
 }

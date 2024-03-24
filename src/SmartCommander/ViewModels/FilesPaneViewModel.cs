@@ -26,6 +26,8 @@ namespace SmartCommander.ViewModels
         SortingByDate,
     }
 
+    // TODO: switch directories text box to editable combo box
+
     public class FilesPaneViewModel : ViewModelBase
     {
         private string _currentDirectory = "";
@@ -44,11 +46,13 @@ namespace SmartCommander.ViewModels
             {
                 _currentDirectory = value;
                 GetFilesFolders(CurrentDirectory, FoldersFilesList);
+                // TODO: add to LatestDirectories
                 this.RaisePropertyChanged("CurrentDirectory");
                 this.RaisePropertyChanged("CurrentDirectoryInfo");
             }
         }
 
+        public ObservableCollection<string> LatestDirectories {  get; set; } = new ObservableCollection<string>();   
 
         private MainWindowViewModel _mainVM;
 

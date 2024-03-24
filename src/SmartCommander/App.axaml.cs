@@ -10,6 +10,7 @@ using System.IO.Pipes;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using System.Linq;
 
 namespace SmartCommander
 {
@@ -114,6 +115,8 @@ namespace SmartCommander
                 {
                     OptionsModel.Instance.LeftPanePath = viewModel.LeftFileViewModel.CurrentDirectory;
                     OptionsModel.Instance.RightPanePath = viewModel.RightFileViewModel.CurrentDirectory;
+                    OptionsModel.Instance.LeftPaneLatestPaths = viewModel.LeftFileViewModel.LatestDirectories.ToList();
+                    OptionsModel.Instance.RightPaneLatestPaths = viewModel.RightFileViewModel.LatestDirectories.ToList();
                 }
             }
             if (OptionsModel.Instance.SaveWindowPositionSize)

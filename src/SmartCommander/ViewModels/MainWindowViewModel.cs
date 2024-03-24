@@ -6,6 +6,7 @@ using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Reactive;
@@ -45,10 +46,14 @@ namespace SmartCommander.ViewModels
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
                 LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
+                LeftFileViewModel.LatestDirectories = new ObservableCollection<string>(
+                    OptionsModel.Instance.LeftPaneLatestPaths);
             }
             if (!string.IsNullOrEmpty(OptionsModel.Instance.RightPanePath))
             {
                 RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
+                RightFileViewModel.LatestDirectories = new ObservableCollection<string>(
+                    OptionsModel.Instance.RightPaneLatestPaths);
             }
             SetTheme();
             _progress = new Progress<int>(v => Progress_Show(v));
