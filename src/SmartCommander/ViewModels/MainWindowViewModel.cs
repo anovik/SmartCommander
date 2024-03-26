@@ -42,19 +42,26 @@ namespace SmartCommander.ViewModels
 
             LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
-
+            
+            LeftFileViewModel.LatestDirectories.Clear();
+            foreach (var path in OptionsModel.Instance.LeftPaneLatestPaths)
+            {
+                LeftFileViewModel.LatestDirectories.Add(path);
+            }
+            RightFileViewModel.LatestDirectories.Clear();
+            foreach (var path in OptionsModel.Instance.RightPaneLatestPaths)
+            {
+                RightFileViewModel.LatestDirectories.Add(path);
+            }
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
                 LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
-                LeftFileViewModel.LatestDirectories = new ObservableCollection<string>(
-                    OptionsModel.Instance.LeftPaneLatestPaths);
             }
             if (!string.IsNullOrEmpty(OptionsModel.Instance.RightPanePath))
             {
-                RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
-                RightFileViewModel.LatestDirectories = new ObservableCollection<string>(
-                    OptionsModel.Instance.RightPaneLatestPaths);
+                RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;              
             }
+           
             SetTheme();
             _progress = new Progress<int>(v => Progress_Show(v));
         }

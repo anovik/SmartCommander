@@ -35,7 +35,9 @@
         <ColumnDefinition Width="*"></ColumnDefinition>
         <ColumnDefinition Width="Auto"></ColumnDefinition>      
       </Grid.ColumnDefinitions>
-		<AutoCompleteBox IsTabStop="False" Text="{Binding CurrentDirectory}" FilterMode="Contains" 
+		<AutoCompleteBox IsTabStop="False" Text="{Binding CurrentDirectory}" 					
+						 FilterMode="Contains"							
+						 IsTextCompletionEnabled="True"
 						 ItemsSource="{Binding LatestDirectories}">      
 		</AutoCompleteBox>
       <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}">      

@@ -24,9 +24,7 @@ namespace SmartCommander.ViewModels
         SortingByExt,
         SortingBySize,
         SortingByDate,
-    }
-
-    // TODO: switch directories text box to editable combo box
+    }   
 
     public class FilesPaneViewModel : ViewModelBase
     {
@@ -37,7 +35,7 @@ namespace SmartCommander.ViewModels
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
-        private bool _ascending = true;
+        private bool _ascending = true;       
 
         public string CurrentDirectory
         {
@@ -45,21 +43,23 @@ namespace SmartCommander.ViewModels
             set
             {
                 _currentDirectory = value;
-                GetFilesFolders(CurrentDirectory, FoldersFilesList);
-                if (!LatestDirectories.Contains(value))
+                if (GetFilesFolders(CurrentDirectory, FoldersFilesList))
                 {
-                    if (LatestDirectories.Count > 15)
+                    if (!LatestDirectories.Contains(value))
                     {
-                        LatestDirectories.RemoveAt(LatestDirectories.Count - 1);
+                        if (LatestDirectories.Count > 15)
+                        {
+                            LatestDirectories.RemoveAt(LatestDirectories.Count - 1);
+                        }
+                        LatestDirectories.Insert(0, value);
                     }
-                    LatestDirectories.Insert(0, value);
                 }               
                 this.RaisePropertyChanged("CurrentDirectory");
-                this.RaisePropertyChanged("CurrentDirectoryInfo");
+                this.RaisePropertyChanged("CurrentDirectoryInfo");                
             }
         }
 
-        public ObservableCollection<string> LatestDirectories {  get; set; } = new ObservableCollection<string>();   
+        public ObservableCollection<string> LatestDirectories {  get; } = new ObservableCollection<string>();   
 
         private MainWindowViewModel _mainVM;
 
@@ -390,10 +390,10 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
+        private bool GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
         {
             if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
-                return;
+                return false;
             filesFoldersList.Clear();
             _totalFolders = _totalFiles = 0;
             bool isParent = false;
@@ -507,6 +507,7 @@ namespace SmartCommander.ViewModels
                 CurrentItem = (isParent && filesFoldersList.Count > 1) ?
                     filesFoldersList[1] : filesFoldersList[0];
             }
+            return true;
         }      
 
         string? _selectedDrive;
@@ -521,8 +522,13 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                FileInfo f = new FileInfo(CurrentDirectory);
-                var driveFromDirectory = Path.GetPathRoot(f.FullName);
+                var driveFromDirectory = "";
+
+                if (!string.IsNullOrEmpty(CurrentDirectory))
+                {
+                    FileInfo f = new FileInfo(CurrentDirectory);
+                    driveFromDirectory = Path.GetPathRoot(f.FullName);
+                }
 
                 _selectedDrive = value; 
                 if (_selectedDrive != driveFromDirectory)
