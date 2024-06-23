@@ -261,6 +261,11 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
+            View(null);
+        }
+
+        public void View(Action<ButtonResult, object?>? resultAction)
+        {
             if (CurrentItem == null)
                 return;
             if (!CurrentItem.IsFolder)
@@ -272,15 +277,20 @@ namespace SmartCommander.ViewModels
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Process.Start("LTFViewr5u.exe", CurrentItem.FullName);
-                }
+                }               
+                resultAction?.Invoke(ButtonResult.Ok,null);                
             }
             else
             {
-                MessageBox_Show(null, Resources.CantViewFolder, Resources.Alert, ButtonEnum.Ok);
+                MessageBox_Show(resultAction, Resources.CantViewFolder, Resources.Alert, ButtonEnum.Ok);
             }
         }
-
         public void Edit()
+        {
+            Edit(null);
+        }
+
+        public void Edit(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
                 return;
@@ -294,10 +304,11 @@ namespace SmartCommander.ViewModels
                 {
                     Process.Start("notepad.exe", CurrentItem.FullName);
                 }
+                resultAction?.Invoke(ButtonResult.Ok, null);
             }
             else
             {
-                MessageBox_Show(null, Resources.CantEditFolder, Resources.Alert, ButtonEnum.Ok);
+                MessageBox_Show(resultAction, Resources.CantEditFolder, Resources.Alert, ButtonEnum.Ok);
             }
         }
 
