@@ -7,7 +7,7 @@
 			 WindowStartupLocation="CenterOwner"
 			 Topmost="False"
 			 CanResize="False"
-		     ShowInTaskbar="False"
+		     ShowInTaskbar="True"
 			 xmlns:assets="clr-namespace:SmartCommander.Assets"
 			 Icon="/Assets/main.ico"
              x:Class="SmartCommander.Views.ProgressWindow">

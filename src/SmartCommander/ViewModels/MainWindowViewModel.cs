@@ -81,6 +81,11 @@ namespace SmartCommander.ViewModels
 
         SmartCancellationTokenSource? tokenSource;
 
+        bool _F3Busy;
+        bool _F4Busy;
+        bool _F7Busy;
+        bool _F8Busy;
+
         public string CommandText
         {
             get { return _commandText; }
@@ -189,19 +194,29 @@ namespace SmartCommander.ViewModels
         }
 
         public void Execute()
-        {
+        {         
             SelectedPane.Execute(CommandText);
-            CommandText = "";
+            CommandText = "";            
         }
 
         public void View()
         {
-            SelectedPane.View();
+            if (_F3Busy)
+            {
+                return;
+            }
+            _F3Busy = true;
+            SelectedPane.View(F3Finished);         
         }
 
         public void Edit()
         {
-            SelectedPane.Edit();
+            if (_F4Busy)
+            {
+                return;
+            }
+            _F4Busy = true;
+            SelectedPane.Edit(F4Finished);           
         }
 
         public bool IsBackgroundOperation { get { return tokenSource != null && !tokenSource.IsDisposed; } }
@@ -330,7 +345,16 @@ namespace SmartCommander.ViewModels
             {
                 CopySelectedFiles(result == ButtonResult.Yes);
             }
-        }      
+        }
+
+        public void F3Finished(ButtonResult result, object? parameter)
+        {
+            _F3Busy = false;
+        }
+        public void F4Finished(ButtonResult result, object? parameter)
+        {
+            _F4Busy = false;
+        }
 
         private async void CopySelectedFiles(bool overwrite)
         {
@@ -523,6 +547,11 @@ namespace SmartCommander.ViewModels
 
         public void CreateNewFolder()
         {  
+            if (_F7Busy)
+            {
+                return;
+            }
+            _F7Busy = true;
             MessageBoxInput_Show(CreateNewFolderAnswer, Resources.CreateNewFolder);            
         }
 
@@ -534,12 +563,18 @@ namespace SmartCommander.ViewModels
                 SelectedPane.Update();
                 SecondPane.Update();
             }
+            _F7Busy = false;
         }
 
         public void Delete()
-        {           
+        {   
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
+            if (_F8Busy)
+            {
+                return;
+            }
+            _F8Busy = true;
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
                 string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             MessageBox_Show(DeleteAnswer,
@@ -568,6 +603,10 @@ namespace SmartCommander.ViewModels
                     DeleteSelectedItems(true, nonEmptyFolders);
                 }
             }
+            else
+            {
+                _F8Busy = false;
+            }
         }
 
         public void DeleteAnswerNonEmptyFolder(ButtonResult result, object? parameter)
@@ -575,7 +614,11 @@ namespace SmartCommander.ViewModels
             if (result != ButtonResult.Cancel)
             {
                 DeleteSelectedItems(result == ButtonResult.Yes, parameter as List<string>);
-            }           
+            }
+            else
+            {
+                _F8Busy = false;
+            }
         }
 
         private async void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
@@ -586,6 +629,7 @@ namespace SmartCommander.ViewModels
                 SelectedPane.Update();
                 SecondPane.Update();
             }
+            _F8Busy = false;
         }
 
         private void DeleteSelectedItemsAsync(bool overwrite, List<string>? nonEmptyFolders, CancellationToken ct)
