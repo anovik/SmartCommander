@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -267,18 +268,23 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
-            View(null);
+            _= View(null);
         }
 
-        public async void View(Action<ButtonResult, object?>? resultAction)
+        public async Task View(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
                 return;
             if (!CurrentItem.IsFolder)
             {
-                // TODO: check file size
+                if (Convert.ToUInt64(CurrentItem.Size) > 128*1024*1024)
+                {
+                    MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
+                    return;
+                }
                 var copy = new ViewerViewModel(CurrentItem.FullName);
                 await ShowViewerDialog.Handle(copy);
+                resultAction?.Invoke(ButtonResult.Ok, null);
             }
             else
             {

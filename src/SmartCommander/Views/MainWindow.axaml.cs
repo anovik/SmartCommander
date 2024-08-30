@@ -17,9 +17,9 @@ namespace SmartCommander.Views
             Opened += OnOpened;
             InitializeComponent();           
 
-            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
-            this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
-            this.WhenActivated(d => d(ViewModel!.ShowViewerDialog.RegisterHandler(DoShowViewerDialogAsync)));
+            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowDialogAsync<CopyMoveViewModel, CopyMoveWindow>)));
+            this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowDialogAsync<OptionsViewModel, OptionsWindow>)));
+            this.WhenActivated(d => d(ViewModel!.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
 
             progressWindow = new ProgressWindow();
 
@@ -56,32 +56,14 @@ namespace SmartCommander.Views
             };
         }
 
-        private async Task DoShowViewerDialogAsync(InteractionContext<ViewerViewModel, ViewerViewModel?> interaction)
+        private async Task DoShowDialogAsync<T1, T2>(InteractionContext<T1, T1?> interaction) where T2 : Window, new()
         {
-            var dialog = new ViewerWindow();
+            var dialog = new T2();
             dialog.DataContext = interaction.Input;
 
-            var result = await dialog.ShowDialog<ViewerViewModel>(this);
+            var result = await dialog.ShowDialog<T1>(this);
             interaction.SetOutput(result);
-        }
-
-        private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
-        {
-            var dialog = new CopyMoveWindow();
-            dialog.DataContext = interaction.Input;
-
-            var result = await dialog.ShowDialog<CopyMoveViewModel>(this);
-            interaction.SetOutput(result);
-        }
-
-        private async Task DoShowOptionsDialogAsync(InteractionContext<OptionsViewModel, OptionsViewModel?> interaction)
-        {
-            var dialog = new OptionsWindow();
-            dialog.DataContext = interaction.Input;
-
-            var result = await dialog.ShowDialog<OptionsViewModel>(this);
-            interaction.SetOutput(result);
-        }
+        }     
 
         private void OnOpened(object? sender, EventArgs e)
         {

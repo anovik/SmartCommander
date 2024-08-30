@@ -208,7 +208,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
             _F3Busy = true;
-            SelectedPane.View(F3Finished);
+            _= SelectedPane.View(F3Finished);
         }
 
         public void Edit()

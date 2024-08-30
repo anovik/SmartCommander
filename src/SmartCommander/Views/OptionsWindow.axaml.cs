@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 
 namespace SmartCommander.Views
 {
@@ -8,16 +6,7 @@ namespace SmartCommander.Views
     {
         public OptionsWindow()
         {
-            InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif           
-            
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+            InitializeComponent();    
+        }     
     }
 }

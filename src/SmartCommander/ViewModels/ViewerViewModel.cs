@@ -10,7 +10,7 @@ namespace SmartCommander.ViewModels
             {
                 Text = File.ReadAllText(filename);
             }
-            catch { }
+            catch { Text = ""; }
         }
 
         public string Text { get; set; }
