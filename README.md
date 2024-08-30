@@ -15,7 +15,7 @@ The main window on Windows 11:<br/><br/>
 
 ## How to build
 
-Please make sure you have .NET 6 SDK (or later) installed.
+Please make sure you have .NET 8 SDK (or later) installed.
 ```
 dotnet build src --configuration Release
 ```
