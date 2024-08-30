@@ -1,7 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
@@ -12,10 +11,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -54,11 +53,8 @@ namespace SmartCommander.ViewModels
 
         private MainWindowViewModel _mainVM;
 
-        public string CurrentDirectoryInfo
-        {
-            get { return string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders); }
-        }
-
+        public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
+       
         public FileViewModel? CurrentItem { get; set; }
 
         public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
@@ -112,6 +108,7 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel()
         {
             _mainVM = new MainWindowViewModel();
+            ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
         }
 
         public FilesPaneViewModel(MainWindowViewModel mainVM)
@@ -121,6 +118,7 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
+            ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
         }
 
@@ -129,6 +127,8 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
+
+        public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -268,24 +268,23 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
-            View(null);
+            _= View(null);
         }
 
-        public void View(Action<ButtonResult, object?>? resultAction)
+        public async Task View(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
                 return;
             if (!CurrentItem.IsFolder)
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (Convert.ToUInt64(CurrentItem.Size) > 128*1024*1024)
                 {
-                    LaunchProcess("less", CurrentItem.FullName);
+                    MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
+                    return;
                 }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Process.Start("LTFViewr5u.exe", CurrentItem.FullName);
-                }               
-                resultAction?.Invoke(ButtonResult.Ok,null);                
+                var copy = new ViewerViewModel(CurrentItem.FullName);
+                await ShowViewerDialog.Handle(copy);
+                resultAction?.Invoke(ButtonResult.Ok, null);
             }
             else
             {

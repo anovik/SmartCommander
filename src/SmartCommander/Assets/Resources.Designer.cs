@@ -583,6 +583,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Too large file size for viewing..
+        /// </summary>
+        public static string TooLargeSize {
+            get {
+                return ResourceManager.GetString("TooLargeSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unzip.
         /// </summary>
         public static string Unzip {
