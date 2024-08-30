@@ -27,7 +27,7 @@ dotnet build src --configuration Release
   
 - All main operations with files/folders are supported(view, edit, copy, move, create new folder, delete, etc.)
 
-- Creating of ZIP archives 
+- Creating and unzipping of ZIP archives
   
 - Unicode support
   
