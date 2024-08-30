@@ -58,13 +58,14 @@
 					<Setter Property="IsVisible" Value="False" />
 				</Style>
 			</DataGrid.Styles>
-        <DataGrid.ContextMenu>
-          <ContextMenu>            
-            <MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}"></MenuItem>
-            <MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}"></MenuItem>
-			<MenuItem Header="{x:Static assets:Resources.Zip}" Command="{Binding ZipCommand}"></MenuItem>
-          </ContextMenu>          
-        </DataGrid.ContextMenu>
+        <DataGrid.ContextFlyout>
+			<MenuFlyout>
+				<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}"></MenuItem>
+				<MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}"></MenuItem>
+				<MenuItem Header="{x:Static assets:Resources.Zip}" IsVisible="{Binding !IsUnzip, Mode=TwoWay}"  Command="{Binding ZipCommand}"></MenuItem>
+				<MenuItem Header="{x:Static assets:Resources.Unzip}" IsVisible="{Binding IsUnzip, Mode=TwoWay}" Command="{Binding UnzipCommand}"></MenuItem>
+			</MenuFlyout>          
+        </DataGrid.ContextFlyout>
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="" Width="20" MaxWidth="20">
 					<DataGridTemplateColumn.CellTemplate>

@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Assets;
@@ -11,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
@@ -60,6 +62,9 @@ namespace SmartCommander.ViewModels
         public FileViewModel? CurrentItem { get; set; }
 
         public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
+
+        public bool IsUnzip => CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
+
 
         public SortingBy Sorting
         {
@@ -115,6 +120,7 @@ namespace SmartCommander.ViewModels
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
+            UnzipCommand = ReactiveCommand.Create(Unzip);
             _mainVM = mainVM;
         }
 
@@ -122,6 +128,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
+        public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -315,6 +322,11 @@ namespace SmartCommander.ViewModels
         public void Zip()
         {
             _mainVM.Zip();
+        }
+
+        public void Unzip()
+        {
+            _mainVM.Unzip();
         }
 
         private void LaunchProcess(string program, string argument)
