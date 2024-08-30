@@ -194,9 +194,9 @@ namespace SmartCommander.ViewModels
         }
 
         public void Execute()
-        {         
+        {
             SelectedPane.Execute(CommandText);
-            CommandText = "";            
+            CommandText = "";
         }
 
         public void View()
@@ -206,7 +206,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
             _F3Busy = true;
-            SelectedPane.View(F3Finished);         
+            SelectedPane.View(F3Finished);
         }
 
         public void Edit()
@@ -216,7 +216,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
             _F4Busy = true;
-            SelectedPane.Edit(F4Finished);           
+            SelectedPane.Edit(F4Finished);
         }
 
         public bool IsBackgroundOperation { get { return tokenSource != null && !tokenSource.IsDisposed; } }
@@ -224,9 +224,9 @@ namespace SmartCommander.ViewModels
         public void Cancel()
         {
             if (tokenSource != null && !tokenSource.IsDisposed)
-            {               
-                tokenSource.Cancel();               
-            } 
+            {
+                tokenSource.Cancel();
+            }
         }
 
         public async void Zip()
@@ -239,6 +239,42 @@ namespace SmartCommander.ViewModels
                 await Task.Run(() => ZipAsync(tokenSource.Token));
                 SelectedPane.Update();
             }
+        }
+
+        public async void Unzip()
+        {
+            if (SelectedPane.CurrentItems.Count < 1)
+                return;
+
+            using (tokenSource = new SmartCancellationTokenSource())
+            {
+                await Task.Run(() => UnzipAsync(tokenSource.Token));
+                SelectedPane.Update();
+            }
+
+        }
+        public void UnzipAsync(CancellationToken ct)
+        {
+            try
+            {
+                if (ct.IsCancellationRequested)
+                {
+                    ct.ThrowIfCancellationRequested();
+                }
+                if (SelectedPane.CurrentItems.Count < 1)
+                    return;
+                var destDir = Path.Combine(SelectedPane.CurrentDirectory, SelectedPane.CurrentItems[0].Name);
+                if (Directory.Exists(destDir))
+                {
+                    MessageBox_Show(null, string.Format(Resources.DirectoryExists, destDir), Resources.Alert);
+                    return;
+                }
+                _progress?.Report(0);
+                ZipFile.ExtractToDirectory(SelectedPane.CurrentItems[0].FullName, destDir);
+                _progress?.Report(100);
+
+            }             
+            catch { }
         }
 
         public void ZipAsync(CancellationToken ct)

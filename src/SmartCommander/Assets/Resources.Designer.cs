@@ -214,6 +214,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Directory {0} already exists..
+        /// </summary>
+        public static string DirectoryExists {
+            get {
+                return ResourceManager.GetString("DirectoryExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Display Command Line.
         /// </summary>
         public static string DisplayCommandLine {
@@ -570,6 +579,15 @@ namespace SmartCommander.Assets {
         public static string StopBackground {
             get {
                 return ResourceManager.GetString("StopBackground", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unzip.
+        /// </summary>
+        public static string Unzip {
+            get {
+                return ResourceManager.GetString("Unzip", resourceCulture);
             }
         }
         
