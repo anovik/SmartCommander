@@ -100,6 +100,8 @@ namespace SmartCommander.ViewModels
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
 
+        public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog => LeftFileViewModel.ShowViewerDialog;
+
         public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
 
@@ -219,7 +221,7 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit(F4Finished);
         }
 
-        public bool IsBackgroundOperation { get { return tokenSource != null && !tokenSource.IsDisposed; } }
+        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed; 
 
         public void Cancel()
         {

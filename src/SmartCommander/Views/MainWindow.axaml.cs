@@ -19,6 +19,7 @@ namespace SmartCommander.Views
 
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowCopyDialogAsync)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowOptionsDialogAsync)));
+            this.WhenActivated(d => d(ViewModel!.ShowViewerDialog.RegisterHandler(DoShowViewerDialogAsync)));
 
             progressWindow = new ProgressWindow();
 
@@ -53,7 +54,16 @@ namespace SmartCommander.Views
                     progressWindow.Close();
                 }
             };
-        }        
+        }
+
+        private async Task DoShowViewerDialogAsync(InteractionContext<ViewerViewModel, ViewerViewModel?> interaction)
+        {
+            var dialog = new ViewerWindow();
+            dialog.DataContext = interaction.Input;
+
+            var result = await dialog.ShowDialog<ViewerViewModel>(this);
+            interaction.SetOutput(result);
+        }
 
         private async Task DoShowCopyDialogAsync(InteractionContext<CopyMoveViewModel, CopyMoveViewModel?> interaction)
         {
