@@ -98,9 +98,7 @@ namespace SmartCommander.ViewModels
 
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
-        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
-
-        public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog => LeftFileViewModel.ShowViewerDialog;
+        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
 
         public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
