@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using SmartCommander.ViewModels;
 using System;
 using System.IO;
 using System.Linq;
