@@ -1,5 +1,7 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using SmartCommander.ViewModels;
 using System;
 using System.IO;
 using System.Linq;
@@ -22,6 +24,13 @@ namespace SmartCommander.Views
                     comboBox.SelectedIndex = 0;
                 }
             }
+
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var PaneDataGrid = this.Get<DataGrid>("PaneDataGrid");
+            PaneDataGrid.Focus();
         }
 
         private void InitializeComponent()

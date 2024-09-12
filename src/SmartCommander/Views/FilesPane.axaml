@@ -40,7 +40,10 @@
       <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}">      
       </ComboBox>
     </Grid>	
-	    <DataGrid Margin="5" Grid.Row="1" IsTabStop="True"				
+	    <DataGrid Name="PaneDataGrid" Loaded="OnLoaded"
+				  IsFocused="{Binding IsSelected, Mode=OneWayToSource}"
+          
+				  Margin="5" Grid.Row="1" IsTabStop="True"				
 				  ItemsSource="{Binding FoldersFilesList}" 
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 
@@ -99,6 +102,7 @@
 				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
 			  </ia:EventTriggerBehavior>
 		  </i:Interaction.Behaviors>
+
 		</DataGrid>				
 		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
 	</Grid>
