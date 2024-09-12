@@ -527,19 +527,6 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        //public void OnControlFocused(Control control)
-        //{
-        //    Console.WriteLine(control.Name+"_____"+ control.IsFocused);
-        //    IsSelected = control.IsFocused;
-        //}
-
-
-        //public void OnControlLostFocus(Control control)
-        //{
-        //    Console.WriteLine(control.Name + "_____" + control.IsFocused);
-        //    IsSelected = control.IsFocused;
-        //}
-
         string? _selectedDrive;
         string? SelectedDrive
         {
