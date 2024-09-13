@@ -37,7 +37,7 @@ namespace SmartCommander.ViewModels
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
         private bool _ascending = true;
-
+        
         public string CurrentDirectory
         {
             get => _currentDirectory;
@@ -118,11 +118,13 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
+            FilesPaneEnterCommand = ReactiveCommand.Create(ProcessCurrentItem);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
         }
 
-        public ReactiveCommand<Unit, Unit>? EnterCommand { get; }
+        public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
+        public ReactiveCommand<Unit, Unit>? FilesPaneBackspaceCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
