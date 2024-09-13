@@ -36,7 +36,9 @@ namespace SmartCommander.ViewModels
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
-        private bool _ascending = true;      
+        private bool _ascending = true;
+        public event EventHandler FocusChanged;
+
         public string CurrentDirectory
         {
             get => _currentDirectory;
@@ -88,8 +90,12 @@ namespace SmartCommander.ViewModels
             set
             {
                 _isSelected = value;
-                this.RaisePropertyChanged("IsSelected");
                 this.RaisePropertyChanged("GridBorderBrush");
+
+                if (value)
+                {
+                    FocusChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 
@@ -100,7 +106,9 @@ namespace SmartCommander.ViewModels
         }
 
 
-        public Brush GridBorderBrush => IsSelected ? new SolidColorBrush(Colors.LightSkyBlue) : new SolidColorBrush(Colors.Transparent);
+        public static Brush SelectedBrush = new SolidColorBrush(Colors.LightSkyBlue);
+        public static Brush NotSelectedBrush = new SolidColorBrush(Colors.Transparent);
+        public Brush GridBorderBrush => IsSelected ? SelectedBrush : NotSelectedBrush;
 
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
 
