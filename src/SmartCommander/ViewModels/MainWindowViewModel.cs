@@ -43,7 +43,7 @@ namespace SmartCommander.ViewModels
             LeftFileViewModel.FocusChanged += OnFocusChanged;
 
             RightFileViewModel = new FilesPaneViewModel(this);
-            LeftFileViewModel.FocusChanged += OnFocusChanged;
+            RightFileViewModel.FocusChanged += OnFocusChanged;
 
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
