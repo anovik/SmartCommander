@@ -36,7 +36,6 @@ namespace SmartCommander.ViewModels
             F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
-            TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
             LeftFileViewModel = new FilesPaneViewModel(this);
@@ -146,23 +145,11 @@ namespace SmartCommander.ViewModels
             SelectedPane.Ascending = true;
         }
 
-        public void ChangeSelectedPane()
-        {
-            if (LeftFileViewModel.IsSelected)
-            {
-                SelectedPane = RightFileViewModel;
-            }
-            else if (RightFileViewModel.IsSelected)
-            {
-                SelectedPane = LeftFileViewModel;
-            }
-        }
-
         public FilesPaneViewModel SecondPane
         {
             get
             {
-                if (_SelectedPane == RightFileViewModel)
+                if (SelectedPane == RightFileViewModel)
                 {
                     return LeftFileViewModel;
                 }
@@ -172,19 +159,8 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
-        private FilesPaneViewModel _SelectedPane { get; set; }
 
-        public FilesPaneViewModel SelectedPane
-        {
-            get
-            {
-                return _SelectedPane;
-            }
-            set
-            {
-                _SelectedPane = value;
-            }
-        }
+        public FilesPaneViewModel SelectedPane { get; set; }
 
         public void Execute()
         {
