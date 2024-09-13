@@ -172,7 +172,7 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
-        private FilesPaneViewModel _SelectedPane;
+        private FilesPaneViewModel _SelectedPane { get; set; }
 
         public FilesPaneViewModel SelectedPane
         {
