@@ -36,8 +36,7 @@ namespace SmartCommander.ViewModels
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
-        private bool _ascending = true;
-        
+        private bool _ascending = true;      
         public string CurrentDirectory
         {
             get => _currentDirectory;
@@ -389,7 +388,7 @@ namespace SmartCommander.ViewModels
 
             if (CurrentItem.IsFolder)
             {
-                if (CurrentItem.FullName == ".." | goToParent)
+                if (CurrentItem.FullName == "..")
                 {
                     CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
                         CurrentDirectory;
