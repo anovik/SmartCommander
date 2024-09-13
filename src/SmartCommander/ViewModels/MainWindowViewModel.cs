@@ -36,13 +36,11 @@ namespace SmartCommander.ViewModels
             F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
+            TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
-            LeftFileViewModel = new FilesPaneViewModel(this);
-            LeftFileViewModel.FocusChanged += OnFocusChanged;
-
+            LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
             RightFileViewModel = new FilesPaneViewModel(this);
-            LeftFileViewModel.FocusChanged += OnFocusChanged;
 
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
@@ -54,14 +52,6 @@ namespace SmartCommander.ViewModels
             }
             SetTheme();
             _progress = new Progress<int>(v => Progress_Show(v));
-        }
-
-        private void OnFocusChanged(object sender, EventArgs e)
-        {
-            if (sender is FilesPaneViewModel)
-            {
-                SelectedPane = (FilesPaneViewModel)sender;
-            }
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -78,6 +68,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F6Command { get; }
         public ReactiveCommand<Unit, Unit> F7Command { get; }
         public ReactiveCommand<Unit, Unit> F8Command { get; }
+        public ReactiveCommand<Unit, Unit> TabCommand { get; }
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; }
@@ -107,7 +98,7 @@ namespace SmartCommander.ViewModels
 
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
-        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
+        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
 
         public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -145,31 +136,60 @@ namespace SmartCommander.ViewModels
             SelectedPane.Ascending = true;
         }
 
+        public void ChangeSelectedPane()
+        {
+            if (LeftFileViewModel.IsSelected)
+            {
+                SelectedPane = RightFileViewModel;
+            }
+            else if (RightFileViewModel.IsSelected)
+            {
+                SelectedPane = LeftFileViewModel;
+            }
+        }
+
         public FilesPaneViewModel SecondPane
         {
             get
             {
-                if (_SelectedPane == RightFileViewModel)
-                {
-                    return LeftFileViewModel;
-                }
-                else
+                if (LeftFileViewModel.IsSelected)
                 {
                     return RightFileViewModel;
                 }
+                else if (RightFileViewModel.IsSelected)
+                {
+                    return LeftFileViewModel;
+                }
+                throw new Exception(Resources.ErrorNoPane);
             }
         }
 
-        private FilesPaneViewModel _SelectedPane;
         public FilesPaneViewModel SelectedPane
         {
             get
             {
-                return _SelectedPane;
+                if (LeftFileViewModel.IsSelected)
+                {
+                    return LeftFileViewModel;
+                }
+                else if (RightFileViewModel.IsSelected)
+                {
+                    return RightFileViewModel;
+                }
+                throw new Exception(Resources.ErrorNoPane);
             }
             set
             {
-                _SelectedPane = value;
+                if (RightFileViewModel == value && !RightFileViewModel.IsSelected)
+                {
+                    LeftFileViewModel.IsSelected = false;
+                    RightFileViewModel.IsSelected = true;
+                }
+                else if (LeftFileViewModel == value && !LeftFileViewModel.IsSelected)
+                {
+                    RightFileViewModel.IsSelected = false;
+                    LeftFileViewModel.IsSelected = true;
+                }
             }
         }
 
@@ -186,7 +206,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
             _F3Busy = true;
-            _ = SelectedPane.View(F3Finished);
+            _= SelectedPane.View(F3Finished);
         }
 
         public void Edit()
@@ -199,7 +219,7 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit(F4Finished);
         }
 
-        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed;
+        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed; 
 
         public void Cancel()
         {
@@ -253,7 +273,7 @@ namespace SmartCommander.ViewModels
                 ZipFile.ExtractToDirectory(SelectedPane.CurrentItems[0].FullName, destDir);
                 _progress?.Report(100);
 
-            }
+            }             
             catch { }
         }
 
@@ -283,7 +303,7 @@ namespace SmartCommander.ViewModels
                 foreach (var item in items)
                 {
                     itemsToProcess.Add(Tuple.Create("", item.FullName));
-                }
+                }             
 
                 using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
                     while (itemsToProcess.Count > 0)
@@ -300,11 +320,11 @@ namespace SmartCommander.ViewModels
                             var newEntryPath = Path.Combine(entryPath, new DirectoryInfo(path).Name);
                             foreach (var folder in Directory.GetDirectories(path))
                             {
-                                itemsToProcess.Add(Tuple.Create(newEntryPath, folder));
+                                itemsToProcess.Add(Tuple.Create(newEntryPath, folder));                               
                             }
                             foreach (var file in Directory.GetFiles(path))
                             {
-                                itemsToProcess.Add(Tuple.Create(newEntryPath, file));
+                                itemsToProcess.Add(Tuple.Create(newEntryPath, file));                               
                             }
                         }
                         else if (File.Exists(path))
@@ -317,7 +337,7 @@ namespace SmartCommander.ViewModels
 
                         itemsToProcess.Remove(item);
 
-                        Utils.ReportProgress(_progress, processedSize, totalSize);
+                        Utils.ReportProgress(_progress, processedSize, totalSize);                      
                     }
 
                 _progress?.Report(100);
@@ -325,7 +345,7 @@ namespace SmartCommander.ViewModels
             catch { }
         }
         public async Task Copy()
-        {
+        {            
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
             if (SelectedPane.CurrentDirectory == SecondPane.CurrentDirectory)
@@ -335,10 +355,10 @@ namespace SmartCommander.ViewModels
             }
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
              string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
-            var copy = new CopyMoveViewModel(true, text, SecondPane.CurrentDirectory);
+            var copy = new CopyMoveViewModel(true, text, SecondPane.CurrentDirectory);            
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
-            {
+            {    
                 var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
 
                 if (duplicates != null && duplicates.Count > 0)
@@ -405,10 +425,10 @@ namespace SmartCommander.ViewModels
                     if (item.IsFolder)
                     {
                         try
-                        {
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                        {                          
+                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                           
                             Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct,
-                                _progress, ref processedSize, totalSize);
+                                _progress, ref processedSize, totalSize);                           
                         }
                         catch (OperationCanceledException)
                         {
@@ -421,7 +441,7 @@ namespace SmartCommander.ViewModels
                         }
                     }
                     else
-                    {
+                    {                       
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
                         Utils.CopyFile(item.FullName, destFile, false, overwrite, ct,
                                 _progress, ref processedSize, totalSize);
@@ -447,7 +467,7 @@ namespace SmartCommander.ViewModels
             var copy = new CopyMoveViewModel(false, text, SecondPane.CurrentDirectory);
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null)
-            {
+            {        
                 var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
 
                 if (duplicates != null && duplicates.Count > 0)
@@ -460,12 +480,12 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     MoveSelectedItems(false);
-                }
+                }             
             }
         }
 
         public void MoveFileExists(ButtonResult result, object? parameter)
-        {
+        {           
             if (result != ButtonResult.Cancel)
             {
                 MoveSelectedItems(result == ButtonResult.Yes);
@@ -482,15 +502,15 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void MoveSelectedItemsAsync(bool overwrite, CancellationToken ct)
+        private void MoveSelectedItemsAsync(bool overwrite,CancellationToken ct)
         {
-            try
+            try 
             {
                 if (ct.IsCancellationRequested)
                 {
                     ct.ThrowIfCancellationRequested();
                 }
-                _progress?.Report(0);
+                _progress?.Report(0);                
                 long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
                 long processedSize = 0;
                 foreach (var item in SelectedPane.CurrentItems)
@@ -508,12 +528,12 @@ namespace SmartCommander.ViewModels
                             {
                                 MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                                 return;
-                            }
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                            }                           
+                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName)); 
                             // TODO: in case of the same drive faster to move
                             Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct,
                                 _progress, ref processedSize, totalSize);
-                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
+                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                            
                         }
                         catch (OperationCanceledException)
                         {
@@ -526,10 +546,10 @@ namespace SmartCommander.ViewModels
                         }
                     }
                     else
-                    {
+                    {                       
                         string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
                         Utils.CopyFile(item.FullName, destFile, true, overwrite, ct,
-                                _progress, ref processedSize, totalSize);
+                                _progress, ref processedSize, totalSize);                       
                     }
                     Utils.ReportProgress(_progress, processedSize, totalSize);
                 }
@@ -562,13 +582,13 @@ namespace SmartCommander.ViewModels
         }
 
         public void CreateNewFolder()
-        {
+        {  
             if (_F7Busy)
             {
                 return;
             }
             _F7Busy = true;
-            MessageBoxInput_Show(CreateNewFolderAnswer, Resources.CreateNewFolder);
+            MessageBoxInput_Show(CreateNewFolderAnswer, Resources.CreateNewFolder);            
         }
 
         public void CreateNewFolderAnswer(string result)
@@ -583,7 +603,7 @@ namespace SmartCommander.ViewModels
         }
 
         public void Delete()
-        {
+        {   
             if (SelectedPane.CurrentItems.Count < 1)
                 return;
             if (_F8Busy)
@@ -594,15 +614,15 @@ namespace SmartCommander.ViewModels
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
                 string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             MessageBox_Show(DeleteAnswer,
-                string.Format(Resources.DeleteConfirmation, text),
+                string.Format(Resources.DeleteConfirmation, text), 
                 Resources.Alert,
-                ButtonEnum.YesNo);
+                ButtonEnum.YesNo);            
         }
 
         public void DeleteAnswer(ButtonResult result, object? parameter)
-        {
+        {   
             if (result == ButtonResult.Yes)
-            {
+            {    
                 var nonEmptyFolders = Utils.GetNonEmptyFolders(SelectedPane.CurrentItems);
                 if (nonEmptyFolders != null && nonEmptyFolders.Count > 0)
                 {
@@ -615,7 +635,7 @@ namespace SmartCommander.ViewModels
                         parameter: nonEmptyFolders);
                 }
                 else
-                {
+                {                
                     DeleteSelectedItems(true, nonEmptyFolders);
                 }
             }
@@ -656,9 +676,9 @@ namespace SmartCommander.ViewModels
                 {
                     ct.ThrowIfCancellationRequested();
                 }
-                _progress?.Report(0);
+                _progress?.Report(0);               
                 long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
-                long processedSize = 0;
+                long processedSize = 0;            
                 foreach (var item in SelectedPane.CurrentItems)
                 {
                     if (ct.IsCancellationRequested)
@@ -680,9 +700,9 @@ namespace SmartCommander.ViewModels
                     Utils.ReportProgress(_progress, processedSize, totalSize);
                 }
                 _progress?.Report(100);
-
+              
             }
             catch { }
-        }
+        }     
     }
 }
