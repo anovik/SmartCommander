@@ -102,7 +102,6 @@
 				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
 			  </ia:EventTriggerBehavior>
 		  </i:Interaction.Behaviors>
-
 		</DataGrid>				
 		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
 	</Grid>
