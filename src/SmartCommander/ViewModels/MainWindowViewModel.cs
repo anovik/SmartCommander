@@ -36,11 +36,13 @@ namespace SmartCommander.ViewModels
             F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
-            TabCommand = ReactiveCommand.Create(ChangeSelectedPane);
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
-            LeftFileViewModel = new FilesPaneViewModel(this) { IsSelected = true };
+            LeftFileViewModel = new FilesPaneViewModel(this);
+            LeftFileViewModel.FocusChanged += OnFocusChanged;
+
             RightFileViewModel = new FilesPaneViewModel(this);
+            RightFileViewModel.FocusChanged += OnFocusChanged;
 
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
@@ -52,6 +54,13 @@ namespace SmartCommander.ViewModels
             }
             SetTheme();
             _progress = new Progress<int>(v => Progress_Show(v));
+        }
+        private void OnFocusChanged(object? sender, EventArgs e)
+        {
+            if (sender is FilesPaneViewModel)
+            {
+                SelectedPane = (FilesPaneViewModel)sender;
+            }
         }
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
@@ -136,62 +145,22 @@ namespace SmartCommander.ViewModels
             SelectedPane.Ascending = true;
         }
 
-        public void ChangeSelectedPane()
-        {
-            if (LeftFileViewModel.IsSelected)
-            {
-                SelectedPane = RightFileViewModel;
-            }
-            else if (RightFileViewModel.IsSelected)
-            {
-                SelectedPane = LeftFileViewModel;
-            }
-        }
-
         public FilesPaneViewModel SecondPane
         {
             get
             {
-                if (LeftFileViewModel.IsSelected)
-                {
-                    return RightFileViewModel;
-                }
-                else if (RightFileViewModel.IsSelected)
+                if (SelectedPane == RightFileViewModel)
                 {
                     return LeftFileViewModel;
                 }
-                throw new Exception(Resources.ErrorNoPane);
+                else
+                {
+                    return RightFileViewModel;
+                }
             }
         }
 
-        public FilesPaneViewModel SelectedPane
-        {
-            get
-            {
-                if (LeftFileViewModel.IsSelected)
-                {
-                    return LeftFileViewModel;
-                }
-                else if (RightFileViewModel.IsSelected)
-                {
-                    return RightFileViewModel;
-                }
-                throw new Exception(Resources.ErrorNoPane);
-            }
-            set
-            {
-                if (RightFileViewModel == value && !RightFileViewModel.IsSelected)
-                {
-                    LeftFileViewModel.IsSelected = false;
-                    RightFileViewModel.IsSelected = true;
-                }
-                else if (LeftFileViewModel == value && !LeftFileViewModel.IsSelected)
-                {
-                    RightFileViewModel.IsSelected = false;
-                    LeftFileViewModel.IsSelected = true;
-                }
-            }
-        }
+        public FilesPaneViewModel SelectedPane { get; set; }
 
         public void Execute()
         {

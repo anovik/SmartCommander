@@ -17,7 +17,6 @@
     </Design.DataContext>
 	
 	<Window.KeyBindings>
-		<KeyBinding Gesture="Tab" Command="{Binding TabCommand}" />
 		<KeyBinding Gesture="F3" Command="{Binding F3Command}" />
 		<KeyBinding Gesture="F4" Command="{Binding F4Command}" />
 		<KeyBinding Gesture="F5" Command="{Binding F5Command}" />

@@ -37,10 +37,13 @@
       </Grid.ColumnDefinitions>
 			<TextBox IsTabStop="False" Text="{Binding CurrentDirectory}" >      
 			</TextBox>
-      <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}">      
+      <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}" IsTabStop="False">      
       </ComboBox>
     </Grid>	
-	    <DataGrid Margin="5" Grid.Row="1" IsTabStop="True"				
+	    <DataGrid Name="PaneDataGrid" Loaded="OnLoaded"
+				  IsFocused="{Binding IsSelected, Mode=OneWayToSource}"
+          
+				  Margin="5" Grid.Row="1" IsTabStop="True"				
 				  ItemsSource="{Binding FoldersFilesList}" 
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 
