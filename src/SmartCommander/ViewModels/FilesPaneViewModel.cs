@@ -118,7 +118,8 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
-            FilesPaneEnterCommand = ReactiveCommand.Create(ProcessCurrentItem);
+            FilesPaneEnterCommand = ReactiveCommand.Create(() => ProcessCurrentItem());
+            FilesPaneBackspaceCommand = ReactiveCommand.Create(() => ProcessCurrentItem(true));
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
         }
@@ -372,15 +373,23 @@ namespace SmartCommander.ViewModels
             Directory.CreateDirectory(newFolder);
         }
 
-        private void ProcessCurrentItem()
+        private void ProcessCurrentItem(bool goToParent = false)
         {       
             if (CurrentItem == null)
             {
                 return;
             }
+
+            if (goToParent)
+            {
+                CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
+                        CurrentDirectory;
+                return;
+            }
+
             if (CurrentItem.IsFolder)
             {
-                if (CurrentItem.FullName == "..")
+                if (CurrentItem.FullName == ".." | goToParent)
                 {
                     CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
                         CurrentDirectory;
