@@ -306,4 +306,7 @@
   <data name="Language" xml:space="preserve">
     <value>Язык</value>
   </data>
+  <data name="Reboot" xml:space="preserve">
+    <value>*Требуется перезапуск приложения</value>
+  </data>
 </root>

@@ -51,11 +51,11 @@
       </TabItem>
 		<TabItem Header="Language">
 			<StackPanel>
-				<ListBox x:Name="LanguageListBox"
-						 ItemsSource="{Binding AvailableCultures}"
+				<ListBox ItemsSource="{Binding AvailableCultures}"
                          ItemTemplate="{StaticResource CultureInfoTemplate}"
 						 SelectedItem="{Binding SelectedCulture, Mode=TwoWay}"
 						  />
+				<Label Content="{x:Static assets:Resources.Reboot}"/>
 			</StackPanel>
 		</TabItem>
     </TabControl>

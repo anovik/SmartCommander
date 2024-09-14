@@ -6,6 +6,7 @@ using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Reactive;
@@ -52,9 +53,19 @@ namespace SmartCommander.ViewModels
             {
                 RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
             }
+            SetLanguage(); 
             SetTheme();
             _progress = new Progress<int>(v => Progress_Show(v));
         }
+
+        private void SetLanguage()
+        {
+            var cultureName = OptionsModel.Instance.Language;
+            var culture = new CultureInfo(cultureName);
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+        }
+
         private void OnFocusChanged(object? sender, EventArgs e)
         {
             if (sender is FilesPaneViewModel)
@@ -533,11 +544,11 @@ namespace SmartCommander.ViewModels
             var result = await ShowOptionsDialog.Handle(optionsModel);
             if (result != null)
             {
+                SetLanguage();
                 this.RaisePropertyChanged("IsFunctionKeysDisplayed");
                 this.RaisePropertyChanged("IsCommandLineDisplayed");
                 SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
                 SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
-                SetTheme();
             }
         }
 

@@ -617,5 +617,16 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("Zip", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Zip.
+        /// </summary>
+        public static string Reboot
+        {
+            get
+            {
+                return ResourceManager.GetString("Reboot", resourceCulture);
+            }
+        }
     }
 }
