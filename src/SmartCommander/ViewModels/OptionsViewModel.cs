@@ -1,12 +1,43 @@
 ﻿using Avalonia.Controls;
 using ReactiveUI;
+using SmartCommander.Assets;
 using SmartCommander.Models;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
 using System.Reactive;
+using System.Resources;
 
 namespace SmartCommander.ViewModels
 {
     public class OptionsViewModel : ViewModelBase
     {
+
+        public ObservableCollection<CultureInfo> AvailableCultures { get; }
+
+        public CultureInfo SelectedCulture { get; set; }
+
+        private static IEnumerable<CultureInfo> GetAvailableCultures()
+        {
+            List<CultureInfo> result = new List<CultureInfo>();
+            ResourceManager rm = new ResourceManager(typeof(Resources));
+            CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+
+            foreach (CultureInfo culture in cultures)
+            {
+                    if (culture.Equals(CultureInfo.InvariantCulture)) {
+                        result.Add(new CultureInfo("en-US"));
+                        continue;
+                    }
+
+                    ResourceSet? rs = rm?.GetResourceSet(culture, true, false);
+                    if (rs != null)
+                        result.Add(culture);
+            }
+            return result;
+        }
+
         public OptionsViewModel()
         {
             OKCommand = ReactiveCommand.Create<Window>(SaveClose);
@@ -20,6 +51,12 @@ namespace SmartCommander.ViewModels
             ConfirmationWhenDeleteNonEmpty = Model.ConfirmationWhenDeleteNonEmpty;
             SaveWindowPositionSize = Model.SaveWindowPositionSize;
             IsDarkThemeEnabled = Model.IsDarkThemeEnabled;
+
+            AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
+            //SelectedCulture = AvailableCultures.FirstOrDefault();
+
+            var lang = AvailableCultures.FirstOrDefault(x => x.Name == Model.Language);
+            SelectedCulture = lang is null ? AvailableCultures.FirstOrDefault() : lang;
         }
 
         public bool IsCurrentDirectoryDisplayed { get; set; }       
@@ -51,6 +88,7 @@ namespace SmartCommander.ViewModels
             Model.ConfirmationWhenDeleteNonEmpty = ConfirmationWhenDeleteNonEmpty;
             Model.SaveWindowPositionSize = SaveWindowPositionSize;
             Model.IsDarkThemeEnabled = IsDarkThemeEnabled;
+            Model.Language = SelectedCulture.Name;
 
             Model.Save();
             if (window != null)

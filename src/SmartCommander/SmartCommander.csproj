@@ -14,7 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-    <AvaloniaResource Remove="Assets\Resources.resx" />
+    <AvaloniaResource Remove="Assets\Resources...resx" />
     <None Remove=".gitignore" />
   </ItemGroup>
   <ItemGroup>
@@ -48,16 +48,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />  
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Assets\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Assets\Resources.resx">
+    <EmbeddedResource Update="Assets\Resources...resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <LastGenOutput>Resources...Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
