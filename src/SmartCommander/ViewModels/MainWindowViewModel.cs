@@ -544,11 +544,11 @@ namespace SmartCommander.ViewModels
             var result = await ShowOptionsDialog.Handle(optionsModel);
             if (result != null)
             {
-                SetLanguage();
                 this.RaisePropertyChanged("IsFunctionKeysDisplayed");
                 this.RaisePropertyChanged("IsCommandLineDisplayed");
                 SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
                 SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
+                SetTheme();
             }
         }
 
