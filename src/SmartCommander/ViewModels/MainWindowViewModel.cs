@@ -24,11 +24,14 @@ namespace SmartCommander.ViewModels
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
 
+            ShowSearchsDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
+
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
             SortExtensionCommand = ReactiveCommand.Create(SortExtension);
             SortSizeCommand = ReactiveCommand.Create(SortSize);
             SortDateCommand = ReactiveCommand.Create(SortDate);
+            SearchFilesCommand = ReactiveCommand.Create(SearchFilesDialog);
             EnterCommand = ReactiveCommand.Create(Execute);
             F3Command = ReactiveCommand.Create(View);
             F4Command = ReactiveCommand.Create(Edit);
@@ -69,6 +72,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> SortExtensionCommand { get; }
         public ReactiveCommand<Unit, Unit> SortSizeCommand { get; }
         public ReactiveCommand<Unit, Unit> SortDateCommand { get; }
+        public ReactiveCommand<Unit, Unit> SearchFilesCommand { get; }
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
 
         public ReactiveCommand<Unit, Unit> F3Command { get; }
@@ -108,6 +112,7 @@ namespace SmartCommander.ViewModels
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
+        public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchsDialog { get; }      
 
         public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -143,6 +148,12 @@ namespace SmartCommander.ViewModels
         {
             SelectedPane.Sorting = SortingBy.SortingByDate;
             SelectedPane.Ascending = true;
+        }
+        public async void SearchFilesDialog()
+        {
+            var optionsModel = new FileSearchViewModel();
+            var result = await ShowSearchsDialog.Handle(optionsModel);
+            ///MessageBox_Show(null, "Seasrch", Resources.Alert, ButtonEnum.Ok);
         }
 
         public FilesPaneViewModel SecondPane

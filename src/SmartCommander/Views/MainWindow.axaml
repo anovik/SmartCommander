@@ -41,8 +41,9 @@
     <Menu >
       <MenuItem Header="{x:Static assets:Resources.MenuFile}" IsTabStop="False">
         <MenuItem Header="{x:Static assets:Resources.MenuExit}" 
-				  Command="{Binding ExitCommand}" IsTabStop="False"></MenuItem>        		  
-      </MenuItem>
+				  Command="{Binding ExitCommand}" IsTabStop="False"></MenuItem>
+		  <MenuItem Header="Search"  Command="{Binding SearchFilesCommand}" IsTabStop="False"></MenuItem>
+	  </MenuItem>
       <MenuItem Header="{x:Static assets:Resources.MenuView}" IsTabStop="False">
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortByName}" Command="{Binding SortNameCommand}"></MenuItem>
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortByExtension}" Command="{Binding SortExtensionCommand}"></MenuItem>
