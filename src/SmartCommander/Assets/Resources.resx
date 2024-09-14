@@ -303,9 +303,6 @@
   <data name="TooLargeSize" xml:space="preserve">
     <value>Too large file size for viewing.</value>
   </data>
-  <data name="Language" xml:space="preserve">
-    <value>Language</value>
-  </data>
   <data name="Reboot" xml:space="preserve">
     <value>*Application restart required</value>
   </data>
