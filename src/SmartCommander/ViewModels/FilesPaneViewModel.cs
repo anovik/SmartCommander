@@ -46,22 +46,33 @@ namespace SmartCommander.ViewModels
             {
                 _currentDirectory = value;
                 GetFilesFolders(CurrentDirectory, FoldersFilesList);
-                this.RaisePropertyChanged("CurrentDirectory");
-                this.RaisePropertyChanged("CurrentDirectoryInfo");
+                this.RaisePropertyChanged(nameof(CurrentDirectory));
+                this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
             }
         }
 
 
         private readonly MainWindowViewModel _mainVM;
 
-        public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
+        public string CurrentDirectoryInfo
+        {
+            get
+            {
+                return string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
+            }
+        }
 
         public FileViewModel? CurrentItem { get; set; }
 
         public List<FileViewModel> CurrentItems { get; set; } = [];
 
-        public bool IsUnzip => CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
-
+        public bool IsUnzip
+        {
+            get
+            {
+                return CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
+            }
+        }
 
         public SortingBy Sorting
         {
@@ -90,7 +101,7 @@ namespace SmartCommander.ViewModels
             set
             {
                 _isSelected = value;
-                this.RaisePropertyChanged("GridBorderBrush");
+                this.RaisePropertyChanged(nameof(GridBorderBrush));
 
                 if (value)
                 {
@@ -100,12 +111,17 @@ namespace SmartCommander.ViewModels
         }
 
 
-        public bool IsCurrentDirectoryDisplayed => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
+        public static bool IsCurrentDirectoryDisplayed => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
 
-
-        public static Brush SelectedBrush = new SolidColorBrush(Colors.LightSkyBlue);
-        public static Brush NotSelectedBrush = new SolidColorBrush(Colors.Transparent);
-        public Brush GridBorderBrush => IsSelected ? SelectedBrush : NotSelectedBrush;
+        private static readonly Brush SelectedBrush = new SolidColorBrush(Colors.LightSkyBlue);
+        private static readonly Brush NotSelectedBrush = new SolidColorBrush(Colors.Transparent);
+        public Brush GridBorderBrush
+        {
+            get
+            {
+                return IsSelected ? SelectedBrush : NotSelectedBrush;
+            }
+        }
 
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = [];
 
@@ -338,7 +354,7 @@ namespace SmartCommander.ViewModels
             _mainVM.Unzip();
         }
 
-        private void LaunchProcess(string program, string argument)
+        private static void LaunchProcess(string program, string argument)
         {
             Process process = new();
             process.StartInfo.FileName = "x-terminal-emulator"; // Use the default terminal emulator
@@ -347,7 +363,7 @@ namespace SmartCommander.ViewModels
             _ = process.Start();
         }
 
-        public void Delete(FileViewModel? item)
+        public static void Delete(FileViewModel? item)
         {
             try
             {
@@ -414,7 +430,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
+        private void GetFilesFolders(string dir, ObservableCollection<FileViewModel> filesFoldersList)
         {
             if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
             {
@@ -470,52 +486,52 @@ namespace SmartCommander.ViewModels
             {
                 if (Ascending)
                 {
-                    foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
-                    filesList = filesList.OrderBy(entry => entry.Name).ToList();
+                    foldersList = [.. foldersList.OrderBy(entry => entry.Name)];
+                    filesList = [.. filesList.OrderBy(entry => entry.Name)];
                 }
                 else
                 {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Name).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.Name).ToList();
+                    foldersList = [.. foldersList.OrderByDescending(entry => entry.Name)];
+                    filesList = [.. filesList.OrderByDescending(entry => entry.Name)];
                 }
             }
             else if (Sorting == SortingBy.SortingByExt)
             {
                 if (Ascending)
                 {
-                    foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
-                    filesList = filesList.OrderBy(entry => entry.Extension).ToList();
+                    foldersList = [.. foldersList.OrderBy(entry => entry.Extension)];
+                    filesList = [.. filesList.OrderBy(entry => entry.Extension)];
                 }
                 else
                 {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
+                    foldersList = [.. foldersList.OrderByDescending(entry => entry.Extension)];
+                    filesList = [.. filesList.OrderByDescending(entry => entry.Extension)];
                 }
             }
             else if (Sorting == SortingBy.SortingBySize)
             {
                 if (Ascending)
                 {
-                    foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
-                    filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
+                    foldersList = [.. foldersList.OrderBy(entry => entry.Size)];
+                    filesList = [.. filesList.OrderBy(entry => Convert.ToUInt64(entry.Size))];
                 }
                 else
                 {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
-                    filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
+                    foldersList = [.. foldersList.OrderByDescending(entry => entry.Size)];
+                    filesList = [.. filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size))];
                 }
             }
             else if (Sorting == SortingBy.SortingByDate)
             {
                 if (Ascending)
                 {
-                    foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
-                    filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
+                    foldersList = [.. foldersList.OrderBy(entry => entry.DateCreated)];
+                    filesList = [.. filesList.OrderBy(entry => entry.DateCreated)];
                 }
                 else
                 {
-                    foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
+                    foldersList = [.. foldersList.OrderByDescending(entry => entry.DateCreated)];
+                    filesList = [.. filesList.OrderByDescending(entry => entry.DateCreated)];
                 }
             }
 
@@ -557,7 +573,7 @@ namespace SmartCommander.ViewModels
                 {
                     CurrentDirectory = _selectedDrive;
                 }
-                this.RaisePropertyChanged("SelectedDrive");
+                this.RaisePropertyChanged(nameof(SelectedDrive));
             }
         }
     }

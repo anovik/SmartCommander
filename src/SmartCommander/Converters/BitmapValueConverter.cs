@@ -9,7 +9,7 @@ namespace SmartCommander.Converters
 {
     public class BitmapValueConverter : IValueConverter
     {
-        public static BitmapValueConverter Instance = new();
+        private static readonly BitmapValueConverter Instance = new();
 
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {

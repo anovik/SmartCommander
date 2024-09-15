@@ -23,26 +23,26 @@ namespace SmartCommander.ViewModels
 
         public string Directory { get; set; }
 
-        public string CopyText => IsCopying? string.Format(Resources.CopyTo, Text) :
+        public string CopyText
+        {
+            get
+            {
+                return IsCopying ? string.Format(Resources.CopyTo, Text) :
             string.Format(Resources.MoveTo, Text);
+            }
+        }
 
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
 
         public void SaveClose(Window window)
         {
-            if (window != null)
-            {
-                window.Close(this);
-            }
+            window?.Close(this);
         }
 
         public void Close(Window window)
         {
-            if (window != null)
-            {
-                window.Close();
-            }
+            window?.Close();
         }
     }
 }

@@ -56,7 +56,7 @@ namespace SmartCommander.ViewModels
             _progress = new Progress<int>(Progress_Show);
         }
 
-        private void SetLanguage()
+        private static void SetLanguage()
         {
             string cultureName = OptionsModel.Instance.Language;
             CultureInfo culture = new(cultureName);
@@ -106,7 +106,7 @@ namespace SmartCommander.ViewModels
             set
             {
                 _commandText = value;
-                this.RaisePropertyChanged("CommandText");
+                this.RaisePropertyChanged(nameof(CommandText));
             }
         }
 
@@ -114,10 +114,23 @@ namespace SmartCommander.ViewModels
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
 
-        public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
-        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
+        public static bool IsFunctionKeysDisplayed
+        {
+            get
+            {
+                return OptionsModel.Instance.IsFunctionKeysDisplayed;
+            }
+        }
 
-        public void Exit()
+        public static bool IsCommandLineDisplayed
+        {
+            get
+            {
+                return OptionsModel.Instance.IsCommandLineDisplayed;
+            }
+        }
+
+        public static void Exit()
         {
             if (Application.Current != null &&
                 Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
@@ -150,7 +163,13 @@ namespace SmartCommander.ViewModels
             SelectedPane.Ascending = true;
         }
 
-        public FilesPaneViewModel SecondPane => SelectedPane == RightFileViewModel ? LeftFileViewModel : RightFileViewModel;
+        public FilesPaneViewModel SecondPane
+        {
+            get
+            {
+                return SelectedPane == RightFileViewModel ? LeftFileViewModel : RightFileViewModel;
+            }
+        }
 
         public FilesPaneViewModel SelectedPane { get; set; }
 
@@ -180,7 +199,13 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit(F4Finished);
         }
 
-        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed;
+        public bool IsBackgroundOperation
+        {
+            get
+            {
+                return tokenSource != null && !tokenSource.IsDisposed;
+            }
+        }
 
         public void Cancel()
         {
@@ -542,15 +567,15 @@ namespace SmartCommander.ViewModels
             OptionsViewModel result = await ShowOptionsDialog.Handle(optionsModel);
             if (result != null)
             {
-                this.RaisePropertyChanged("IsFunctionKeysDisplayed");
-                this.RaisePropertyChanged("IsCommandLineDisplayed");
+                this.RaisePropertyChanged(nameof(IsFunctionKeysDisplayed));
+                this.RaisePropertyChanged(nameof(IsCommandLineDisplayed));
                 SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
                 SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
                 SetTheme();
             }
         }
 
-        private void SetTheme()
+        private static void SetTheme()
         {
             if (Application.Current != null)
             {
@@ -676,7 +701,7 @@ namespace SmartCommander.ViewModels
                         continue;
                     }
                     processedSize += Utils.GetTotalSize([item]);
-                    SelectedPane.Delete(item);
+                    FilesPaneViewModel.Delete(item);
 
                     Utils.ReportProgress(_progress, processedSize, totalSize);
                 }

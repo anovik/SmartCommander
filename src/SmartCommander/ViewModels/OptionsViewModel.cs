@@ -103,6 +103,12 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private OptionsModel Model => OptionsModel.Instance;
+        private OptionsModel Model
+        {
+            get
+            {
+                return OptionsModel.Instance;
+            }
+        }
     }
 }
