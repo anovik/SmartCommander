@@ -52,13 +52,13 @@ namespace SmartCommander.ViewModels
         }
 
 
-        private MainWindowViewModel _mainVM;
+        private readonly MainWindowViewModel _mainVM;
 
         public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
-       
+
         public FileViewModel? CurrentItem { get; set; }
 
-        public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
+        public List<FileViewModel> CurrentItems { get; set; } = [];
 
         public bool IsUnzip => CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
 
@@ -100,25 +100,23 @@ namespace SmartCommander.ViewModels
         }
 
 
-        public bool IsCurrentDirectoryDisplayed
-        {
-            get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
-        }
+        public bool IsCurrentDirectoryDisplayed => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
 
 
         public static Brush SelectedBrush = new SolidColorBrush(Colors.LightSkyBlue);
         public static Brush NotSelectedBrush = new SolidColorBrush(Colors.Transparent);
         public Brush GridBorderBrush => IsSelected ? SelectedBrush : NotSelectedBrush;
 
-        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
+        public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = [];
 
-        public FilesPaneViewModel()
+        public FilesPaneViewModel(EventHandler focusHandler)
         {
             _mainVM = new MainWindowViewModel();
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
+            FocusChanged += focusHandler;
         }
 
-        public FilesPaneViewModel(MainWindowViewModel mainVM)
+        public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler)
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
@@ -129,6 +127,7 @@ namespace SmartCommander.ViewModels
             FilesPaneBackspaceCommand = ReactiveCommand.Create(() => ProcessCurrentItem(true));
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
+            FocusChanged += focusHandler;
         }
 
         public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
@@ -149,10 +148,9 @@ namespace SmartCommander.ViewModels
         {
             _mainVM.SelectedPane = this;
 
-            DataGridColumnEventArgs? args = parameter as DataGridColumnEventArgs;
-            if (args != null)
+            if (parameter is DataGridColumnEventArgs args)
             {
-                var header = args.Column.Header.ToString();
+                string? header = args.Column.Header.ToString();
                 if (header == Resources.Name)
                 {
                     if (Sorting == SortingBy.SortingByName)
@@ -224,11 +222,9 @@ namespace SmartCommander.ViewModels
 
         public void SelectionChanged(object sender, object parameter)
         {
-            SelectionChangedEventArgs? args = parameter as SelectionChangedEventArgs;
-            if (args != null)
+            if (parameter is SelectionChangedEventArgs args)
             {
-                DataGrid? grid = args.Source as DataGrid;
-                if (grid != null)
+                if (args.Source is DataGrid grid)
                 {
                     // non-bindable property
                     CurrentItems = grid.SelectedItems.Cast<FileViewModel>().ToList();
@@ -242,14 +238,12 @@ namespace SmartCommander.ViewModels
         }
 
         public void DoubleTapped(object sender, object parameter)
-        {          
-            var args = parameter as TappedEventArgs;
-            if (args != null)
+        {
+            if (parameter is TappedEventArgs args)
             {
-                var source = args.Source as Control;            
-                if (source != null && 
+                if (args.Source is Control source &&
                     (source.TemplatedParent is DataGridCell || source.Parent is DataGridCell))
-                {                     
+                {
                     ProcessCurrentItem();
                 }
             }
@@ -259,7 +253,7 @@ namespace SmartCommander.ViewModels
         {
             if (!string.IsNullOrEmpty(command))
             {
-                new Process
+                _ = new Process
                 {
                     StartInfo = new ProcessStartInfo(command)
                     {
@@ -278,22 +272,25 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
-            _= View(null);
+            _ = View(null);
         }
 
         public async Task View(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
+            {
                 return;
+            }
+
             if (!CurrentItem.IsFolder)
             {
-                if (Convert.ToUInt64(CurrentItem.Size) > 128*1024*1024)
+                if (Convert.ToUInt64(CurrentItem.Size) > 128 * 1024 * 1024)
                 {
                     MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
                     return;
                 }
-                var copy = new ViewerViewModel(CurrentItem.FullName);
-                await ShowViewerDialog.Handle(copy);
+                ViewerViewModel copy = new(CurrentItem.FullName);
+                _ = await ShowViewerDialog.Handle(copy);
                 resultAction?.Invoke(ButtonResult.Ok, null);
             }
             else
@@ -309,7 +306,10 @@ namespace SmartCommander.ViewModels
         public void Edit(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
+            {
                 return;
+            }
+
             if (!CurrentItem.IsFolder)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -318,7 +318,7 @@ namespace SmartCommander.ViewModels
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Process.Start("notepad.exe", CurrentItem.FullName);
+                    _ = Process.Start("notepad.exe", CurrentItem.FullName);
                 }
                 resultAction?.Invoke(ButtonResult.Ok, null);
             }
@@ -340,12 +340,12 @@ namespace SmartCommander.ViewModels
 
         private void LaunchProcess(string program, string argument)
         {
-            var process = new Process();
+            Process process = new();
             process.StartInfo.FileName = "x-terminal-emulator"; // Use the default terminal emulator
             process.StartInfo.Arguments = $"-e {program} \"{argument}\""; // Specify the command to run in the new terminal window
             process.StartInfo.UseShellExecute = false; // Required to use the terminal emulator
-            process.Start();
-        }      
+            _ = process.Start();
+        }
 
         public void Delete(FileViewModel? item)
         {
@@ -357,7 +357,7 @@ namespace SmartCommander.ViewModels
                 }
                 if (item.IsFolder)
                 {
-                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
+                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
                 }
                 else
                 {
@@ -367,7 +367,7 @@ namespace SmartCommander.ViewModels
             catch
             {
             }
-        }      
+        }
 
         public void CreateNewFolder(string name)
         {
@@ -377,11 +377,11 @@ namespace SmartCommander.ViewModels
                 MessageBox_Show(null, Resources.FolderExists, Resources.Alert, ButtonEnum.Ok);
                 return;
             }
-            Directory.CreateDirectory(newFolder);
+            _ = Directory.CreateDirectory(newFolder);
         }
 
         private void ProcessCurrentItem(bool goToParent = false)
-        {       
+        {
             if (CurrentItem == null)
             {
                 return;
@@ -396,20 +396,15 @@ namespace SmartCommander.ViewModels
 
             if (CurrentItem.IsFolder)
             {
-                if (CurrentItem.FullName == "..")
-                {
-                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
-                        CurrentDirectory;
-                }
-                else
-                {
-                    CurrentDirectory = CurrentItem.FullName;
-                }
+                CurrentDirectory = CurrentItem.FullName == ".."
+                    ? Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
+                        CurrentDirectory
+                    : CurrentItem.FullName;
             }
             else
             {
                 // it is a file, open it
-                new Process
+                _ = new Process
                 {
                     StartInfo = new ProcessStartInfo(CurrentItem.FullName)
                     {
@@ -422,7 +417,10 @@ namespace SmartCommander.ViewModels
         private void GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
         {
             if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
+            {
                 return;
+            }
+
             filesFoldersList.Clear();
             _totalFolders = _totalFiles = 0;
             bool isParent = false;
@@ -434,19 +432,19 @@ namespace SmartCommander.ViewModels
 
             if (OperatingSystem.IsWindows())
             {
-                FileInfo f = new FileInfo(CurrentDirectory);
+                FileInfo f = new(CurrentDirectory);
                 SelectedDrive = Path.GetPathRoot(f.FullName);
             }
 
-            var options = new EnumerationOptions()
+            EnumerationOptions options = new()
             {
                 AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
                 IgnoreInaccessible = true,
                 RecurseSubdirectories = false,
             };
 
-            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
-            var foldersList = new List<FileViewModel>();
+            IEnumerable<string> subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
+            List<FileViewModel> foldersList = [];
             foreach (string subdirectory in subdirectoryEntries)
             {
                 try
@@ -457,8 +455,8 @@ namespace SmartCommander.ViewModels
                 catch { }
             }
 
-            var filesList = new List<FileViewModel>();
-            var fileEntries = Directory.EnumerateFiles(dir, "*", options);
+            List<FileViewModel> filesList = [];
+            IEnumerable<string> fileEntries = Directory.EnumerateFiles(dir, "*", options);
             foreach (string fileName in fileEntries)
             {
                 try
@@ -492,7 +490,7 @@ namespace SmartCommander.ViewModels
                 {
                     foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
                     filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
-                }            
+                }
             }
             else if (Sorting == SortingBy.SortingBySize)
             {
@@ -505,7 +503,7 @@ namespace SmartCommander.ViewModels
                 {
                     foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
                     filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
-                }                
+                }
             }
             else if (Sorting == SortingBy.SortingByDate)
             {
@@ -518,15 +516,15 @@ namespace SmartCommander.ViewModels
                 {
                     foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
                     filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
-                }                
+                }
             }
 
-            foreach (var folder in foldersList)
+            foreach (FileViewModel folder in foldersList)
             {
                 filesFoldersList.Add(folder);
             }
 
-            foreach (var file in filesList)
+            foreach (FileViewModel file in filesList)
             {
                 filesFoldersList.Add(file);
             }
@@ -536,29 +534,30 @@ namespace SmartCommander.ViewModels
                 CurrentItem = (isParent && filesFoldersList.Count > 1) ?
                     filesFoldersList[1] : filesFoldersList[0];
             }
-        }      
+        }
 
-        string? _selectedDrive;
-        string? SelectedDrive
+        private string? _selectedDrive;
+
+        private string? SelectedDrive
         {
-            get { return _selectedDrive; }
-            set 
-            {           
+            get => _selectedDrive;
+            set
+            {
                 if (!Directory.Exists(value))
                 {
-                    MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok); 
+                    MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok);
                     return;
                 }
 
-                FileInfo f = new FileInfo(CurrentDirectory);
-                var driveFromDirectory = Path.GetPathRoot(f.FullName);
+                FileInfo f = new(CurrentDirectory);
+                string? driveFromDirectory = Path.GetPathRoot(f.FullName);
 
-                _selectedDrive = value; 
+                _selectedDrive = value;
                 if (_selectedDrive != driveFromDirectory)
                 {
                     CurrentDirectory = _selectedDrive;
                 }
-                this.RaisePropertyChanged("SelectedDrive"); 
+                this.RaisePropertyChanged("SelectedDrive");
             }
         }
     }

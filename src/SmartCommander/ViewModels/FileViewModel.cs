@@ -9,14 +9,10 @@ namespace SmartCommander.ViewModels
     public class FileViewModel : ViewModelBase
     {
         private string _name = "";
-        public static readonly List<string> ImageExtensions = new List<string>
-                { "jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png" };
-        public static readonly List<string> VideoExtensions = new List<string>
-                { "mp4", "mov", "avi", "wmv" };
-        public static readonly List<string> ArchiveExtensions = new List<string>
-                { "zip", "rar", "7z" };
-        public static readonly List<string> DocumentExtensions = new List<string>
-                { "doc", "docx", "txt","xslx", "xsl", "pdf" };
+        public static readonly List<string> ImageExtensions = ["jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png"];
+        public static readonly List<string> VideoExtensions = ["mp4", "mov", "avi", "wmv"];
+        public static readonly List<string> ArchiveExtensions = ["zip", "rar", "7z"];
+        public static readonly List<string> DocumentExtensions = ["doc", "docx", "txt", "xslx", "xsl", "pdf"];
         public FileViewModel()
         {
 
@@ -60,23 +56,16 @@ namespace SmartCommander.ViewModels
                 {
                     ImageSource = "Assets/archive.png";
                 }
-                else if (DocumentExtensions.Contains(Extension.ToLower()))
-                {
-                    ImageSource = "Assets/document.png";
-                }
                 else
                 {
-                    ImageSource = "Assets/file.png";
+                    ImageSource = DocumentExtensions.Contains(Extension.ToLower()) ? "Assets/document.png" : "Assets/file.png";
                 }
             }
         }
         public string FullName { get; set; } = "";
-        public string Name 
-        { 
-            get
-            {
-                return _name;
-            }
+        public string Name
+        {
+            get => _name;
             set
             {
                 if (string.IsNullOrEmpty(value) || value == _name)
@@ -84,18 +73,18 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                string destination = "";
-                
+                string destination;
+
                 // moving here is fast since they are guaranteed to be on the same drive
                 if (IsFolder)
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName), value);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? string.Empty, value);
                     Directory.Move(FullName, destination);
                 }
                 else
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
-                    File.Move(FullName, destination);                   
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? string.Empty, value + "." + Extension);
+                    File.Move(FullName, destination);
                 }
                 _name = value;
                 FullName = destination;
@@ -107,7 +96,7 @@ namespace SmartCommander.ViewModels
         public string Extension { get; set; } = "";
         public string Size { get; set; } = "";
         public DateTime DateCreated { get; set; }
-        public bool IsFolder { get; set; } 
+        public bool IsFolder { get; set; }
 
         public string? ImageSource { get; set; }
     }

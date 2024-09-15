@@ -9,25 +9,25 @@ namespace SmartCommander
 {
     internal class Program
     {
-        static FileStream? _lockFile;
+        private static FileStream? _lockFile;
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         [STAThread]
         public static void Main(string[] args)
         {
-            var exception = false;
-            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmartCommander");
-            Directory.CreateDirectory(dir);
+            bool exception = false;
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmartCommander");
+            _ = Directory.CreateDirectory(dir);
             try
             {
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     _lockFile = File.Open(Path.Combine(dir, ".lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                     _lockFile.Lock(0, 0);
-                }              
-                BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);   
+                }
+                _ = BuildAvaloniaApp()
+                .StartWithClassicDesktopLifetime(args);
             }
             catch
             {
@@ -38,13 +38,11 @@ namespace SmartCommander
             {
                 try
                 {
-                    var client = new NamedPipeClientStream("SmartCommanderActivation");
+                    NamedPipeClientStream client = new("SmartCommanderActivation");
                     client.Connect(1000);
-                    using (StreamWriter writer = new StreamWriter(client))
-                    {
-                        writer.WriteLine("ActivateSmartCommander");
-                        writer.Flush();                    
-                    }
+                    using StreamWriter writer = new(client);
+                    writer.WriteLine("ActivateSmartCommander");
+                    writer.Flush();
 
                 }
                 catch { }
@@ -54,13 +52,13 @@ namespace SmartCommander
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
-                .UsePlatformDetect()
-                .LogToTrace()
-                .UseReactiveUI();
-
-      
+        {
+            return AppBuilder.Configure<App>()
+                        .UsePlatformDetect()
+                        .LogToTrace()
+                        .UseReactiveUI();
+        }
     }
 
-   
+
 }

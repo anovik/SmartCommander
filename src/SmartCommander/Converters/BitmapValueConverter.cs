@@ -9,12 +9,14 @@ namespace SmartCommander.Converters
 {
     public class BitmapValueConverter : IValueConverter
     {
-        public static BitmapValueConverter Instance = new BitmapValueConverter();
+        public static BitmapValueConverter Instance = new();
 
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value == null)
+            {
                 return null;
+            }
 
             if (value is string rawUri && targetType.IsAssignableFrom(typeof(Bitmap)))
             {
@@ -27,11 +29,11 @@ namespace SmartCommander.Converters
                 }
                 else
                 {
-                    var assemblyName = Assembly.GetEntryAssembly().GetName().Name;
+                    string? assemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
                     uri = new Uri($"avares://{assemblyName}/{rawUri}");
                 }
-                
-                var asset = AssetLoader.Open(uri);
+
+                System.IO.Stream asset = AssetLoader.Open(uri);
 
                 return new Bitmap(asset);
             }
