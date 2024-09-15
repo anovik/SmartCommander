@@ -31,8 +31,6 @@ namespace SmartCommander
 
             if (haveSecondInstance)
             {
-                try
-                {
                     var client = new NamedPipeClientStream("SmartCommanderActivation");
                     client.Connect(1000);
                     using (StreamWriter writer = new StreamWriter(client))
@@ -40,9 +38,6 @@ namespace SmartCommander
                         writer.WriteLine("ActivateSmartCommander");
                         writer.Flush();
                     }
-
-                }
-                catch { }
             }
             else {
                 BuildAvaloniaApp()
