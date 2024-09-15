@@ -53,8 +53,8 @@ namespace SmartCommander.ViewModels
             IsDarkThemeEnabled = Model.IsDarkThemeEnabled;
 
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
-            var lang = AvailableCultures.FirstOrDefault(x => x.Name == Model.Language);
-            SelectedCulture = lang is null ? AvailableCultures.FirstOrDefault() : lang;
+            var lang = AvailableCultures.First(x => x.Name == Model.Language);
+            SelectedCulture = lang ?? AvailableCultures.First();
         }
 
         public bool IsCurrentDirectoryDisplayed { get; set; }       

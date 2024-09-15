@@ -89,13 +89,13 @@ namespace SmartCommander.ViewModels
                 // moving here is fast since they are guaranteed to be on the same drive
                 if (IsFolder)
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName), value);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? string.Empty, value);
                     Directory.Move(FullName, destination);
                 }
                 else
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName), value + "." + Extension);
-                    File.Move(FullName, destination);                   
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? string.Empty, value);
+                    Directory.Move(FullName, destination);
                 }
                 _name = value;
                 FullName = destination;
