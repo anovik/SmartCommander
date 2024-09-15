@@ -22,11 +22,7 @@ namespace SmartCommander
 
             string currentProcessName = Process.GetCurrentProcess().ProcessName;
             var runningProcesses = Process.GetProcessesByName(currentProcessName);
-            if (runningProcesses.Length > 1)
-            {
-                Console.WriteLine("Another instance of the application is already running.");
-                haveSecondInstance = true;
-            }
+            haveSecondInstance = (runningProcesses.Length > 1);
 
             if (haveSecondInstance)
             {
@@ -39,8 +35,7 @@ namespace SmartCommander
                     }
             }
             else {
-                BuildAvaloniaApp()
-                    .StartWithClassicDesktopLifetime(args);
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }
 
         }
