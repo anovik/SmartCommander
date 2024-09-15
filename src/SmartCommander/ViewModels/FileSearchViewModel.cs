@@ -44,9 +44,9 @@ public class FileSearchViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
 
-    public FileSearchViewModel()
+    public FileSearchViewModel(string folder = null)
     {
-        CurrentFolder = "c:\\";
+        CurrentFolder = folder ?? "c:\\";
         FileMask = "*.cs";
         SearchResults = new ThreadSafeObservableCollection<string>();
         StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);

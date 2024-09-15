@@ -24,7 +24,6 @@ namespace SmartCommander.ViewModels
         {
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
-
             ShowSearchsDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
@@ -33,6 +32,7 @@ namespace SmartCommander.ViewModels
             SortSizeCommand = ReactiveCommand.Create(SortSize);
             SortDateCommand = ReactiveCommand.Create(SortDate);
             SearchFilesCommand = ReactiveCommand.Create(SearchFilesDialog);
+            
             EnterCommand = ReactiveCommand.Create(Execute);
             F3Command = ReactiveCommand.Create(View);
             F4Command = ReactiveCommand.Create(Edit);
@@ -40,6 +40,7 @@ namespace SmartCommander.ViewModels
             F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
+
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
             LeftFileViewModel = new FilesPaneViewModel(this);
@@ -162,9 +163,8 @@ namespace SmartCommander.ViewModels
         }
         public async void SearchFilesDialog()
         {
-            var optionsModel = new FileSearchViewModel();
+            var optionsModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
             var result = await ShowSearchsDialog.Handle(optionsModel);
-            ///MessageBox_Show(null, "Seasrch", Resources.Alert, ButtonEnum.Ok);
         }
 
         public FilesPaneViewModel SecondPane
