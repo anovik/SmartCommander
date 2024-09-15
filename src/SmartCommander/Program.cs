@@ -19,6 +19,7 @@ namespace SmartCommander
             var exception = false;
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmartCommander");
             Directory.CreateDirectory(dir);
+
             try
             {
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -27,7 +28,7 @@ namespace SmartCommander
                     _lockFile.Lock(0, 0);
                 }              
                 BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);   
+                .StartWithClassicDesktopLifetime(args);//TODO must avoiding try excpet operators for MAIN thread, debuging of application becoming impossible
             }
             catch
             {
