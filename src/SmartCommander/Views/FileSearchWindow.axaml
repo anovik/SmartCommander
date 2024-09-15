@@ -2,29 +2,43 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
         x:Class="SmartCommander.FileSearchWindow"
-        Title="FileSearchWindow">
+        Title="Files search ">
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="120"/>
 			<RowDefinition Height="*"/>
-			<RowDefinition Height="30"/>
+			<RowDefinition Height="25"/>
 		</Grid.RowDefinitions>
 
-		<StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
-			<TextBox Text="{Binding FileMask, Mode=TwoWay}" Watermark="File Name (e.g. *.txt)"/>
-			<TextBox Text="{Binding CurrentFolder, Mode=TwoWay}" Watermark="Current Folder" />
-			<Button Content="Start Search" Command="{Binding StartSearchCommand}" IsEnabled="{Binding !IsSearching}"/>
-			<Button Content="Cancel" Command="{Binding CancelSearchCommand}" Margin="10,0,0,0" IsEnabled="{Binding IsSearching}"/>
-		</StackPanel>
+		<Grid Grid.Row="0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="150" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
 
+			<StackPanel Margin="5">
+				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0" Text="File Name (e.g. *.txt)"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FileMask, Mode=TwoWay}"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0" Text="Current Folder"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CurrentFolder, Mode=TwoWay}"/>
+			</StackPanel>
+			
+			<StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+				<Button Content="Start Search" Command="{Binding StartSearchCommand}" IsEnabled="{Binding !IsSearching}"/>
+				<Button Content="Cancel" Command="{Binding CancelSearchCommand}" IsEnabled="{Binding IsSearching}"/>
+			</StackPanel>
+		</Grid>
 
-		<ScrollViewer VerticalScrollBarVisibility="Visible"  Grid.Row="1" Margin="10">
-			<ListBox ItemsSource="{Binding SearchResults}" Margin="0,10,0,0"/>
+		<ScrollViewer VerticalScrollBarVisibility="Auto"  Grid.Row="1" Margin="0,0,0,0">
+			<ListBox ItemsSource="{Binding SearchResults}" Margin="0,0,0,0"/>
 		</ScrollViewer>
 
-		<Border Grid.Row="2" Background="Azure" Padding="5" HorizontalAlignment="Stretch">
+		<Border Grid.Row="2" Background="Azure" Padding="0" HorizontalAlignment="Stretch">
 			<TextBlock  Text="{Binding StatusFolder, Mode=TwoWay}" VerticalAlignment="Center"/>
 		</Border>
 	</Grid>
