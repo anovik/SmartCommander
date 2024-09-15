@@ -1,57 +1,98 @@
-﻿using Avalonia.Collections;
+﻿using Avalonia.Threading;
 using ReactiveUI;
 using SmartCommander.ViewModels;
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Reactive;
+using System.Threading;
 using System.Threading.Tasks;
 
 public class FileSearchViewModel : ViewModelBase
 {
-    private string _currentFolder;
-    private string _fileMask;
-    private bool _isSearching;
+    private string _currentFolder = "";
+    private string _statusFolder = "";
+    private string _fileMask = "";
+    private bool _isSearching = false;
+    private CancellationTokenSource? _cancellationTokenSource;
 
-    // Свойство для поля текущей папки
     public string CurrentFolder
     {
         get => _currentFolder;
         set => this.RaiseAndSetIfChanged(ref _currentFolder, value);
     }
 
-    // Свойство для поля названия файла (с поддержкой маски)
+    public string StatusFolder
+    {
+        get => _statusFolder;
+        set => this.RaiseAndSetIfChanged(ref _statusFolder, value);
+    }
+
     public string FileMask
     {
         get => _fileMask;
         set => this.RaiseAndSetIfChanged(ref _fileMask, value);
     }
 
-    // Свойство для контроля состояния поиска
     public bool IsSearching
     {
         get => _isSearching;
         set => this.RaiseAndSetIfChanged(ref _isSearching, value);
     }
 
-    // Список результатов поиска
-    public ObservableCollection<string> SearchResults { get; }
-
-    // Команды для кнопок
+    public ThreadSafeObservableCollection<string> SearchResults { get; }
     public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
 
     public FileSearchViewModel()
     {
-        // Инициализируем список результатов
-        SearchResults = new ObservableCollection<string>();
-
-        // Инициализируем команды
+        CurrentFolder = "c:\\";
+        FileMask = "*.cs";
+        SearchResults = new ThreadSafeObservableCollection<string>();
         StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
     }
 
-    // Метод для начала поиска
+    public async Task<bool> SearchAsync(string folderPath, string searchPattern, CancellationToken cancellationToken)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                StatusFolder = folderPath;
+            });
+
+
+            string[] files = Directory.GetFiles(folderPath, searchPattern);
+            SearchResults.AddRange(files);
+
+            string[] subDirectories = Directory.GetDirectories(folderPath);
+
+            foreach (var subDir in subDirectories)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await SearchAsync(subDir, searchPattern, cancellationToken);
+            }
+        }
+
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Поиск был отменен.");
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            Console.WriteLine($"Доступ к директории {folderPath} запрещен: {e.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при поиске: {ex.Message}");
+        }
+
+        return true;
+    }
+
     private async Task StartSearch()
     {
         if (string.IsNullOrEmpty(CurrentFolder) || string.IsNullOrEmpty(FileMask))
@@ -59,45 +100,15 @@ public class FileSearchViewModel : ViewModelBase
 
         IsSearching = true;
         SearchResults.Clear();
+        _cancellationTokenSource = new CancellationTokenSource();
+        await Task.Run(() => SearchAsync(CurrentFolder, FileMask, _cancellationTokenSource.Token));
 
-        try
-        {
-            // Асинхронный поиск файлов и папок
-            await Task.Run(() => SearchFiles(CurrentFolder, FileMask));
-        }
-        finally
-        {
-            IsSearching = false;
-        }
+        IsSearching = false;
     }
 
-    // Реализация поиска файлов и папок по маске
-    private void SearchFiles(string folder, string mask)
-    {
-        try
-        {
-            // Получаем все файлы и папки по маске
-            foreach (var dir in Directory.GetDirectories(folder))
-            {
-                SearchResults.Add(dir);
-            }
-
-            foreach (var file in Directory.GetFiles(folder, mask))
-            {
-                SearchResults.Add(file);
-            }
-        }
-        catch (Exception ex)
-        {
-            // В случае ошибки можно обработать её
-            SearchResults.Add($"Ошибка: {ex.Message}");
-        }
-    }
-
-    // Метод для отмены поиска
     private void CancelSearch()
     {
-        // Логика отмены, если потребуется
         IsSearching = false;
+        _cancellationTokenSource?.Cancel();
     }
 }
