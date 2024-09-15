@@ -21,7 +21,7 @@ namespace SmartCommander.Models
                 }
             }
         }
-        public void Save() => File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(this));
+        public void Save() => File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(this, Formatting.Indented));
 
 
         public bool IsCurrentDirectoryDisplayed { get; set; } = true;
@@ -53,6 +53,7 @@ namespace SmartCommander.Models
         public string RightPanePath { get; set; } = "";
 
         public bool IsDarkThemeEnabled { get; set; }
+        public string Language { get; set; } = "en-US";
 
     }
 }
