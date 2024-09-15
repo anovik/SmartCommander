@@ -10,6 +10,13 @@
 		WindowStartupLocation="CenterOwner"      
 		xmlns:assets="clr-namespace:SmartCommander.Assets"
         Title="{x:Static assets:Resources.Options}">
+	
+	<Window.Resources>
+		<DataTemplate x:Key="CultureInfoTemplate">
+			<TextBlock Text="{Binding DisplayName}" />
+		</DataTemplate>
+	</Window.Resources>
+	
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"></RowDefinition>
@@ -42,6 +49,15 @@
 					Content="{x:Static assets:Resources.ShowNonEmptyConfirmation}"></CheckBox>
         </StackPanel>
       </TabItem>
+		<TabItem Header="Language">
+			<StackPanel>
+				<ListBox ItemsSource="{Binding AvailableCultures}"
+                         ItemTemplate="{StaticResource CultureInfoTemplate}"
+						 SelectedItem="{Binding SelectedCulture, Mode=TwoWay}"
+						  />
+				<Label Content="{x:Static assets:Resources.Reboot}"/>
+			</StackPanel>
+		</TabItem>
     </TabControl>
     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
       <Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}"
@@ -49,5 +65,5 @@
       <Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}" 
 			  Content="{x:Static assets:Resources.Cancel}"></Button>
     </StackPanel>
-  </Grid> 
+  </Grid>
 </Window>
