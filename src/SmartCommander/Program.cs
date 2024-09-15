@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
@@ -16,26 +17,19 @@ namespace SmartCommander
         [STAThread]
         public static void Main(string[] args)
         {
-            var exception = false;
+            var haveSecondInstance = false;
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmartCommander");
             Directory.CreateDirectory(dir);
 
-            try
+            string currentProcessName = Process.GetCurrentProcess().ProcessName;
+            var runningProcesses = Process.GetProcessesByName(currentProcessName);
+            if (runningProcesses.Length > 1)
             {
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    _lockFile = File.Open(Path.Combine(dir, ".lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                    _lockFile.Lock(0, 0);
-                }              
-                BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);//TODO must avoiding try excpet operators for MAIN thread, debuging of application becoming impossible
-            }
-            catch
-            {
-                exception = true;
+                Console.WriteLine("Another instance of the application is already running.");
+                haveSecondInstance = true;
             }
 
-            if (exception)
+            if (haveSecondInstance)
             {
                 try
                 {
@@ -44,11 +38,15 @@ namespace SmartCommander
                     using (StreamWriter writer = new StreamWriter(client))
                     {
                         writer.WriteLine("ActivateSmartCommander");
-                        writer.Flush();                    
+                        writer.Flush();
                     }
 
                 }
                 catch { }
+            }
+            else {
+                BuildAvaloniaApp()
+                    .StartWithClassicDesktopLifetime(args);
             }
 
         }
