@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
+using SmartCommander.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -23,7 +24,7 @@ namespace SmartCommander
             var runningProcesses = Process.GetProcessesByName(currentProcessName);
             haveSecondInstance = (runningProcesses.Length > 1);
 
-            if (haveSecondInstance)
+            if (haveSecondInstance && OptionsModel.Instance.AllowOnlyOneInstance)
             {
                     var client = new NamedPipeClientStream("SmartCommanderActivation");
                     client.Connect(1000);

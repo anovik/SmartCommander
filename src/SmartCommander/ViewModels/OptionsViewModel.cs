@@ -51,6 +51,7 @@ namespace SmartCommander.ViewModels
             ConfirmationWhenDeleteNonEmpty = Model.ConfirmationWhenDeleteNonEmpty;
             SaveWindowPositionSize = Model.SaveWindowPositionSize;
             IsDarkThemeEnabled = Model.IsDarkThemeEnabled;
+            AllowOnlyOneInstance=Model.AllowOnlyOneInstance;
 
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
             var lang = AvailableCultures.First(x => x.Name == Model.Language);
@@ -72,6 +73,7 @@ namespace SmartCommander.ViewModels
         public bool SaveWindowPositionSize { get; set; }
 
         public bool IsDarkThemeEnabled { get; set; }        
+        public bool AllowOnlyOneInstance { get; set; }        
 
         public ReactiveCommand<Window, Unit> OKCommand { get; }
         public ReactiveCommand<Window, Unit> CancelCommand { get; }
@@ -87,12 +89,11 @@ namespace SmartCommander.ViewModels
             Model.SaveWindowPositionSize = SaveWindowPositionSize;
             Model.IsDarkThemeEnabled = IsDarkThemeEnabled;
             Model.Language = SelectedCulture.Name;
+            Model.AllowOnlyOneInstance = AllowOnlyOneInstance;
 
             Model.Save();
-            if (window != null)
-            {
-                window.Close(this);
-            }
+            window?.Close(this);
+            
         }
 
         public void Close(Window window)

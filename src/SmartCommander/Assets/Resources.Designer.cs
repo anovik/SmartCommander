@@ -626,5 +626,13 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("Zip", resourceCulture);
             }
         }
+        /// <summary>
+        ///   AllowOnlyOneInstance
+        /// </summary>
+        public static string AllowOnlyOneInstance {
+            get {
+                return ResourceManager.GetString("AllowOnlyOneInstance", resourceCulture);
+            }
+        }
     }
 }
