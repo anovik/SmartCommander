@@ -62,6 +62,7 @@ namespace SmartCommander.Views
         {
             var dialog = new T2();
             dialog.DataContext = interaction.Input;
+            dialog.Activate();
 
             var result = await dialog.ShowDialog<T1>(this);
             interaction.SetOutput(result);
