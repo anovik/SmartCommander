@@ -19,7 +19,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        protected void MessageBox_Show(Action<ButtonResult, object?>? resultAction, string messageBoxText, string caption = "",
+        protected void MessageBox_Show(Action<ButtonResult, object?>? resultAction, string messageBoxText, string caption = string.Empty,
             ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None, object? parameter = null)
         {
             if (this.MessageBoxRequest != null)
@@ -29,7 +29,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        protected void MessageBoxInput_Show(Action<string>? resultAction, string messageBoxText, string caption = "")
+        protected void MessageBoxInput_Show(Action<string>? resultAction, string messageBoxText, string caption = string.Empty)
         {
             if (this.MessageBoxInputRequest != null)
             {

@@ -95,7 +95,7 @@ namespace SmartCommander.ViewModels
 
         public FilesPaneViewModel RightFileViewModel { get; }
 
-        private string _commandText = "";
+        private string _commandText = string.Empty;
 
         IProgress<int> _progress;
 
@@ -176,7 +176,7 @@ namespace SmartCommander.ViewModels
         public void Execute()
         {
             SelectedPane.Execute(CommandText);
-            CommandText = "";
+            CommandText = string.Empty;
         }
 
         public void View()
@@ -282,7 +282,7 @@ namespace SmartCommander.ViewModels
                 List<Tuple<string, string>> itemsToProcess = new();
                 foreach (var item in items)
                 {
-                    itemsToProcess.Add(Tuple.Create("", item.FullName));
+                    itemsToProcess.Add(Tuple.Create(string.Empty, item.FullName));
                 }             
 
                 using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))

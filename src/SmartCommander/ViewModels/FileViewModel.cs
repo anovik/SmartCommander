@@ -8,7 +8,7 @@ namespace SmartCommander.ViewModels
 {
     public class FileViewModel : ViewModelBase
     {
-        private string _name = "";
+        private string _name = string.Empty;
         public static readonly List<string> ImageExtensions = new List<string>
                 { "jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png" };
         public static readonly List<string> VideoExtensions = new List<string>
@@ -29,7 +29,7 @@ namespace SmartCommander.ViewModels
             if (isFolder)
             {
                 _name = Path.GetFileName(fullName);
-                Extension = "";
+                Extension = string.Empty;
                 Size = Resources.Folder;
                 DateCreated = File.GetCreationTime(fullName);
                 ImageSource = "Assets/folder.png";
@@ -39,7 +39,7 @@ namespace SmartCommander.ViewModels
                 if (string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(fullName)))
                 {
                     _name = Path.GetFileName(fullName);
-                    Extension = "";
+                    Extension = string.Empty;
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
-        public string FullName { get; set; } = "";
+        public string FullName { get; set; } = string.Empty;
         public string Name 
         { 
             get
@@ -84,7 +84,7 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                string destination = "";
+                string destination = string.Empty;
                 
                 // moving here is fast since they are guaranteed to be on the same drive
                 if (IsFolder)
@@ -104,8 +104,8 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public string Extension { get; set; } = "";
-        public string Size { get; set; } = "";
+        public string Extension { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
         public DateTime DateCreated { get; set; }
         public bool IsFolder { get; set; } 
 

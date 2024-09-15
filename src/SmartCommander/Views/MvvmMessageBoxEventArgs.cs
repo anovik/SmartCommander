@@ -65,7 +65,7 @@ namespace SmartCommander.Views
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 });
                 var result = await messageBoxWindow.ShowAsPopupAsync(owner);
-                resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
+                resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : string.Empty);
             });
         }
     }
