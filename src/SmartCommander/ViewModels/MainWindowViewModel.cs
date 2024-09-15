@@ -543,8 +543,8 @@ namespace SmartCommander.ViewModels
             {
                 this.RaisePropertyChanged(nameof(IsFunctionKeysDisplayed));
                 this.RaisePropertyChanged(nameof(IsCommandLineDisplayed));
-                SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
-                SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
+                SelectedPane.RaisePropertyChanged(nameof(FilesPaneViewModel.IsCurrentDirectoryDisplayed));
+                SecondPane.RaisePropertyChanged(nameof(FilesPaneViewModel.IsCurrentDirectoryDisplayed));
                 SetTheme();
             }
         }
