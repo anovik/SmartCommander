@@ -95,7 +95,7 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
-                    Directory.Move(FullName, destination);
+                    File.Move(FullName, destination);
                 }
                 _name = value;
                 FullName = destination;
