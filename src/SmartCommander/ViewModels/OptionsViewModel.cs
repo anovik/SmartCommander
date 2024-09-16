@@ -51,7 +51,7 @@ namespace SmartCommander.ViewModels
             ConfirmationWhenDeleteNonEmpty = Model.ConfirmationWhenDeleteNonEmpty;
             SaveWindowPositionSize = Model.SaveWindowPositionSize;
             IsDarkThemeEnabled = Model.IsDarkThemeEnabled;
-            AllowOnlyOneInstance=Model.AllowOnlyOneInstance;
+            AllowOnlyOneInstance = Model.AllowOnlyOneInstance;
 
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
             var lang = AvailableCultures.First(x => x.Name == Model.Language);
