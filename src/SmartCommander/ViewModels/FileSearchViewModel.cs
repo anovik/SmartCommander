@@ -44,7 +44,7 @@ public class FileSearchViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
 
-    public FileSearchViewModel(string folder = null)
+    public FileSearchViewModel(string folder = "")
     {
         CurrentFolder = folder ?? "c:\\";
         FileMask = "*.cs";
