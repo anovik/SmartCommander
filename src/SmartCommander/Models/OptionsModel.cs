@@ -48,9 +48,9 @@ namespace SmartCommander.Models
 
         public bool IsMaximized { get; set; }
 
-        public string LeftPanePath { get; set; } = string.Empty;
+        public string LeftPanePath { get; set; } = "";
 
-        public string RightPanePath { get; set; } = string.Empty;
+        public string RightPanePath { get; set; } = "";
 
         public bool IsDarkThemeEnabled { get; set; }
         public bool AllowOnlyOneInstance { get; set; }

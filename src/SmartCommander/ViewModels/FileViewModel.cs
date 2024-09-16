@@ -8,7 +8,7 @@ namespace SmartCommander.ViewModels
 {
     public class FileViewModel : ViewModelBase
     {
-        private string _name = string.Empty;
+        private string _name = "";
         public static readonly List<string> ImageExtensions = new List<string>
                 { "jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png" };
         public static readonly List<string> VideoExtensions = new List<string>
@@ -29,7 +29,7 @@ namespace SmartCommander.ViewModels
             if (isFolder)
             {
                 _name = Path.GetFileName(fullName);
-                Extension = string.Empty;
+                Extension = "";
                 Size = Resources.Folder;
                 DateCreated = File.GetCreationTime(fullName);
                 ImageSource = "Assets/folder.png";
@@ -39,7 +39,7 @@ namespace SmartCommander.ViewModels
                 if (string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(fullName)))
                 {
                     _name = Path.GetFileName(fullName);
-                    Extension = string.Empty;
+                    Extension = "";
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
-        public string FullName { get; set; } = string.Empty;
+        public string FullName { get; set; } = "";
         public string Name 
         { 
             get
@@ -84,17 +84,17 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                string destination = string.Empty;
+                string destination = "";
                 
                 // moving here is fast since they are guaranteed to be on the same drive
                 if (IsFolder)
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? string.Empty, value);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
                     Directory.Move(FullName, destination);
                 }
                 else
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? string.Empty, value);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
                     Directory.Move(FullName, destination);
                 }
                 _name = value;
@@ -104,8 +104,8 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public string Extension { get; set; } = string.Empty;
-        public string Size { get; set; } = string.Empty;
+        public string Extension { get; set; } = "";
+        public string Size { get; set; } = "";
         public DateTime DateCreated { get; set; }
         public bool IsFolder { get; set; } 
 

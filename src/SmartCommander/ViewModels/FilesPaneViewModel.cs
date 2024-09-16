@@ -29,7 +29,7 @@ namespace SmartCommander.ViewModels
 
     public class FilesPaneViewModel : ViewModelBase
     {
-        private string _currentDirectory = string.Empty;
+        private string _currentDirectory = "";
 
         private int _totalFiles = 0;
         private int _totalFolders = 0;
