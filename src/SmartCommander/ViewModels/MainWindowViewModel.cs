@@ -43,11 +43,9 @@ namespace SmartCommander.ViewModels
 
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
-            LeftFileViewModel = new FilesPaneViewModel(this);
-            LeftFileViewModel.FocusChanged += OnFocusChanged;
-
-            RightFileViewModel = new FilesPaneViewModel(this);
-            RightFileViewModel.FocusChanged += OnFocusChanged;
+            LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
+            RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
+            SelectedPane = RightFileViewModel;
 
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
@@ -93,7 +91,6 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F6Command { get; }
         public ReactiveCommand<Unit, Unit> F7Command { get; }
         public ReactiveCommand<Unit, Unit> F8Command { get; }
-        public ReactiveCommand<Unit, Unit> TabCommand { get; }
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; }
@@ -117,7 +114,7 @@ namespace SmartCommander.ViewModels
             set
             {
                 _commandText = value;
-                this.RaisePropertyChanged("CommandText");
+                this.RaisePropertyChanged(nameof(CommandText));
             }
         }
 
@@ -126,8 +123,8 @@ namespace SmartCommander.ViewModels
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
         public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchsDialog { get; }      
 
-        public bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
-        public bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
+        public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
+        public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
 
         public void Exit()
         {
@@ -555,10 +552,10 @@ namespace SmartCommander.ViewModels
             var result = await ShowOptionsDialog.Handle(optionsModel);
             if (result != null)
             {
-                this.RaisePropertyChanged("IsFunctionKeysDisplayed");
-                this.RaisePropertyChanged("IsCommandLineDisplayed");
-                SelectedPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
-                SecondPane.RaisePropertyChanged("IsCurrentDirectoryDisplayed");
+                this.RaisePropertyChanged(nameof(IsFunctionKeysDisplayed));
+                this.RaisePropertyChanged(nameof(IsCommandLineDisplayed));
+                SelectedPane.RaisePropertyChanged(nameof(FilesPaneViewModel.IsCurrentDirectoryDisplayed));
+                SecondPane.RaisePropertyChanged(nameof(FilesPaneViewModel.IsCurrentDirectoryDisplayed));
                 SetTheme();
             }
         }

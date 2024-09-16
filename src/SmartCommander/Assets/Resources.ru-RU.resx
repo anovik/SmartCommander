@@ -306,4 +306,7 @@
   <data name="Reboot" xml:space="preserve">
     <value>*Требуется перезапуск приложения</value>
   </data>
+  <data name="AllowOnlyOneInstance" xml:space="preserve">
+    <value>Разрешать только один экземпляр приложения</value>
+  </data>
 </root>

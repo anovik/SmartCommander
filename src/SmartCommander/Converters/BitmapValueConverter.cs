@@ -27,7 +27,7 @@ namespace SmartCommander.Converters
                 }
                 else
                 {
-                    var assemblyName = Assembly.GetEntryAssembly().GetName().Name;
+                    var assemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
                     uri = new Uri($"avares://{assemblyName}/{rawUri}");
                 }
                 

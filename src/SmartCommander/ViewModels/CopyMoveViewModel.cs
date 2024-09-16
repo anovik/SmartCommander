@@ -31,18 +31,12 @@ namespace SmartCommander.ViewModels
 
         public void SaveClose(Window window)
         {
-            if (window != null)
-            {
-                window.Close(this);
-            }
+            window?.Close(this);
         }
 
         public void Close(Window window)
         {
-            if (window != null)
-            {
-                window.Close();
-            }
+            window?.Close(this);
         }
     }
 }

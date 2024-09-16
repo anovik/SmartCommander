@@ -46,8 +46,8 @@ namespace SmartCommander.ViewModels
             {
                 _currentDirectory = value;
                 GetFilesFolders(CurrentDirectory, FoldersFilesList);
-                this.RaisePropertyChanged("CurrentDirectory");
-                this.RaisePropertyChanged("CurrentDirectoryInfo");
+                this.RaisePropertyChanged(nameof(CurrentDirectory));
+                this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
             }
         }
 
@@ -90,7 +90,7 @@ namespace SmartCommander.ViewModels
             set
             {
                 _isSelected = value;
-                this.RaisePropertyChanged("GridBorderBrush");
+                this.RaisePropertyChanged(nameof(GridBorderBrush));
 
                 if (value)
                 {
@@ -100,7 +100,7 @@ namespace SmartCommander.ViewModels
         }
 
 
-        public bool IsCurrentDirectoryDisplayed
+        public static bool IsCurrentDirectoryDisplayed
         {
             get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
         }
@@ -112,13 +112,14 @@ namespace SmartCommander.ViewModels
 
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
 
-        public FilesPaneViewModel()
+        public FilesPaneViewModel(EventHandler focusHandler)
         {
             _mainVM = new MainWindowViewModel();
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
+            FocusChanged += focusHandler;
         }
 
-        public FilesPaneViewModel(MainWindowViewModel mainVM)
+        public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler)
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
@@ -129,6 +130,7 @@ namespace SmartCommander.ViewModels
             FilesPaneBackspaceCommand = ReactiveCommand.Create(() => ProcessCurrentItem(true));
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
+            FocusChanged += focusHandler;
         }
 
         public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
