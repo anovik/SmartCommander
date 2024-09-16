@@ -306,4 +306,7 @@
   <data name="Reboot" xml:space="preserve">
     <value>*Application restart required</value>
   </data>
+  <data name="AllowOnlyOneInstance" xml:space="preserve">
+    <value>Allow only one Instance</value>
+  </data>
 </root>

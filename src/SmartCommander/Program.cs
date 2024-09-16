@@ -1,53 +1,41 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
+using SmartCommander.Models;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Runtime.InteropServices;
 
 namespace SmartCommander
 {
     internal class Program
     {
-        static FileStream? _lockFile;
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         [STAThread]
         public static void Main(string[] args)
         {
-            var exception = false;
+            var haveSecondInstance = false;
             var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmartCommander");
             Directory.CreateDirectory(dir);
-            try
-            {
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    _lockFile = File.Open(Path.Combine(dir, ".lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                    _lockFile.Lock(0, 0);
-                }              
-                BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);   
-            }
-            catch
-            {
-                exception = true;
-            }
 
-            if (exception)
+            string currentProcessName = Process.GetCurrentProcess().ProcessName;
+            var runningProcesses = Process.GetProcessesByName(currentProcessName);
+            haveSecondInstance = (runningProcesses.Length > 1);
+
+            if (haveSecondInstance && OptionsModel.Instance.AllowOnlyOneInstance)
             {
-                try
-                {
                     var client = new NamedPipeClientStream("SmartCommanderActivation");
                     client.Connect(1000);
                     using (StreamWriter writer = new StreamWriter(client))
                     {
                         writer.WriteLine("ActivateSmartCommander");
-                        writer.Flush();                    
+                        writer.Flush();
                     }
-
-                }
-                catch { }
+            }
+            else {
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }
 
         }
