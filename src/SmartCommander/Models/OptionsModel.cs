@@ -53,7 +53,7 @@ namespace SmartCommander.Models
         public string RightPanePath { get; set; } = "";
 
         public bool IsDarkThemeEnabled { get; set; }
-        public bool AllowOnlyOneInstance { get; set; }
+        public bool AllowOnlyOneInstance { get; set; } = true;
         public string Language { get; set; } = "en-US";
 
     }
