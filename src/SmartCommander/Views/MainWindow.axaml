@@ -21,6 +21,8 @@
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="IsTabStop" Value="False"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+			<Setter Property="Background" Value="Transparent" />
 		</Style>
 	</Window.Styles>
 	
