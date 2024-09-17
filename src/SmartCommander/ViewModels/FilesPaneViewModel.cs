@@ -37,7 +37,7 @@ namespace SmartCommander.ViewModels
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
         private bool _ascending = true;
-        public event EventHandler FocusChanged;
+        public event EventHandler? FocusChanged;
 
         public string CurrentDirectory
         {
@@ -112,11 +112,10 @@ namespace SmartCommander.ViewModels
 
         public ObservableCollection<FileViewModel> FoldersFilesList { get; set; } = new ObservableCollection<FileViewModel>();
 
-        public FilesPaneViewModel(EventHandler focusHandler)
+        public FilesPaneViewModel()
         {
             _mainVM = new MainWindowViewModel();
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
-            FocusChanged += focusHandler;
         }
 
         public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler)
