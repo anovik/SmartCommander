@@ -35,11 +35,17 @@
 		</Grid>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto"  Grid.Row="1" Margin="0,0,0,0">
-			<ListBox ItemsSource="{Binding SearchResults}" Margin="0,0,0,0"/>
+			<ListBox ItemsSource="{Binding SearchResults}" Margin="0,0,0,0">
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<VirtualizingStackPanel/>
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+			</ListBox>
 		</ScrollViewer>
 
 		<Border Grid.Row="2" Background="Azure" Padding="0" HorizontalAlignment="Stretch">
-			<TextBlock  Text="{Binding StatusFolder, Mode=TwoWay}" VerticalAlignment="Center"/>
+			<TextBlock  Text="{Binding StatusFolder, Mode=OneWay}" VerticalAlignment="Center"/>
 		</Border>
 	</Grid>
 </Window>

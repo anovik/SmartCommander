@@ -1,5 +1,6 @@
 ﻿using Avalonia.Threading;
 using ReactiveUI;
+using SmartCommander.Extensions;
 using SmartCommander.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ public class FileSearchViewModel : ViewModelBase
     private string _fileMask = "";
     private bool _isSearching = false;
     private CancellationTokenSource? _cancellationTokenSource;
+    private Timer _timer;
 
     public string CurrentFolder
     {
@@ -40,15 +42,15 @@ public class FileSearchViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isSearching, value);
     }
 
-    public ThreadSafeObservableCollection<string> SearchResults { get; }
+    public BulkObservableCollection<string> SearchResults { get; }
     public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
 
-    public FileSearchViewModel(string folder = null)
+    public FileSearchViewModel(string folder = "")
     {
         CurrentFolder = folder ?? "c:\\";
         FileMask = "*.cs";
-        SearchResults = new ThreadSafeObservableCollection<string>();
+        SearchResults = new BulkObservableCollection<string>();
         StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
     }
@@ -59,17 +61,20 @@ public class FileSearchViewModel : ViewModelBase
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Dispatcher.UIThread.Post(() =>
-            {
-                StatusFolder = folderPath;
-            });
 
+            _statusFolder = folderPath;
+            List<string> findedFolderAndFiles= new List<string>();
+
+            var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
+            findedFolderAndFiles.AddRange(dirs);
 
             string[] files = Directory.GetFiles(folderPath, searchPattern);
-            SearchResults.AddRange(files);
+            findedFolderAndFiles.AddRange(files);
 
             string[] subDirectories = Directory.GetDirectories(folderPath);
 
+
+            SearchResults.AddRange(findedFolderAndFiles);
             foreach (var subDir in subDirectories)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -101,14 +106,27 @@ public class FileSearchViewModel : ViewModelBase
         IsSearching = true;
         SearchResults.Clear();
         _cancellationTokenSource = new CancellationTokenSource();
+        _timer = new Timer(OnTimerTick, _statusFolder, 0, 100);
         await Task.Run(() => SearchAsync(CurrentFolder, FileMask, _cancellationTokenSource.Token));
 
         IsSearching = false;
     }
 
+    private void OnTimerTick(object state)
+    {
+        if (!string.IsNullOrEmpty((string)state))
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                StatusFolder = (string)state;
+            });
+        }
+    }
+
     private void CancelSearch()
     {
         IsSearching = false;
+        _timer?.Dispose();
         _cancellationTokenSource?.Cancel();
     }
 }
