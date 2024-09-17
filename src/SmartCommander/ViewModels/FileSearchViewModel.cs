@@ -8,7 +8,6 @@ using System.IO;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 public class FileSearchViewModel : ViewModelBase
 {
@@ -17,7 +16,7 @@ public class FileSearchViewModel : ViewModelBase
     private string _fileMask = "";
     private bool _isSearching = false;
     private CancellationTokenSource? _cancellationTokenSource;
-    private Timer _timer;
+    private Timer? _timer;
 
     public string CurrentFolder
     {
@@ -25,7 +24,7 @@ public class FileSearchViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _currentFolder, value);
     }
 
-    public string StatusFolder { get; set; }
+    public string StatusFolder { get; set; } = "";
 
     public string FileMask
     {
@@ -58,20 +57,16 @@ public class FileSearchViewModel : ViewModelBase
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-
             _statusFolder = folderPath;
-            List<string> findedFolderAndFiles= new List<string>();
+            List<string> findedFolderAndFiles = new List<string>();
 
             var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
             findedFolderAndFiles.AddRange(dirs);
-
             string[] files = Directory.GetFiles(folderPath, searchPattern);
             findedFolderAndFiles.AddRange(files);
+            SearchResults.AddRange(findedFolderAndFiles);
 
             string[] subDirectories = Directory.GetDirectories(folderPath);
-
-
-            SearchResults.AddRange(findedFolderAndFiles);
             foreach (var subDir in subDirectories)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -81,15 +76,15 @@ public class FileSearchViewModel : ViewModelBase
 
         catch (OperationCanceledException)
         {
-            Console.WriteLine("Поиск был отменен.");
+            Console.WriteLine("Search was canceled");
         }
         catch (UnauthorizedAccessException e)
         {
-            Console.WriteLine($"Доступ к директории {folderPath} запрещен: {e.Message}");
+            Console.WriteLine($"Access to folder {folderPath} denied: {e.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при поиске: {ex.Message}");
+            Console.WriteLine($"Search error: {ex.Message}");
         }
 
         return true;
@@ -109,14 +104,13 @@ public class FileSearchViewModel : ViewModelBase
         IsSearching = false;
     }
 
-    private void OnTimerTick(object state)
+    private void OnTimerTick(object? state)
     {
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                StatusFolder = _statusFolder;
-                this.RaisePropertyChanged(nameof(StatusFolder));
-            });
+        Dispatcher.UIThread.Post(() =>
+        {
+            StatusFolder = _statusFolder;
+            this.RaisePropertyChanged(nameof(StatusFolder));
+        });
     }
 
     private void CancelSearch()
