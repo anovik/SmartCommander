@@ -8,6 +8,7 @@ using System.IO;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 public class FileSearchViewModel : ViewModelBase
 {
@@ -24,11 +25,7 @@ public class FileSearchViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _currentFolder, value);
     }
 
-    public string StatusFolder
-    {
-        get => _statusFolder;
-        set => this.RaiseAndSetIfChanged(ref _statusFolder, value);
-    }
+    public string StatusFolder { get; set; }
 
     public string FileMask
     {
@@ -106,7 +103,7 @@ public class FileSearchViewModel : ViewModelBase
         IsSearching = true;
         SearchResults.Clear();
         _cancellationTokenSource = new CancellationTokenSource();
-        _timer = new Timer(OnTimerTick, _statusFolder, 0, 100);
+        _timer = new Timer(OnTimerTick, null, 0, 500);
         await Task.Run(() => SearchAsync(CurrentFolder, FileMask, _cancellationTokenSource.Token));
 
         IsSearching = false;
@@ -114,13 +111,12 @@ public class FileSearchViewModel : ViewModelBase
 
     private void OnTimerTick(object state)
     {
-        if (!string.IsNullOrEmpty((string)state))
-        {
+
             Dispatcher.UIThread.Post(() =>
             {
-                StatusFolder = (string)state;
+                StatusFolder = _statusFolder;
+                this.RaisePropertyChanged(nameof(StatusFolder));
             });
-        }
     }
 
     private void CancelSearch()
