@@ -390,6 +390,11 @@ namespace SmartCommander.ViewModels
 
             if (goToParent)
             {
+                if (Directory.GetParent(CurrentDirectory)==null)
+                {
+                    return;
+                }
+
                 CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
                         CurrentDirectory;
                 return;
