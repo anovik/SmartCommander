@@ -233,6 +233,7 @@ namespace SmartCommander.ViewModels
                 {
                     // non-bindable property
                     CurrentItems = grid.SelectedItems.Cast<FileViewModel>().ToList();
+                    ///grid.SelectedIndex = 0;
                 }
             }
         }
@@ -390,7 +391,7 @@ namespace SmartCommander.ViewModels
 
             if (goToParent)
             {
-                if (Directory.GetParent(CurrentDirectory)==null)
+                if (Directory.GetParent(CurrentDirectory) == null)
                 {
                     return;
                 }
