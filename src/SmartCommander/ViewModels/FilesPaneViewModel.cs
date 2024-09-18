@@ -564,7 +564,7 @@ namespace SmartCommander.ViewModels
                 {
                     CurrentDirectory = _selectedDrive;
                 }
-                this.RaisePropertyChanged("SelectedDrive"); 
+                this.RaisePropertyChanged(nameof(SelectedDrive)); 
             }
         }
     }
