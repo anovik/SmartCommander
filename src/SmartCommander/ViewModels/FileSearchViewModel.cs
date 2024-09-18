@@ -115,8 +115,8 @@ public class FileSearchViewModel : ViewModelBase
 
     public void CancelSearch()
     {
+        _cancellationTokenSource?.Cancel();
         IsSearching = false;
         _timer?.Dispose();
-        _cancellationTokenSource?.Cancel();
     }
 }
