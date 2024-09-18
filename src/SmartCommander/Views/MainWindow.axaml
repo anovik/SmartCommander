@@ -16,6 +16,16 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 	
+	<Window.Styles>
+		<Style Selector="Button.FN">
+			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="IsTabStop" Value="False"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+			<Setter Property="Background" Value="Transparent" />
+		</Style>
+	</Window.Styles>
+	
 	<Window.KeyBindings>
 		<KeyBinding Gesture="F3" Command="{Binding F3Command}" />
 		<KeyBinding Gesture="F4" Command="{Binding F4Command}" />
@@ -24,7 +34,6 @@
 		<KeyBinding Gesture="F7" Command="{Binding F7Command}" />
 		<KeyBinding Gesture="F8" Command="{Binding F8Command}" />
 	</Window.KeyBindings>
-	
 
 	<Grid>
 		<Grid.ColumnDefinitions>			
@@ -70,28 +79,21 @@
 			</TextBox.KeyBindings>
 		</TextBox>
 	</Grid>
-	<Grid Grid.Row="3" Grid.ColumnSpan="2" IsVisible="{Binding IsFunctionKeysDisplayed}">
-		<Grid.ColumnDefinitions>			
-			<ColumnDefinition Width="*"></ColumnDefinition>
-			<ColumnDefinition Width="*"></ColumnDefinition>
-			<ColumnDefinition Width="*"></ColumnDefinition>
-			<ColumnDefinition Width="*"></ColumnDefinition>
-			<ColumnDefinition Width="*"></ColumnDefinition>
-			<ColumnDefinition Width="*"></ColumnDefinition>
-		</Grid.ColumnDefinitions>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Command="{Binding F3Command}" 
+		
+	<UniformGrid  Columns="6" Grid.Row="3" Grid.ColumnSpan="2" IsVisible="{Binding IsFunctionKeysDisplayed}" >
+		<Button Classes="FN" Command="{Binding F3Command}"
 				Content="{x:Static assets:Resources.F3View}"></Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="1" Command="{Binding F4Command}"
+		<Button Classes="FN" Command="{Binding F4Command}"
 				Content="{x:Static assets:Resources.F4Edit}"></Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="2" Command="{Binding F5Command}"
+		<Button Classes="FN" Command="{Binding F5Command}"
 				Content="{x:Static assets:Resources.F5Copy}"></Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="3" Command="{Binding F6Command}"
+		<Button Classes="FN" Command="{Binding F6Command}"
 				Content="{x:Static assets:Resources.F6Move}"></Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="4" Command="{Binding F7Command}"
+		<Button Classes="FN" Command="{Binding F7Command}"
 				Content="{x:Static assets:Resources.F7CreateNewFolder}"></Button>
-		<Button HorizontalAlignment="Center" IsTabStop="False" Grid.Column="5" Command="{Binding F8Command}"
+		<Button Classes="FN" Command="{Binding F8Command}"
 				Content="{x:Static assets:Resources.F8Delete}"></Button>
-	</Grid>
+	</UniformGrid >
 		
 </Grid>
 
