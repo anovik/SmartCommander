@@ -160,8 +160,9 @@ namespace SmartCommander.ViewModels
         }
         public async void SearchFilesDialog()
         {
-            var optionsModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
-            var result = await ShowSearchsDialog.Handle(optionsModel);
+            var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
+            var result = await ShowSearchsDialog.Handle(searchModel);
+            searchModel.CancelSearch();
         }
 
         public FilesPaneViewModel SecondPane

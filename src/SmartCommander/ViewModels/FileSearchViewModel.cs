@@ -113,7 +113,7 @@ public class FileSearchViewModel : ViewModelBase
         });
     }
 
-    private void CancelSearch()
+    public void CancelSearch()
     {
         IsSearching = false;
         _timer?.Dispose();
