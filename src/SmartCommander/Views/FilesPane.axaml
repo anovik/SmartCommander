@@ -101,10 +101,6 @@
 			  <ia:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding #FoldersFilesList}">
 				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
 			  </ia:EventTriggerBehavior>
-			  <ia:EventTriggerBehavior EventName="KeyDown">
-				  <ia:InvokeCommandAction Command="{Binding KeyDownCommand}"
-										  PassEventArgsToCommand="True"/>
-			  </ia:EventTriggerBehavior>
 		  </i:Interaction.Behaviors>
 		</DataGrid>				
 		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
