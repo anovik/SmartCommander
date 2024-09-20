@@ -127,7 +127,6 @@ namespace SmartCommander.ViewModels
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
             FilesPaneEnterCommand = ReactiveCommand.Create(() => ProcessCurrentItem());
-            FilesPaneBackspaceCommand = ReactiveCommand.Create(() => ProcessCurrentItem(goToParent:true));
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
             FocusChanged += focusHandler;
@@ -144,7 +143,6 @@ namespace SmartCommander.ViewModels
 
         public ICommand KeyDownCommand { get; }
         public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
-        public ReactiveCommand<Unit, Unit>? FilesPaneBackspaceCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
