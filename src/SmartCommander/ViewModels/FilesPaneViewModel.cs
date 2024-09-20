@@ -410,6 +410,7 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     CurrentDirectory = CurrentItem.FullName;
+                    CurrentItem = FoldersFilesList[0];
                 }
             }
             else
