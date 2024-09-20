@@ -130,18 +130,8 @@ namespace SmartCommander.ViewModels
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
             FocusChanged += focusHandler;
-            KeyDownCommand = ReactiveCommand.Create<KeyEventArgs>(OnKeyDown);
         }
 
-        private void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Key == Key.Back)
-            {
-                ProcessCurrentItem(true);
-            }
-        }
-
-        public ICommand KeyDownCommand { get; }
         public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
@@ -391,7 +381,7 @@ namespace SmartCommander.ViewModels
             Directory.CreateDirectory(newFolder);
         }
 
-        private void ProcessCurrentItem(bool goToParent = false)
+        public void ProcessCurrentItem(bool goToParent = false)
         {       
             if (CurrentItem == null)
             {
