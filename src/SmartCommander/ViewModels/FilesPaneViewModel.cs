@@ -56,8 +56,13 @@ namespace SmartCommander.ViewModels
         private MainWindowViewModel _mainVM;
 
         public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
-       
-        public FileViewModel? CurrentItem { get; set; }
+
+        public FileViewModel? _currentItem;
+        public FileViewModel? CurrentItem
+        {
+            get => _currentItem;
+            set => this.RaiseAndSetIfChanged(ref _currentItem, value);
+        }
 
         public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
 
@@ -395,8 +400,9 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
-                        CurrentDirectory;
+                var prevFolder = Path.GetFileName(CurrentDirectory);
+                CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
+                CurrentItem = FoldersFilesList.First(f => f.Name == prevFolder);
                 return;
             }
 
@@ -404,8 +410,9 @@ namespace SmartCommander.ViewModels
             {
                 if (CurrentItem.FullName == "..")
                 {
-                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
-                        CurrentDirectory;
+                    var prevFolder = Path.GetFileName(CurrentDirectory);
+                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
+                    CurrentItem= FoldersFilesList.First(f => f.Name == prevFolder);
                 }
                 else
                 {

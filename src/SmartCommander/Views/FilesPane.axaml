@@ -48,7 +48,7 @@
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 
 				  CanUserSortColumns="True"	
-				  SelectedItem="{Binding CurrentItem}"
+				  SelectedItem="{Binding CurrentItem, Mode=TwoWay}"
           BorderBrush="{Binding GridBorderBrush}" BorderThickness="1">			
 			<DataGrid.Styles>
 				<Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
