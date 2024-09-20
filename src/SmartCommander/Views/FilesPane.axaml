@@ -61,10 +61,6 @@
 					<Setter Property="IsVisible" Value="False" />
 				</Style>
 			</DataGrid.Styles>
-			<DataGrid.KeyBindings>
-				<KeyBinding Gesture="Enter" Command="{Binding FilesPaneEnterCommand}" />
-				<KeyBinding Gesture="Back" Command="{Binding FilesPaneBackspaceCommand}"/>
-			</DataGrid.KeyBindings>
         <DataGrid.ContextFlyout>
 			<MenuFlyout>
 				<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}"></MenuItem>
@@ -104,6 +100,10 @@
 			</ia:EventTriggerBehavior>
 			  <ia:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding #FoldersFilesList}">
 				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
+			  </ia:EventTriggerBehavior>
+			  <ia:EventTriggerBehavior EventName="KeyDown">
+				  <ia:InvokeCommandAction Command="{Binding KeyDownCommand}"
+										  PassEventArgsToCommand="True"/>
 			  </ia:EventTriggerBehavior>
 		  </i:Interaction.Behaviors>
 		</DataGrid>				

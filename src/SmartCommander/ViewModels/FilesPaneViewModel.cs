@@ -15,6 +15,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -130,8 +131,19 @@ namespace SmartCommander.ViewModels
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
             FocusChanged += focusHandler;
+            KeyDownCommand = ReactiveCommand.Create<KeyEventArgs>(OnKeyDown);
         }
 
+        private void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Back)
+            {
+
+                ProcessCurrentItem(true);
+            }
+        }
+
+        public ICommand KeyDownCommand { get; }
         public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
         public ReactiveCommand<Unit, Unit>? FilesPaneBackspaceCommand { get; }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
