@@ -138,7 +138,6 @@ namespace SmartCommander.ViewModels
         {
             if (e.Key == Key.Back)
             {
-
                 ProcessCurrentItem(true);
             }
         }
