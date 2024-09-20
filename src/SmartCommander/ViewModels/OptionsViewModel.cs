@@ -98,10 +98,7 @@ namespace SmartCommander.ViewModels
 
         public void Close(Window window)
         {
-            if (window != null)
-            {
-                window.Close();
-            }
+            window?.Close();
         }
 
         private OptionsModel Model => OptionsModel.Instance;

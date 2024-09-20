@@ -35,7 +35,8 @@
 		</Grid>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto"  Grid.Row="1" Margin="0,0,0,0">
-			<ListBox ItemsSource="{Binding SearchResults}" Margin="0,0,0,0">
+			<ListBox x:Name="SearchListBox"
+					 ItemsSource="{Binding SearchResults}" Margin="0,0,0,0">
 				<ListBox.ItemsPanel>
 					<ItemsPanelTemplate>
 						<VirtualizingStackPanel/>
