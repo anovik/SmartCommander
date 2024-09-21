@@ -40,7 +40,18 @@ namespace SmartCommander.Views
             {
                 focusManager = TopLevel.GetTopLevel((Visual)PaneDataGrid)?.FocusManager;
                 PaneDataGrid.AddHandler(KeyDownEvent, dataGrid_PreviewKeyDown, RoutingStrategies.Tunnel);
+                PaneDataGrid.ScrollIntoView(PaneDataGrid.SelectedItem, null);
                 PaneDataGrid.Focus();
+   
+
+
+                var viewModel = (FilesPaneViewModel?)DataContext;
+                viewModel!.ScrollToItemRequested += (item, column) =>
+                {
+
+                    PaneDataGrid.ScrollIntoView(item, (DataGridColumn)column);
+                    PaneDataGrid.Focus();
+                };
             }
         }
 
@@ -62,6 +73,7 @@ namespace SmartCommander.Views
                 }
             }
         }
+        
 
         private void InitializeComponent()
         {

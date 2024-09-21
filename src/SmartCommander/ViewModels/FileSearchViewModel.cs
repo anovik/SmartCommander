@@ -38,7 +38,7 @@ public class FileSearchViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isSearching, value);
     }
 
-    public string? ResultFilename { get; set; }
+    public string ResultFilename { get; set; } = string.Empty;
 
     public BulkObservableCollection<string> SearchResults { get; }
     public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
