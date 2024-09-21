@@ -17,14 +17,14 @@ public partial class FileSearchWindow : Window
         {
             if (e.Key == Key.Enter)
             {
-                HandleItemAction((string)listBox.SelectedValue);
+                HandleItemAction((string)listBox.SelectedValue!);
                 Close();
             }
         }, RoutingStrategies.Tunnel);
 
         listBox!.DoubleTapped += (sender, e) =>
         {
-            HandleItemAction((string)listBox.SelectedValue);
+            HandleItemAction((string)listBox.SelectedValue!);
             Close();
         };
     }
@@ -32,6 +32,6 @@ public partial class FileSearchWindow : Window
     private void HandleItemAction(string? filename)
     {
         var viewModel=DataContext as FileSearchViewModel;
-        viewModel!.ResultFilename = filename;
+        viewModel!.ResultFilename = filename?? string.Empty;
     }
 }
