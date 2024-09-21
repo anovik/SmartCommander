@@ -138,9 +138,9 @@ namespace SmartCommander.ViewModels
 
         public event Action<object, object>? ScrollToItemRequested;
 
-        public void RequestScroll(object item, object column)
+        public void RequestScroll(object item, object? column)
         {
-            ScrollToItemRequested?.Invoke(item, column);
+            ScrollToItemRequested?.Invoke(item, column!);
         }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
