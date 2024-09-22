@@ -56,18 +56,5 @@ public class ListerPluginWrapper : IDisposable
             _pluginHandle = IntPtr.Zero;
         }
     }
-
-
-    public static void CreateWrapper(IntPtr parentWindowHandle)
-    {
-        string pluginPath = "d:\\totalcmd\\plugins\\wlx\\CodeViewer\\CodeViewer.wlx64";
-        var listerWrapper = new ListerPluginWrapper(pluginPath);
-
-        int showFlags = 1;
-        string fileToLoad = "C:\\Projects\\console_Lister\\ConsoleLister\\Program.cs";
-        IntPtr listerWindowHandle = listerWrapper.LoadFile(parentWindowHandle, fileToLoad, showFlags);
-
-
-    }
 }
 

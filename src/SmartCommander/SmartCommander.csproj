@@ -65,7 +65,4 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TcPlugins\" />
-  </ItemGroup>
 </Project>

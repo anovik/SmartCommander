@@ -11,10 +11,15 @@
 		xmlns:behaviors="clr-namespace:SmartCommander.Behaviors;assembly=SmartCommander"
         x:Class="SmartCommander.ViewerWindow"
         Title="SmartCommander Viewer">
-	<AvaloniaEdit:TextEditor IsReadOnly="True"						 
+	<!--<AvaloniaEdit:TextEditor IsReadOnly="True" 						 
                            FontFamily="Cascadia Code,Consolas,Menlo,Monospace">
 		<i:Interaction.Behaviors>
 			<behaviors:DocumentTextBindingBehavior Text="{Binding Text, Mode=TwoWay}"/>
 		</i:Interaction.Behaviors>
-	</AvaloniaEdit:TextEditor>
+	</AvaloniaEdit:TextEditor>-->
+
+	<StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+		<Button Margin="5" Command="{Binding CancelCommand}"  CommandParameter="{Binding $parent[Window]}"
+				 Content="XXXXXX"></Button>
+	</StackPanel>
 </Window>
