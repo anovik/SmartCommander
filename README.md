@@ -35,6 +35,8 @@ dotnet build src --configuration Release
 
 - Long operations are performed in the background
 
+- Search 
+
 ## License
 
 SmartCommander is licensed under GNU GENERAL PUBLIC LICENSE v.3.0. 
