@@ -131,13 +131,17 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
-            FilesPaneEnterCommand = ReactiveCommand.Create(() => ProcessCurrentItem());
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
             FocusChanged += focusHandler;
         }
 
-        public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
+        public event Action<object, object>? ScrollToItemRequested;
+
+        public void RequestScroll(object item, object? column)
+        {
+            ScrollToItemRequested?.Invoke(item, column!);
+        }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
@@ -550,7 +554,15 @@ namespace SmartCommander.ViewModels
                 CurrentItem = (isParent && filesFoldersList.Count > 1) ?
                     filesFoldersList[1] : filesFoldersList[0];
             }
-        }      
+        }
+
+        public void NavigateToFileItem(string resultFilename)
+        {
+                var parent=Directory.GetParent(resultFilename);
+                CurrentDirectory = parent!.FullName;
+                CurrentItem= FoldersFilesList.First(f => f.FullName == resultFilename);
+                RequestScroll(CurrentItem, null);
+        }
 
         string? _selectedDrive;
         string? SelectedDrive

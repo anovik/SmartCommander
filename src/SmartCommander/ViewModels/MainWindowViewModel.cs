@@ -161,8 +161,14 @@ namespace SmartCommander.ViewModels
         public async void SearchFilesDialog()
         {
             var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
-            var result = await ShowSearchsDialog.Handle(searchModel);
+            await ShowSearchsDialog.Handle(searchModel);
             searchModel.CancelSearch();
+            
+            if (searchModel.ResultFilename != string.Empty)
+            {
+                SelectedPane.NavigateToFileItem(searchModel.ResultFilename);
+                Console.Write(searchModel.ResultFilename);
+            }
         }
 
         public FilesPaneViewModel SecondPane
