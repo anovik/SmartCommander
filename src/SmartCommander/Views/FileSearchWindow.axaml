@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
+        x:Class="SmartCommander.FileSearchWindow"
+        Title="Files search ">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="120"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="25"/>
+		</Grid.RowDefinitions>
+
+		<Grid Grid.Row="0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="150" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<StackPanel Margin="5">
+				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0" Text="File Name (e.g. *.txt)"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FileMask, Mode=TwoWay}"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0" Text="Current Folder"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CurrentFolder, Mode=TwoWay}"/>
+			</StackPanel>
+			
+			<StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+				<Button Content="Start Search" Command="{Binding StartSearchCommand}" IsEnabled="{Binding !IsSearching}"/>
+				<Button Content="Cancel" Command="{Binding CancelSearchCommand}" IsEnabled="{Binding IsSearching}"/>
+			</StackPanel>
+		</Grid>
+
+		<ScrollViewer VerticalScrollBarVisibility="Auto"  Grid.Row="1" Margin="0,0,0,0">
+			<ListBox x:Name="SearchListBox"
+					 ItemsSource="{Binding SearchResults}" Margin="0,0,0,0">
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<VirtualizingStackPanel/>
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+			</ListBox>
+		</ScrollViewer>
+
+		<Border Grid.Row="2" Background="Azure" Padding="0" HorizontalAlignment="Stretch">
+			<TextBlock  Text="{Binding StatusFolder, Mode=OneWay}" VerticalAlignment="Center"/>
+		</Border>
+	</Grid>
+</Window>

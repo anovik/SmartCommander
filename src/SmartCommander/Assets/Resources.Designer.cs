@@ -70,6 +70,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Allow only one Instance.
+        /// </summary>
+        public static string AllowOnlyOneInstance {
+            get {
+                return ResourceManager.GetString("AllowOnlyOneInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Archive {0} already exists..
         /// </summary>
         public static string ArchiveExists {
@@ -624,14 +633,6 @@ namespace SmartCommander.Assets {
         public static string Zip {
             get {
                 return ResourceManager.GetString("Zip", resourceCulture);
-            }
-        }
-        /// <summary>
-        ///   AllowOnlyOneInstance
-        /// </summary>
-        public static string AllowOnlyOneInstance {
-            get {
-                return ResourceManager.GetString("AllowOnlyOneInstance", resourceCulture);
             }
         }
     }

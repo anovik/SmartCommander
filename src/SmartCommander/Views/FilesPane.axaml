@@ -48,7 +48,7 @@
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 
 				  CanUserSortColumns="True"	
-				  SelectedItem="{Binding CurrentItem}"
+				  SelectedItem="{Binding CurrentItem, Mode=TwoWay}"
           BorderBrush="{Binding GridBorderBrush}" BorderThickness="1">			
 			<DataGrid.Styles>
 				<Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
@@ -61,10 +61,6 @@
 					<Setter Property="IsVisible" Value="False" />
 				</Style>
 			</DataGrid.Styles>
-			<DataGrid.KeyBindings>
-				<KeyBinding Gesture="Enter" Command="{Binding FilesPaneEnterCommand}" />
-				<KeyBinding Gesture="Back" Command="{Binding FilesPaneBackspaceCommand}"/>
-			</DataGrid.KeyBindings>
         <DataGrid.ContextFlyout>
 			<MenuFlyout>
 				<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}"></MenuItem>

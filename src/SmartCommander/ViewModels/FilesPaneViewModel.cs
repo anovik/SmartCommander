@@ -15,6 +15,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -55,8 +56,13 @@ namespace SmartCommander.ViewModels
         private MainWindowViewModel _mainVM;
 
         public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
-       
-        public FileViewModel? CurrentItem { get; set; }
+
+        public FileViewModel? _currentItem;
+        public FileViewModel? CurrentItem
+        {
+            get => _currentItem;
+            set => this.RaiseAndSetIfChanged(ref _currentItem, value);
+        }
 
         public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
 
@@ -125,15 +131,17 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
-            FilesPaneEnterCommand = ReactiveCommand.Create(() => ProcessCurrentItem());
-            FilesPaneBackspaceCommand = ReactiveCommand.Create(() => ProcessCurrentItem(true));
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             _mainVM = mainVM;
             FocusChanged += focusHandler;
         }
 
-        public ReactiveCommand<Unit, Unit>? FilesPaneEnterCommand { get; }
-        public ReactiveCommand<Unit, Unit>? FilesPaneBackspaceCommand { get; }
+        public event Action<object, object>? ScrollToItemRequested;
+
+        public void RequestScroll(object item, object? column)
+        {
+            ScrollToItemRequested?.Invoke(item, column!);
+        }
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
@@ -233,6 +241,7 @@ namespace SmartCommander.ViewModels
                 {
                     // non-bindable property
                     CurrentItems = grid.SelectedItems.Cast<FileViewModel>().ToList();
+                    ///grid.SelectedIndex = 0;
                 }
             }
         }
@@ -381,7 +390,7 @@ namespace SmartCommander.ViewModels
             Directory.CreateDirectory(newFolder);
         }
 
-        private void ProcessCurrentItem(bool goToParent = false)
+        public void ProcessCurrentItem(bool goToParent = false)
         {       
             if (CurrentItem == null)
             {
@@ -390,13 +399,14 @@ namespace SmartCommander.ViewModels
 
             if (goToParent)
             {
-                if (Directory.GetParent(CurrentDirectory)==null)
+                if (Directory.GetParent(CurrentDirectory) == null)
                 {
                     return;
                 }
 
-                CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
-                        CurrentDirectory;
+                var prevFolder = Path.GetFileName(CurrentDirectory);
+                CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
+                CurrentItem = FoldersFilesList.First(f => f.Name == prevFolder);
                 return;
             }
 
@@ -404,12 +414,14 @@ namespace SmartCommander.ViewModels
             {
                 if (CurrentItem.FullName == "..")
                 {
-                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName :
-                        CurrentDirectory;
+                    var prevFolder = Path.GetFileName(CurrentDirectory);
+                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
+                    CurrentItem= FoldersFilesList.First(f => f.Name == prevFolder);
                 }
                 else
                 {
                     CurrentDirectory = CurrentItem.FullName;
+                    CurrentItem = FoldersFilesList[0];
                 }
             }
             else
@@ -542,7 +554,15 @@ namespace SmartCommander.ViewModels
                 CurrentItem = (isParent && filesFoldersList.Count > 1) ?
                     filesFoldersList[1] : filesFoldersList[0];
             }
-        }      
+        }
+
+        public void NavigateToFileItem(string resultFilename)
+        {
+                var parent=Directory.GetParent(resultFilename);
+                CurrentDirectory = parent!.FullName;
+                CurrentItem= FoldersFilesList.First(f => f.FullName == resultFilename);
+                RequestScroll(CurrentItem, null);
+        }
 
         string? _selectedDrive;
         string? SelectedDrive
@@ -564,7 +584,7 @@ namespace SmartCommander.ViewModels
                 {
                     CurrentDirectory = _selectedDrive;
                 }
-                this.RaisePropertyChanged("SelectedDrive"); 
+                this.RaisePropertyChanged(nameof(SelectedDrive)); 
             }
         }
     }

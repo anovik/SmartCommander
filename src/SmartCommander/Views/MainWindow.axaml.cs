@@ -21,6 +21,7 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowDialogAsync<OptionsViewModel, OptionsWindow>)));
             this.WhenActivated(d => d(ViewModel!.LeftFileViewModel.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
             this.WhenActivated(d => d(ViewModel!.RightFileViewModel.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
+            this.WhenActivated(d => d(ViewModel!.ShowSearchsDialog.RegisterHandler(DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>)));
 
             progressWindow = new ProgressWindow();
 
@@ -61,6 +62,7 @@ namespace SmartCommander.Views
         {
             var dialog = new T2();
             dialog.DataContext = interaction.Input;
+            dialog.Activate();
 
             var result = await dialog.ShowDialog<T1>(this);
             interaction.SetOutput(result);

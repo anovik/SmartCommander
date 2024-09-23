@@ -24,12 +24,15 @@ namespace SmartCommander.ViewModels
         {
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
+            ShowSearchsDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
             SortExtensionCommand = ReactiveCommand.Create(SortExtension);
             SortSizeCommand = ReactiveCommand.Create(SortSize);
             SortDateCommand = ReactiveCommand.Create(SortDate);
+            SearchFilesCommand = ReactiveCommand.Create(SearchFilesDialog);
+            
             EnterCommand = ReactiveCommand.Create(Execute);
             F3Command = ReactiveCommand.Create(View);
             F4Command = ReactiveCommand.Create(Edit);
@@ -37,6 +40,7 @@ namespace SmartCommander.ViewModels
             F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
+
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
@@ -78,6 +82,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> SortExtensionCommand { get; }
         public ReactiveCommand<Unit, Unit> SortSizeCommand { get; }
         public ReactiveCommand<Unit, Unit> SortDateCommand { get; }
+        public ReactiveCommand<Unit, Unit> SearchFilesCommand { get; }
         public ReactiveCommand<Unit, Unit> EnterCommand { get; }
 
         public ReactiveCommand<Unit, Unit> F3Command { get; }
@@ -116,6 +121,7 @@ namespace SmartCommander.ViewModels
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
+        public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchsDialog { get; }      
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -151,6 +157,18 @@ namespace SmartCommander.ViewModels
         {
             SelectedPane.Sorting = SortingBy.SortingByDate;
             SelectedPane.Ascending = true;
+        }
+        public async void SearchFilesDialog()
+        {
+            var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
+            await ShowSearchsDialog.Handle(searchModel);
+            searchModel.CancelSearch();
+            
+            if (searchModel.ResultFilename != string.Empty)
+            {
+                SelectedPane.NavigateToFileItem(searchModel.ResultFilename);
+                Console.Write(searchModel.ResultFilename);
+            }
         }
 
         public FilesPaneViewModel SecondPane
