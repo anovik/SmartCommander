@@ -76,15 +76,12 @@ public class FileSearchViewModel : ViewModelBase
 
         catch (OperationCanceledException)
         {
-            Console.WriteLine("Search was canceled");
         }
         catch (UnauthorizedAccessException e)
         {
-            Console.WriteLine($"Access to folder {folderPath} denied: {e.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Search error: {ex.Message}");
         }
 
         return true;
