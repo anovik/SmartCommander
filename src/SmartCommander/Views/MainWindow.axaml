@@ -10,6 +10,7 @@
 		xmlns:assets="clr-namespace:SmartCommander.Assets"
 		WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
+		MinWidth="600" MinHeight="400"
         Title="SmartCommander">
 
     <Design.DataContext>
