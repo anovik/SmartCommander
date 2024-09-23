@@ -43,12 +43,9 @@ namespace SmartCommander.Views
                 PaneDataGrid.ScrollIntoView(PaneDataGrid.SelectedItem, null);
                 PaneDataGrid.Focus();
    
-
-
                 var viewModel = (FilesPaneViewModel?)DataContext;
                 viewModel!.ScrollToItemRequested += (item, column) =>
                 {
-
                     PaneDataGrid.ScrollIntoView(item, (DataGridColumn)column);
                     PaneDataGrid.Focus();
                 };
