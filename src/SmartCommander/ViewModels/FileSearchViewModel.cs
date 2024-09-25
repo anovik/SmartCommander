@@ -47,7 +47,7 @@ public class FileSearchViewModel : ViewModelBase
     public FileSearchViewModel(string folder = "")
     {
         CurrentFolder = folder ?? "c:\\";
-        FileMask = "*.cs";
+        FileMask = "*.txt";
         SearchResults = new BulkObservableCollection<string>();
         StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);
         CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
@@ -75,17 +75,20 @@ public class FileSearchViewModel : ViewModelBase
                 await SearchAsync(subDir, searchPattern, cancellationToken);
             }
         }
-
+        // TODO: add logging
+        /*
         catch (OperationCanceledException)
         {
         }
         catch (UnauthorizedAccessException e)
         {
         }
-        catch (Exception ex)
+        */
+        catch (Exception)
         {
-        }
 
+        }
+        
         return true;
     }
 
@@ -100,6 +103,7 @@ public class FileSearchViewModel : ViewModelBase
         _timer = new Timer(OnTimerTick, null, 0, 500);
         await Task.Run(() => SearchAsync(CurrentFolder, FileMask, _cancellationTokenSource.Token));
 
+        _statusFolder = "";
         IsSearching = false;
     }
 
