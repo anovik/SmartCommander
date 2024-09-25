@@ -187,6 +187,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current Folder.
+        /// </summary>
+        public static string CurrentFolder {
+            get {
+                return ResourceManager.GetString("CurrentFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dark Theme.
         /// </summary>
         public static string DarkTheme {
@@ -358,6 +367,24 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File name (for example, *.txt).
+        /// </summary>
+        public static string FileName {
+            get {
+                return ResourceManager.GetString("FileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files Search.
+        /// </summary>
+        public static string FilesSearch {
+            get {
+                return ResourceManager.GetString("FilesSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Folder.
         /// </summary>
         public static string Folder {
@@ -426,6 +453,15 @@ namespace SmartCommander.Assets {
         public static string MenuOptions {
             get {
                 return ResourceManager.GetString("MenuOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Search.
+        /// </summary>
+        public static string MenuSearch {
+            get {
+                return ResourceManager.GetString("MenuSearch", resourceCulture);
             }
         }
         
@@ -588,6 +624,15 @@ namespace SmartCommander.Assets {
         public static string Size {
             get {
                 return ResourceManager.GetString("Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start Search.
+        /// </summary>
+        public static string StartSearch {
+            get {
+                return ResourceManager.GetString("StartSearch", resourceCulture);
             }
         }
         

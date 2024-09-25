@@ -309,4 +309,19 @@
   <data name="AllowOnlyOneInstance" xml:space="preserve">
     <value>Разрешать только один экземпляр приложения</value>
   </data>
+  <data name="FilesSearch" xml:space="preserve">
+    <value>Поиск по файлам</value>
+  </data>
+  <data name="StartSearch" xml:space="preserve">
+    <value>Начать поиск</value>
+  </data>
+  <data name="CurrentFolder" xml:space="preserve">
+    <value>Текущая папка</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>Имя файла (например, *.txt)</value>
+  </data>
+  <data name="MenuSearch" xml:space="preserve">
+    <value>_Поиск</value>
+  </data>
 </root>

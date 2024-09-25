@@ -54,7 +54,7 @@
 
     <Menu >
       <MenuItem Header="{x:Static assets:Resources.MenuFile}" IsTabStop="False">
-		  <MenuItem Header="Search" Command="{Binding SearchFilesCommand}" InputGesture="Alt+F7" ></MenuItem>
+		  <MenuItem Header="{x:Static assets:Resources.MenuSearch}" Command="{Binding SearchFilesCommand}" InputGesture="Alt+F7" ></MenuItem>
 		  <Separator />
 		  <MenuItem Header="{x:Static assets:Resources.MenuExit}" Command="{Binding ExitCommand}"></MenuItem>
 	  </MenuItem>
@@ -81,7 +81,7 @@
 		</Grid.ColumnDefinitions>
 		<TextBlock VerticalAlignment="Center"
 				   Text="{x:Static assets:Resources.CurrentDirectoryName}"></TextBlock>
-		<TextBox IsTabStop="False" Grid.Column="1" Text="{Binding CommandText}">
+		<TextBox IsTabStop="False" Grid.Column="1" Text="{Binding CommandText}" Margin="10,0,0,0">
 			<TextBox.KeyBindings>
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />				
 			</TextBox.KeyBindings>
