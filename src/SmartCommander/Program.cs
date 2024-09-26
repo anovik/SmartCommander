@@ -44,7 +44,6 @@ namespace SmartCommander
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-   .With(new SkiaOptions { MaxGpuResourceSizeBytes = 0 })
                 .LogToTrace()
                 .UseReactiveUI();
 

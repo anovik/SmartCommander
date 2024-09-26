@@ -18,8 +18,7 @@
 		</i:Interaction.Behaviors>
 	</AvaloniaEdit:TextEditor>-->
 
-	<StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-		<Button Margin="5" Command="{Binding CancelCommand}"  CommandParameter="{Binding $parent[Window]}"
-				 Content="XXXXXX"></Button>
-	</StackPanel>
+	<Grid x:Name="GridPanel">
+
+	</Grid>
 </Window>
