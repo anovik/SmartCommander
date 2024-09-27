@@ -10,6 +10,7 @@
 		xmlns:assets="clr-namespace:SmartCommander.Assets"
 		WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
+		MinWidth="600" MinHeight="400"
         Title="SmartCommander">
 
     <Design.DataContext>
@@ -33,6 +34,10 @@
 		<KeyBinding Gesture="F6" Command="{Binding F6Command}" />
 		<KeyBinding Gesture="F7" Command="{Binding F7Command}" />
 		<KeyBinding Gesture="F8" Command="{Binding F8Command}" />
+
+		<KeyBinding Gesture="Alt+F7" Command="{Binding SearchFilesCommand}" />
+		
+
 	</Window.KeyBindings>
 
 	<Grid>
@@ -49,15 +54,18 @@
 
     <Menu >
       <MenuItem Header="{x:Static assets:Resources.MenuFile}" IsTabStop="False">
-        <MenuItem Header="{x:Static assets:Resources.MenuExit}" 
-				  Command="{Binding ExitCommand}" IsTabStop="False"></MenuItem>        		  
-      </MenuItem>
+		  <MenuItem Header="{x:Static assets:Resources.MenuSearch}" Command="{Binding SearchFilesCommand}" InputGesture="Alt+F7" ></MenuItem>
+		  <Separator />
+		  <MenuItem Header="{x:Static assets:Resources.MenuExit}" Command="{Binding ExitCommand}"></MenuItem>
+	  </MenuItem>
+		
       <MenuItem Header="{x:Static assets:Resources.MenuView}" IsTabStop="False">
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortByName}" Command="{Binding SortNameCommand}"></MenuItem>
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortByExtension}" Command="{Binding SortExtensionCommand}"></MenuItem>
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortBySize}"  Command="{Binding SortSizeCommand}"></MenuItem>
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortByDate}" Command="{Binding SortDateCommand}"></MenuItem>
 	  </MenuItem>
+		
       <MenuItem Header="{x:Static assets:Resources.MenuConfiguration}" IsTabStop="False" >
 		  <MenuItem Header="{x:Static assets:Resources.MenuOptions}" Command="{Binding OptionsCommand}"></MenuItem>
       </MenuItem>
@@ -73,7 +81,7 @@
 		</Grid.ColumnDefinitions>
 		<TextBlock VerticalAlignment="Center"
 				   Text="{x:Static assets:Resources.CurrentDirectoryName}"></TextBlock>
-		<TextBox IsTabStop="False" Grid.Column="1" Text="{Binding CommandText}">
+		<TextBox IsTabStop="False" Grid.Column="1" Text="{Binding CommandText}" Margin="10,0,0,0">
 			<TextBox.KeyBindings>
 				<KeyBinding Gesture="Enter" Command="{Binding EnterCommand}" />				
 			</TextBox.KeyBindings>
