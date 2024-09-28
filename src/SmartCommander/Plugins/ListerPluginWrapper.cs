@@ -14,9 +14,13 @@ public class ListerPluginWrapper : IDisposable
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void ListSendCommandDelegate(IntPtr listWin, int command, int parameter);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    public delegate void ListGetDetectStringDelegate(IntPtr detectString, int maxlen);
+
     private ListLoadDelegate ListLoad;
     private ListCloseWindowDelegate ListCloseWindow;
     private ListSendCommandDelegate ListSendCommand;
+    private ListGetDetectStringDelegate ListGetDetectString;
 
     public ListerPluginWrapper(string pluginPath)
     {
@@ -25,6 +29,8 @@ public class ListerPluginWrapper : IDisposable
         ListLoad = Marshal.GetDelegateForFunctionPointer<ListLoadDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListLoad)));
         ListCloseWindow = Marshal.GetDelegateForFunctionPointer<ListCloseWindowDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListCloseWindow)));
         ListSendCommand = Marshal.GetDelegateForFunctionPointer<ListSendCommandDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListSendCommand)));
+
+        ListGetDetectString = Marshal.GetDelegateForFunctionPointer<ListGetDetectStringDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListGetDetectString)));
     }
 
     public IntPtr LoadFile(IntPtr parentWindowHandle, string filePath, int showFlags)
@@ -40,6 +46,16 @@ public class ListerPluginWrapper : IDisposable
     public void SendCommand(IntPtr listerWindowHandle, int command, int parameter)
     {
         ListSendCommand!(listerWindowHandle, command, parameter);
+    }
+
+    public string DetectString()
+    {
+        int maxlen = 1024;
+        IntPtr detectStringPtr = Marshal.AllocHGlobal(maxlen);
+        ListGetDetectString(detectStringPtr, maxlen);
+        string detectString = Marshal.PtrToStringAnsi(detectStringPtr);
+        Marshal.FreeHGlobal(detectStringPtr);
+        return detectString;
     }
 
     public void Dispose()
