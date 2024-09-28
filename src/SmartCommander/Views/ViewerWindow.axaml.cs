@@ -60,7 +60,7 @@ internal class Win32WindowControlHandle : PlatformHandle, INativeControlHostDest
 
 public class EmbedSample : NativeControlHost
 {
-    public static INativeDemoControl? Implementation { get; set; }
+    //public static INativeDemoControl? Implementation { get; set; }
     ListerPluginWrapper listerPluginWrapper { get; set; }
     IntPtr listerWindowHandle { get; set; }
     string filename;
@@ -88,11 +88,11 @@ public class EmbedSample : NativeControlHost
     }
 }
 
-public interface INativeDemoControl
-{
-    /// <param name="isSecond">Used to specify which control should be displayed as a demo</param>
-    /// <param name="parent"></param>
-    /// <param name="createDefault"></param>
-    IPlatformHandle CreateControl(bool isSecond, IPlatformHandle parent, Func<IPlatformHandle> createDefault);
-}
+//public interface INativeDemoControl
+//{
+//    /// <param name="isSecond">Used to specify which control should be displayed as a demo</param>
+//    /// <param name="parent"></param>
+//    /// <param name="createDefault"></param>
+//    IPlatformHandle CreateControl(bool isSecond, IPlatformHandle parent, Func<IPlatformHandle> createDefault);
+//}
 
