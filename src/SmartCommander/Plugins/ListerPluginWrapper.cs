@@ -29,7 +29,6 @@ public class ListerPluginWrapper : IDisposable
         ListLoad = Marshal.GetDelegateForFunctionPointer<ListLoadDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListLoad)));
         ListCloseWindow = Marshal.GetDelegateForFunctionPointer<ListCloseWindowDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListCloseWindow)));
         ListSendCommand = Marshal.GetDelegateForFunctionPointer<ListSendCommandDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListSendCommand)));
-
         ListGetDetectString = Marshal.GetDelegateForFunctionPointer<ListGetDetectStringDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListGetDetectString)));
     }
 
@@ -48,12 +47,11 @@ public class ListerPluginWrapper : IDisposable
         ListSendCommand!(listerWindowHandle, command, parameter);
     }
 
-    public string DetectString()
+    public string? DetectString(int maxlen = 2000)
     {
-        int maxlen = 2000;
         IntPtr detectStringPtr = Marshal.AllocHGlobal(maxlen);
         ListGetDetectString(detectStringPtr, maxlen);
-        string detectString = Marshal.PtrToStringAnsi(detectStringPtr);
+        string? detectString = Marshal.PtrToStringAnsi(detectStringPtr);
         Marshal.FreeHGlobal(detectStringPtr);
         return detectString;
     }

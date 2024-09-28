@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Platform;
 using Avalonia.Platform;
+using AvaloniaEdit.Editing;
 using SmartCommander.TcPlugins;
 using SmartCommander.ViewModels;
 using System;
+using System.Resources;
 
 namespace SmartCommander;
 
@@ -28,7 +30,11 @@ public partial class ViewerWindow : Window
 
 
             var embed = new EmbedSample(viewModel!.Filename);
-            grid.Children.Add(embed);
+            if (embed.CanShowByPlugin)
+            {
+                grid.Children.Add(embed);
+            }
+
         }
 
     }
@@ -51,21 +57,29 @@ public class EmbedSample : NativeControlHost
     //public static INativeDemoControl? Implementation { get; set; }
     ListerPluginWrapper listerPluginWrapper { get; set; }
     IntPtr listerWindowHandle { get; set; }
+
     string filename;
+
+    public bool CanShowByPlugin
+    {
+        get
+        {
+            return (listerWindowHandle != IntPtr.Zero);
+        }
+    }
 
     public EmbedSample(string Filename)
     {
         HorizontalAlignment = 0;
         VerticalAlignment = 0;
         filename = Filename;
+        listerPluginWrapper = PluginManager.CreateListerWrapper();
+        listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, filename);
     }
 
-    public bool IsSecond { get; set; }
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
-        listerPluginWrapper = PluginManager.CreateListerWrapper();
-        listerWindowHandle = listerPluginWrapper.CreateListerWindow(parent.Handle, filename);
         return new Win32WindowControlHandle(listerWindowHandle, "Lister");
     }
 
