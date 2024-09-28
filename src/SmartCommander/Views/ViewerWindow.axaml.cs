@@ -14,8 +14,6 @@ public partial class ViewerWindow : Window
     {
         InitializeComponent();
         this.Opened += OnWindowOpened;
-
-
     }
     private void OnWindowOpened(object? sender, EventArgs e)
     {
