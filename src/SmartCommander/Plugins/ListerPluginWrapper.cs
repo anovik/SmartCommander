@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
+namespace SmartCommander.Plugins;
+
 public class ListerPluginWrapper : IDisposable
 {
     private IntPtr _pluginHandle;

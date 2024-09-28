@@ -1,17 +1,14 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Platform;
 using Avalonia.Platform;
-using AvaloniaEdit.Editing;
-using SmartCommander.TcPlugins;
+using SmartCommander.Plugins;
 using SmartCommander.ViewModels;
 using System;
-using System.Resources;
 
 namespace SmartCommander;
 
 public partial class ViewerWindow : Window
 {
-    ListerPluginWrapper listerPluginWrapper { get; set; }
     IntPtr listerWindowHandle { get; set; }
     public ViewerWindow()
     {
@@ -28,13 +25,14 @@ public partial class ViewerWindow : Window
         {
             var viewModel = this.DataContext as ViewerViewModel;
 
-
-            var embed = new EmbedSample(viewModel!.Filename);
-            if (embed.CanShowByPlugin)
+            if (OperatingSystem.IsWindows())
             {
-                grid.Children.Add(embed);
+                var embed = new EmbedSample(viewModel!.Filename);
+                if (embed.CanShowByPlugin)
+                {
+                    grid.Children.Add(embed);
+                }
             }
-
         }
 
     }
@@ -48,17 +46,13 @@ internal class Win32WindowControlHandle : PlatformHandle, INativeControlHostDest
 
     public void Destroy()
     {
-        ///_ = WinApi.DestroyWindow(Handle);
     }
 }
 
 public class EmbedSample : NativeControlHost
 {
-    //public static INativeDemoControl? Implementation { get; set; }
     ListerPluginWrapper listerPluginWrapper { get; set; }
     IntPtr listerWindowHandle { get; set; }
-
-    string filename;
 
     public bool CanShowByPlugin
     {
@@ -72,14 +66,14 @@ public class EmbedSample : NativeControlHost
     {
         HorizontalAlignment = 0;
         VerticalAlignment = 0;
-        filename = Filename;
         listerPluginWrapper = PluginManager.CreateListerWrapper();
-        listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, filename);
+        listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
     }
 
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
+        //TODO better use  INativeDemoControl? Implementation; to make it cross platform
         return new Win32WindowControlHandle(listerWindowHandle, "Lister");
     }
 
@@ -89,12 +83,3 @@ public class EmbedSample : NativeControlHost
         base.DestroyNativeControlCore(control);
     }
 }
-
-//public interface INativeDemoControl
-//{
-//    /// <param name="isSecond">Used to specify which control should be displayed as a demo</param>
-//    /// <param name="parent"></param>
-//    /// <param name="createDefault"></param>
-//    IPlatformHandle CreateControl(bool isSecond, IPlatformHandle parent, Func<IPlatformHandle> createDefault);
-//}
-
