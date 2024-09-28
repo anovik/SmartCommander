@@ -21,8 +21,6 @@ public partial class ViewerWindow : Window
     private void OnWindowOpened(object? sender, EventArgs e)
     {
 
-
-
         var grid = this.FindControl<Grid>("GridPanel");
         if (grid != null)
         {
@@ -33,16 +31,6 @@ public partial class ViewerWindow : Window
             grid.Children.Add(embed);
         }
 
-    }
-
-    private IntPtr GetWindowHandle()
-    {
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle != null)
-        {
-            return platformHandle.Handle;
-        }
-        return IntPtr.Zero;
     }
 }
 
