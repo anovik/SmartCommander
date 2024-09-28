@@ -1,14 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Platform;
-using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Platform;
 using SmartCommander.TcPlugins;
 using SmartCommander.ViewModels;
 using System;
-using System.Diagnostics;
-using System.IO.Enumeration;
-using System.Reflection.Metadata;
 
 namespace SmartCommander;
 
@@ -42,8 +37,8 @@ public partial class ViewerWindow : Window
 
     private IntPtr GetWindowHandle()
     {
-        var platformHandle=this.TryGetPlatformHandle();
-        if (platformHandle!=null)
+        var platformHandle = this.TryGetPlatformHandle();
+        if (platformHandle != null)
         {
             return platformHandle.Handle;
         }
@@ -76,10 +71,6 @@ public class EmbedSample : NativeControlHost
         VerticalAlignment = 0;
         filename = Filename;
     }
-    //static EmbedSample()
-    //{
-
-    //}
 
     public bool IsSecond { get; set; }
 

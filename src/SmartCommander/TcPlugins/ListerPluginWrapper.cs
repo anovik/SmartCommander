@@ -14,38 +14,32 @@ public class ListerPluginWrapper : IDisposable
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void ListSendCommandDelegate(IntPtr listWin, int command, int parameter);
 
-    private ListLoadDelegate _listLoad;
-    private ListCloseWindowDelegate _listCloseWindow;
-    private ListSendCommandDelegate _listSendCommand;
+    private ListLoadDelegate ListLoad;
+    private ListCloseWindowDelegate ListCloseWindow;
+    private ListSendCommandDelegate ListSendCommand;
 
     public ListerPluginWrapper(string pluginPath)
     {
         _pluginHandle = NativeLibrary.Load(pluginPath);
 
-        _listLoad = Marshal.GetDelegateForFunctionPointer<ListLoadDelegate>(
-            NativeLibrary.GetExport(_pluginHandle, "ListLoad"));
-        _listCloseWindow = Marshal.GetDelegateForFunctionPointer<ListCloseWindowDelegate>(
-            NativeLibrary.GetExport(_pluginHandle, "ListCloseWindow"));
-        _listSendCommand = Marshal.GetDelegateForFunctionPointer<ListSendCommandDelegate>(
-            NativeLibrary.GetExport(_pluginHandle, "ListSendCommand"));
+        ListLoad = Marshal.GetDelegateForFunctionPointer<ListLoadDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListLoad)));
+        ListCloseWindow = Marshal.GetDelegateForFunctionPointer<ListCloseWindowDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListCloseWindow)));
+        ListSendCommand = Marshal.GetDelegateForFunctionPointer<ListSendCommandDelegate>(NativeLibrary.GetExport(_pluginHandle, nameof(ListSendCommand)));
     }
 
     public IntPtr LoadFile(IntPtr parentWindowHandle, string filePath, int showFlags)
     {
-        if (_listLoad == null) throw new InvalidOperationException("ListLoad function not available.");
-        return _listLoad(parentWindowHandle, filePath, showFlags);
+        return ListLoad!(parentWindowHandle, filePath, showFlags);
     }
 
-    public void CloseWindow(IntPtr listWindowHandle)
+    public void CloseWindow(IntPtr listerWindowHandle)
     {
-        if (_listCloseWindow == null) throw new InvalidOperationException("ListCloseWindow function not available.");
-        _listCloseWindow(listWindowHandle);
+        ListCloseWindow!(listerWindowHandle);
     }
 
-    public void SendCommand(IntPtr listWindowHandle, int command, int parameter)
+    public void SendCommand(IntPtr listerWindowHandle, int command, int parameter)
     {
-        if (_listSendCommand == null) throw new InvalidOperationException("ListSendCommand function not available.");
-        _listSendCommand(listWindowHandle, command, parameter);
+        ListSendCommand!(listerWindowHandle, command, parameter);
     }
 
     public void Dispose()
