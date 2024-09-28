@@ -6,8 +6,6 @@ namespace SmartCommander.ViewModels
 {
     public class ViewerViewModel : ViewModelBase
     {
-        //private IntPtr? pluginWindowHandle;
-        //ListerPluginWrapper? listerPluginWrapper;
 
         public ViewerViewModel(string filename)
         {
