@@ -6,7 +6,8 @@ namespace SmartCommander.TcPlugins
     {
         public static ListerPluginWrapper CreateListerWrapper()
         {
-            string pluginPath = "C:\\totalcmd\\plugins\\CodeViewer\\CodeViewer.wlx64";
+            //string pluginPath = "C:\\totalcmd\\plugins\\CodeViewer\\CodeViewer.wlx64";
+            string pluginPath = "C:\\totalcmd\\plugins\\wlx\\CodeViewer\\CodeViewer.wlx64";
             return new ListerPluginWrapper(pluginPath);
         }
 
