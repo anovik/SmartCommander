@@ -70,6 +70,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Allow only one Instance.
+        /// </summary>
+        public static string AllowOnlyOneInstance {
+            get {
+                return ResourceManager.GetString("AllowOnlyOneInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Archive {0} already exists..
         /// </summary>
         public static string ArchiveExists {
@@ -174,6 +183,15 @@ namespace SmartCommander.Assets {
         public static string CurrentDirInfo {
             get {
                 return ResourceManager.GetString("CurrentDirInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current Folder.
+        /// </summary>
+        public static string CurrentFolder {
+            get {
+                return ResourceManager.GetString("CurrentFolder", resourceCulture);
             }
         }
         
@@ -349,6 +367,24 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File name (for example, *.txt).
+        /// </summary>
+        public static string FileName {
+            get {
+                return ResourceManager.GetString("FileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files Search.
+        /// </summary>
+        public static string FilesSearch {
+            get {
+                return ResourceManager.GetString("FilesSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Folder.
         /// </summary>
         public static string Folder {
@@ -417,6 +453,15 @@ namespace SmartCommander.Assets {
         public static string MenuOptions {
             get {
                 return ResourceManager.GetString("MenuOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Search.
+        /// </summary>
+        public static string MenuSearch {
+            get {
+                return ResourceManager.GetString("MenuSearch", resourceCulture);
             }
         }
         
@@ -583,6 +628,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Start Search.
+        /// </summary>
+        public static string StartSearch {
+            get {
+                return ResourceManager.GetString("StartSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Would you like to stop the background operation?.
         /// </summary>
         public static string StopBackground {
@@ -624,14 +678,6 @@ namespace SmartCommander.Assets {
         public static string Zip {
             get {
                 return ResourceManager.GetString("Zip", resourceCulture);
-            }
-        }
-        /// <summary>
-        ///   AllowOnlyOneInstance
-        /// </summary>
-        public static string AllowOnlyOneInstance {
-            get {
-                return ResourceManager.GetString("AllowOnlyOneInstance", resourceCulture);
             }
         }
     }
