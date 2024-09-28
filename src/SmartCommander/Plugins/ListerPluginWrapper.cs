@@ -16,7 +16,7 @@ public class ListerPluginWrapper : IDisposable
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void ListSendCommandDelegate(IntPtr listWin, int command, int parameter);
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate void ListGetDetectStringDelegate(IntPtr detectString, int maxlen);
 
     private ListLoadDelegate ListLoad;
