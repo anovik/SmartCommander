@@ -50,7 +50,7 @@ public class ListerPluginWrapper : IDisposable
 
     public string DetectString()
     {
-        int maxlen = 1024;
+        int maxlen = 2000;
         IntPtr detectStringPtr = Marshal.AllocHGlobal(maxlen);
         ListGetDetectString(detectStringPtr, maxlen);
         string detectString = Marshal.PtrToStringAnsi(detectStringPtr);
