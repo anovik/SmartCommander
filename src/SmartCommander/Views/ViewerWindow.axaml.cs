@@ -17,7 +17,6 @@ public partial class ViewerWindow : Window
     }
     private void OnWindowOpened(object? sender, EventArgs e)
     {
-
         var grid = this.FindControl<Grid>("GridPanel");
         if (grid != null)
         {
@@ -67,7 +66,6 @@ public class EmbedSample : NativeControlHost
         listerPluginWrapper = PluginManager.CreateListerWrapper();
         listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
     }
-
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
