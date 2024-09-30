@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.IO.Enumeration;
 using System.Linq;
 using System.Reactive;
 using System.Resources;
@@ -26,7 +27,7 @@ namespace SmartCommander.ViewModels
         public CultureInfo SelectedCulture { get; set; }
 
 
-        public ObservableCollection<string>? ListerPlugins { get; set; }
+        public ObservableCollection<string> ListerPlugins { get; set; } = new();
         private string _selectedPlugin = string.Empty;
         public string SelectedPlugin
         {
@@ -73,7 +74,7 @@ namespace SmartCommander.ViewModels
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
             var lang = AvailableCultures.First(x => x.Name == Model.Language);
             SelectedCulture = lang ?? AvailableCultures.First();
-            ListerPlugins = new ObservableCollection<string>();
+
             ListerPlugins.AddRange(Model.ListerPlugins);
             AddFileCommand = ReactiveCommand.Create<Window>(AddFileAsync);
             RemoveFileCommand = ReactiveCommand.Create<Window>(RemoveFile);
@@ -108,23 +109,26 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        public static FilePickerFileType ListerPluginsFilter { get; } = new("Lister Plugins")
+        {
+            Patterns = new[] { "*.wlx", "*.wlx64" }
+        };
         private void AddFileAsync(Window window)
         {
             var desktop = (IClassicDesktopStyleApplicationLifetime?)Application.Current?.ApplicationLifetime;
             var topLevel = TopLevel.GetTopLevel(desktop?.MainWindow);
-
-            // Start async operation to open the dialog.
             var files = topLevel?.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title = "Open Text File",
+                Title = "Choose plugin",
                 AllowMultiple = false,
-            });
+                FileTypeFilter = new[] { ListerPluginsFilter }
+            }).Result;
 
-            if (files?.Result.Count >= 1)
+            if (files?.Count >= 1)
             {
-                ListerPlugins.Add(files.Result.FirstOrDefault().Name);
+                var filename = files.First().Path.LocalPath;
+                ListerPlugins.Add(filename);
             }
-
         }
 
         public void SaveClose(Window window)
