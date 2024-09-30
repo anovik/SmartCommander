@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Platform;
 using Avalonia.Platform;
+using SmartCommander.Models;
 using SmartCommander.Plugins;
 using SmartCommander.ViewModels;
 using System;
@@ -13,8 +14,9 @@ public partial class ViewerWindow : Window
     public ViewerWindow()
     {
         InitializeComponent();
-        this.Opened += OnWindowOpened;
+        this.Opened+= OnWindowOpened;
     }
+
     private void OnWindowOpened(object? sender, EventArgs e)
     {
         var grid = this.FindControl<Grid>("GridPanel");
@@ -22,7 +24,7 @@ public partial class ViewerWindow : Window
         {
             var viewModel = this.DataContext as ViewerViewModel;
 
-            if (OperatingSystem.IsWindows())
+            if (OperatingSystem.IsWindows() && OptionsModel.Instance.ListerPlugins.Count > 0)
             {
                 var embed = new EmbedSample(viewModel!.Filename);
                 if (embed.CanShowByPlugin)
@@ -31,7 +33,6 @@ public partial class ViewerWindow : Window
                 }
             }
         }
-
     }
 }
 
@@ -48,7 +49,7 @@ internal class Win32WindowControlHandle : PlatformHandle, INativeControlHostDest
 
 public class EmbedSample : NativeControlHost
 {
-    ListerPluginWrapper listerPluginWrapper { get; set; }
+    ListerPluginWrapper? listerPluginWrapper { get; set; }
     IntPtr listerWindowHandle { get; set; }
 
     public bool CanShowByPlugin
@@ -63,8 +64,17 @@ public class EmbedSample : NativeControlHost
     {
         HorizontalAlignment = 0;
         VerticalAlignment = 0;
-        listerPluginWrapper = PluginManager.CreateListerWrapper();
-        listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
+
+        foreach (var ListerFileName in OptionsModel.Instance.ListerPlugins)
+        {
+            listerPluginWrapper?.Dispose();
+
+            listerPluginWrapper = PluginManager.CreateListerWrapper(ListerFileName);
+            listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
+
+            if (listerWindowHandle != IntPtr.Zero)
+                return;
+        }
     }
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
@@ -75,7 +85,7 @@ public class EmbedSample : NativeControlHost
 
     protected override void DestroyNativeControlCore(IPlatformHandle control)
     {
-        listerPluginWrapper.CloseWindow(listerWindowHandle);
+        listerPluginWrapper?.CloseWindow(listerWindowHandle);
         base.DestroyNativeControlCore(control);
     }
 }
