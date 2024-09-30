@@ -61,12 +61,13 @@
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Plugins">
-				<StackPanel Orientation="Horizontal">
-					<Button Content="Add File" Command="{Binding AddFileCommand}"/>
-					<Button Content="Remove Selected" Command="{Binding RemoveFileCommand}"/>
-				
-				<ListBox ItemsSource="{Binding ListerPlugins}"
-						 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
+				<StackPanel Orientation="Vertical">
+					<StackPanel Orientation="Horizontal">
+						<Button Content="Add File" Command="{Binding AddFileCommand}"/>
+						<Button Content="Remove Selected" Command="{Binding RemoveFileCommand}"/>
+					</StackPanel>
+					<ListBox ItemsSource="{Binding ListerPlugins}"
+							 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
 					 />
 				</StackPanel>
 			</TabItem>

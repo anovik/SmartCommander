@@ -73,6 +73,7 @@ namespace SmartCommander.ViewModels
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
             var lang = AvailableCultures.First(x => x.Name == Model.Language);
             SelectedCulture = lang ?? AvailableCultures.First();
+            ListerPlugins = new ObservableCollection<string>();
             ListerPlugins.AddRange(Model.ListerPlugins);
             AddFileCommand = ReactiveCommand.Create<Window>(AddFileAsync);
             RemoveFileCommand = ReactiveCommand.Create<Window>(RemoveFile);
@@ -121,7 +122,7 @@ namespace SmartCommander.ViewModels
 
             if (files?.Result.Count >= 1)
             {
-                //hie
+                ListerPlugins.Add(files.Result.FirstOrDefault().Name);
             }
 
         }
