@@ -143,6 +143,7 @@ namespace SmartCommander.ViewModels
             Model.IsDarkThemeEnabled = IsDarkThemeEnabled;
             Model.Language = SelectedCulture.Name;
             Model.AllowOnlyOneInstance = AllowOnlyOneInstance;
+            Model.ListerPlugins = ListerPlugins.ToList();
 
             Model.Save();
             window?.Close(this);
