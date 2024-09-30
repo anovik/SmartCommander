@@ -11,9 +11,14 @@
     <Version>0.1.0</Version>
 	  <Authors>Anna Novikova</Authors>
 	  <ApplicationIcon>Assets\main.ico</ApplicationIcon>
+	<ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaXaml Remove="TcPlugins\ListerAppNetCore\**" />
+    <Compile Remove="TcPlugins\ListerAppNetCore\**" />
+    <EmbeddedResource Remove="TcPlugins\ListerAppNetCore\**" />
+    <None Remove="TcPlugins\ListerAppNetCore\**" />
     <AvaloniaResource Remove="Assets\Resources.resx" />
     <AvaloniaResource Remove="Assets\Resources.ru-RU.resx" />
     <None Remove=".gitignore" />
@@ -60,5 +65,10 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="app.manifest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

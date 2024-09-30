@@ -252,14 +252,14 @@ namespace SmartCommander.ViewModels
         }
 
         public void DoubleTapped(object sender, object parameter)
-        {          
+        {
             var args = parameter as TappedEventArgs;
             if (args != null)
             {
-                var source = args.Source as Control;            
-                if (source != null && 
+                var source = args.Source as Control;
+                if (source != null &&
                     (source.TemplatedParent is DataGridCell || source.Parent is DataGridCell))
-                {                     
+                {
                     ProcessCurrentItem();
                 }
             }
@@ -288,7 +288,7 @@ namespace SmartCommander.ViewModels
 
         public void View()
         {
-            _= View(null);
+            _ = View(null);
         }
 
         public async Task View(Action<ButtonResult, object?>? resultAction)
@@ -297,7 +297,7 @@ namespace SmartCommander.ViewModels
                 return;
             if (!CurrentItem.IsFolder)
             {
-                if (Convert.ToUInt64(CurrentItem.Size) > 128*1024*1024)
+                if (Convert.ToUInt64(CurrentItem.Size) > 128 * 1024 * 1024)
                 {
                     MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
                     return;
@@ -355,7 +355,7 @@ namespace SmartCommander.ViewModels
             process.StartInfo.Arguments = $"-e {program} \"{argument}\""; // Specify the command to run in the new terminal window
             process.StartInfo.UseShellExecute = false; // Required to use the terminal emulator
             process.Start();
-        }      
+        }
 
         public void Delete(FileViewModel? item)
         {
@@ -367,7 +367,7 @@ namespace SmartCommander.ViewModels
                 }
                 if (item.IsFolder)
                 {
-                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                    
+                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
                 }
                 else
                 {
@@ -377,7 +377,7 @@ namespace SmartCommander.ViewModels
             catch
             {
             }
-        }      
+        }
 
         public void CreateNewFolder(string name)
         {
@@ -391,7 +391,7 @@ namespace SmartCommander.ViewModels
         }
 
         public void ProcessCurrentItem(bool goToParent = false)
-        {       
+        {
             if (CurrentItem == null)
             {
                 return;
@@ -406,7 +406,9 @@ namespace SmartCommander.ViewModels
 
                 var prevFolder = Path.GetFileName(CurrentDirectory);
                 CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
-                CurrentItem = FoldersFilesList.First(f => f.Name == prevFolder);
+                CurrentItem = FoldersFilesList.FirstOrDefault(f => f.Name == prevFolder);
+                if (CurrentItem == null)
+                    CurrentItem = FoldersFilesList[0];
                 return;
             }
 
@@ -416,7 +418,9 @@ namespace SmartCommander.ViewModels
                 {
                     var prevFolder = Path.GetFileName(CurrentDirectory);
                     CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
-                    CurrentItem= FoldersFilesList.First(f => f.Name == prevFolder);
+                    CurrentItem = FoldersFilesList.FirstOrDefault(f => f.Name == prevFolder);
+                    if (CurrentItem == null)
+                        CurrentItem = FoldersFilesList[0];
                 }
                 else
                 {
@@ -510,7 +514,7 @@ namespace SmartCommander.ViewModels
                 {
                     foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
                     filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
-                }            
+                }
             }
             else if (Sorting == SortingBy.SortingBySize)
             {
@@ -523,7 +527,7 @@ namespace SmartCommander.ViewModels
                 {
                     foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
                     filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
-                }                
+                }
             }
             else if (Sorting == SortingBy.SortingByDate)
             {
@@ -536,7 +540,7 @@ namespace SmartCommander.ViewModels
                 {
                     foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
                     filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
-                }                
+                }
             }
 
             foreach (var folder in foldersList)
@@ -558,33 +562,33 @@ namespace SmartCommander.ViewModels
 
         public void NavigateToFileItem(string resultFilename)
         {
-                var parent=Directory.GetParent(resultFilename);
-                CurrentDirectory = parent!.FullName;
-                CurrentItem= FoldersFilesList.First(f => f.FullName == resultFilename);
-                RequestScroll(CurrentItem, null);
+            var parent = Directory.GetParent(resultFilename);
+            CurrentDirectory = parent!.FullName;
+            CurrentItem = FoldersFilesList.First(f => f.FullName == resultFilename);
+            RequestScroll(CurrentItem, null);
         }
 
         string? _selectedDrive;
         string? SelectedDrive
         {
             get { return _selectedDrive; }
-            set 
-            {           
+            set
+            {
                 if (!Directory.Exists(value))
                 {
-                    MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok); 
+                    MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok);
                     return;
                 }
 
                 FileInfo f = new FileInfo(CurrentDirectory);
                 var driveFromDirectory = Path.GetPathRoot(f.FullName);
 
-                _selectedDrive = value; 
+                _selectedDrive = value;
                 if (_selectedDrive != driveFromDirectory)
                 {
                     CurrentDirectory = _selectedDrive;
                 }
-                this.RaisePropertyChanged(nameof(SelectedDrive)); 
+                this.RaisePropertyChanged(nameof(SelectedDrive));
             }
         }
     }

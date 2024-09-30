@@ -11,10 +11,12 @@
 		xmlns:behaviors="clr-namespace:SmartCommander.Behaviors;assembly=SmartCommander"
         x:Class="SmartCommander.ViewerWindow"
         Title="SmartCommander Viewer">
-	<AvaloniaEdit:TextEditor IsReadOnly="True"						 
+	<Grid x:Name="GridPanel">
+		<AvaloniaEdit:TextEditor IsReadOnly="True"
                            FontFamily="Cascadia Code,Consolas,Menlo,Monospace">
-		<i:Interaction.Behaviors>
-			<behaviors:DocumentTextBindingBehavior Text="{Binding Text, Mode=TwoWay}"/>
-		</i:Interaction.Behaviors>
-	</AvaloniaEdit:TextEditor>
+			<i:Interaction.Behaviors>
+				<behaviors:DocumentTextBindingBehavior Text="{Binding Text, Mode=TwoWay}"/>
+			</i:Interaction.Behaviors>
+		</AvaloniaEdit:TextEditor>
+	</Grid>
 </Window>
