@@ -67,6 +67,7 @@
 							<StackPanel Orientation="Horizontal">
 								<Button Content="Add" Command="{Binding AddFileCommand}"/>
 								<Button Content="Remove" Command="{Binding RemoveFileCommand}"/>
+								<Label Content="* supported only 64bit extensions"/>
 							</StackPanel>
 							<ListBox ItemsSource="{Binding ListerPlugins}"
 									 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"/>
