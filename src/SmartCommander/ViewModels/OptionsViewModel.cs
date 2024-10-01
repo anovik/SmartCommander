@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using AvaloniaEdit.Utils;
 using ReactiveUI;
@@ -10,12 +9,9 @@ using SmartCommander.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
-using System.IO.Enumeration;
 using System.Linq;
 using System.Reactive;
 using System.Resources;
-using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
 {
