@@ -127,7 +127,9 @@ namespace SmartCommander.ViewModels
             if (files?.Count >= 1)
             {
                 var filename = files.First().Path.LocalPath;
-                ListerPlugins.Add(filename);
+
+                if (ListerPlugins.IndexOf(filename)==-1)
+                    ListerPlugins.Add(filename);
             }
         }
 
