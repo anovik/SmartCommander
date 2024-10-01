@@ -49,7 +49,7 @@
 			</ListBox>
 		</ScrollViewer>
 
-		<Border Grid.Row="2" Background="Azure" Padding="0" HorizontalAlignment="Stretch">
+		<Border Grid.Row="2" Padding="0" HorizontalAlignment="Stretch">
 			<TextBlock  Text="{Binding StatusFolder, Mode=OneWay}" VerticalAlignment="Center"/>
 		</Border>
 	</Grid>

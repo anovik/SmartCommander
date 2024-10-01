@@ -61,18 +61,21 @@
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Plugins">
-				<StackPanel Orientation="Vertical">
-					<StackPanel Orientation="Horizontal">
-						<Button Content="Add" Command="{Binding AddFileCommand}"/>
-						<Button Content="Remove" Command="{Binding RemoveFileCommand}"/>
-					</StackPanel>
-					<ListBox ItemsSource="{Binding ListerPlugins}"
-							 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
-					 />
-				</StackPanel>
+				<TabControl>
+					<TabItem Header="Lister (WLX)">
+						<StackPanel Orientation="Vertical">
+							<StackPanel Orientation="Horizontal">
+								<Button Content="Add" Command="{Binding AddFileCommand}"/>
+								<Button Content="Remove" Command="{Binding RemoveFileCommand}"/>
+							</StackPanel>
+							<ListBox ItemsSource="{Binding ListerPlugins}"
+									 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"/>
+						</StackPanel>
+					</TabItem>
+				</TabControl>
 			</TabItem>
 		</TabControl>
-		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}"
 					Content="{x:Static assets:Resources.Save}"></Button>
 			<Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}"
