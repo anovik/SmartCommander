@@ -69,11 +69,19 @@ public class EmbedSample : NativeControlHost
         {
             listerPluginWrapper?.Dispose();
 
-            listerPluginWrapper = PluginManager.CreateListerWrapper(ListerFileName);
-            listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
+            try
+            {
+                listerPluginWrapper = PluginManager.CreateListerWrapper(ListerFileName);
+                listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
 
-            if (listerWindowHandle != IntPtr.Zero)
-                return;
+                if (listerWindowHandle != IntPtr.Zero)
+                    return;
+            }
+            catch (BadImageFormatException ex)
+            {
+                Console.WriteLine($"we cannot load 32bit libraries: {ex.Message}");
+            }
+
         }
     }
 
