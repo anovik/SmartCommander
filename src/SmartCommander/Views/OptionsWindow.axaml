@@ -2,70 +2,85 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="350"
-        Width="600" Height="350"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+        Width="600" Height="400"
         x:Class="SmartCommander.Views.OptionsWindow"
         ShowInTaskbar="False"
         Icon="/Assets/main.ico"
-		WindowStartupLocation="CenterOwner"      
+		WindowStartupLocation="CenterOwner"
 		xmlns:assets="clr-namespace:SmartCommander.Assets"
         Title="{x:Static assets:Resources.Options}">
-	
+
 	<Window.Resources>
 		<DataTemplate x:Key="CultureInfoTemplate">
 			<TextBlock Text="{Binding DisplayName}" />
 		</DataTemplate>
 	</Window.Resources>
-	
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="*"></RowDefinition>
-      <RowDefinition Height="Auto"></RowDefinition>
-    </Grid.RowDefinitions>
-    <TabControl>
-      <TabItem Header="Window">
-        <StackPanel>
-          <CheckBox IsChecked="{Binding IsCurrentDirectoryDisplayed}"  
-					Content="{x:Static assets:Resources.DisplayCurrentDirectory}"></CheckBox>
-          <CheckBox IsChecked="{Binding IsFunctionKeysDisplayed}" 
-					Content="{x:Static assets:Resources.DisplayFunctionKeys}"></CheckBox>
-          <CheckBox IsChecked="{Binding IsCommandLineDisplayed}"
-					Content="{x:Static assets:Resources.DisplayCommandLine}"></CheckBox>
-          <CheckBox IsChecked="{Binding SaveWindowPositionSize}"
-					Content="{x:Static assets:Resources.SaveWindowPositionSize}"></CheckBox>
-		  <CheckBox IsChecked="{Binding AllowOnlyOneInstance}"
-					Content="{x:Static assets:Resources.AllowOnlyOneInstance}"></CheckBox>
-          <RadioButton IsChecked="{Binding !IsDarkThemeEnabled}"
-					Content="{x:Static assets:Resources.LightTheme}"></RadioButton>
-          <RadioButton IsChecked="{Binding IsDarkThemeEnabled}"
-					Content="{x:Static assets:Resources.DarkTheme}"></RadioButton>
-        </StackPanel>
-      </TabItem>
-      <TabItem Header="Operation">
-        <StackPanel>
-          <CheckBox IsChecked="{Binding IsHiddenSystemFilesDisplayed}"
-					Content="{x:Static assets:Resources.ShowHiddenFiles}"></CheckBox>
-          <CheckBox IsChecked="{Binding SaveSettingsOnExit}"
-					Content="{x:Static assets:Resources.SaveSettingsOnExit}"></CheckBox>
-          <CheckBox IsChecked="{Binding ConfirmationWhenDeleteNonEmpty}"
-					Content="{x:Static assets:Resources.ShowNonEmptyConfirmation}"></CheckBox>
-        </StackPanel>
-      </TabItem>
-		<TabItem Header="Language">
-			<StackPanel>
-				<ListBox ItemsSource="{Binding AvailableCultures}"
-                         ItemTemplate="{StaticResource CultureInfoTemplate}"
-						 SelectedItem="{Binding SelectedCulture, Mode=TwoWay}"
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+		</Grid.RowDefinitions>
+		<TabControl TabStripPlacement="Left">
+			<TabItem Header="Window">
+				<StackPanel>
+					<CheckBox IsChecked="{Binding IsCurrentDirectoryDisplayed}"
+							  Content="{x:Static assets:Resources.DisplayCurrentDirectory}"></CheckBox>
+					<CheckBox IsChecked="{Binding IsFunctionKeysDisplayed}"
+							  Content="{x:Static assets:Resources.DisplayFunctionKeys}"></CheckBox>
+					<CheckBox IsChecked="{Binding IsCommandLineDisplayed}"
+							  Content="{x:Static assets:Resources.DisplayCommandLine}"></CheckBox>
+					<CheckBox IsChecked="{Binding SaveWindowPositionSize}"
+							  Content="{x:Static assets:Resources.SaveWindowPositionSize}"></CheckBox>
+					<CheckBox IsChecked="{Binding AllowOnlyOneInstance}"
+							  Content="{x:Static assets:Resources.AllowOnlyOneInstance}"></CheckBox>
+					<RadioButton IsChecked="{Binding !IsDarkThemeEnabled}"
+							  Content="{x:Static assets:Resources.LightTheme}"></RadioButton>
+					<RadioButton IsChecked="{Binding IsDarkThemeEnabled}"
+							  Content="{x:Static assets:Resources.DarkTheme}"></RadioButton>
+				</StackPanel>
+			</TabItem>
+			<TabItem Header="Operation">
+				<StackPanel>
+					<CheckBox IsChecked="{Binding IsHiddenSystemFilesDisplayed}"
+							  Content="{x:Static assets:Resources.ShowHiddenFiles}"></CheckBox>
+					<CheckBox IsChecked="{Binding SaveSettingsOnExit}"
+							  Content="{x:Static assets:Resources.SaveSettingsOnExit}"></CheckBox>
+					<CheckBox IsChecked="{Binding ConfirmationWhenDeleteNonEmpty}"
+							  Content="{x:Static assets:Resources.ShowNonEmptyConfirmation}"></CheckBox>
+				</StackPanel>
+			</TabItem>
+			<TabItem Header="Language">
+				<StackPanel>
+					<Label Content="{x:Static assets:Resources.Reboot}"/>
+					<ListBox ItemsSource="{Binding AvailableCultures}"
+							 ItemTemplate="{StaticResource CultureInfoTemplate}"
+							 SelectedItem="{Binding SelectedCulture, Mode=TwoWay}"
 						  />
-				<Label Content="{x:Static assets:Resources.Reboot}"/>
-			</StackPanel>
-		</TabItem>
-    </TabControl>
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}"
-			  Content="{x:Static assets:Resources.Save}"></Button>
-      <Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}" 
-			  Content="{x:Static assets:Resources.Cancel}"></Button>
-    </StackPanel>
-  </Grid>
+				</StackPanel>
+			</TabItem>
+			<TabItem Header="Plugins">
+				<TabControl>
+					<TabItem Header="Lister (WLX)">
+						<StackPanel Orientation="Vertical">
+							<StackPanel Orientation="Horizontal">
+								<Button Content="Add" Command="{Binding AddFileCommand}"/>
+								<Button Content="Remove" Command="{Binding RemoveFileCommand}"/>
+								<Label Content="* supported only 64bit extensions"/>
+							</StackPanel>
+							<ListBox ItemsSource="{Binding ListerPlugins}"
+									 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"/>
+						</StackPanel>
+					</TabItem>
+				</TabControl>
+			</TabItem>
+		</TabControl>
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+			<Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}" IsDefault="True"
+					Content="{x:Static assets:Resources.Save}"></Button>
+			<Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}" IsCancel="True"
+					Content="{x:Static assets:Resources.Cancel}"></Button>
+		</StackPanel>
+	</Grid>
 </Window>

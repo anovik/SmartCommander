@@ -4,11 +4,9 @@ namespace SmartCommander.Plugins;
 
 public static class PluginManager
 {
-    public static ListerPluginWrapper CreateListerWrapper()
+    public static ListerPluginWrapper CreateListerWrapper(string Filename)
     {
-        //string pluginPath = "C:\\totalcmd\\plugins\\CodeViewer\\CodeViewer.wlx64";
-        string pluginPath = "C:\\totalcmd\\plugins\\wlx\\CodeViewer\\CodeViewer.wlx64";
-        return new ListerPluginWrapper(pluginPath);
+        return new ListerPluginWrapper(Filename);
     }
 
     public static IntPtr CreateListerWindow(this ListerPluginWrapper listerWrapper, IntPtr parentWindowHandle, string fileToLoad)

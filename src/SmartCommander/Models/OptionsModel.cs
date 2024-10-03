@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using static System.Environment;
 
@@ -56,5 +58,6 @@ namespace SmartCommander.Models
         public bool AllowOnlyOneInstance { get; set; } = true;
         public string Language { get; set; } = "en-US";
 
+        public List<string> ListerPlugins { get; set; }= new List<string>();
     }
 }
