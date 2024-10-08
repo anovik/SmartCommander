@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
+using Serilog;
 using SmartCommander.Models;
 using System;
 using System.Diagnostics;
@@ -35,6 +36,14 @@ namespace SmartCommander
                     }
             }
             else {
+                Log.Logger = new LoggerConfiguration()
+                   .MinimumLevel.Debug()
+#if DEBUG
+                   .WriteTo.Console()
+#endif
+                   .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                   .CreateLogger();                
+
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }
 

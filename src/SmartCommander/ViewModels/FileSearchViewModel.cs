@@ -1,5 +1,6 @@
 ﻿using Avalonia.Threading;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.Extensions;
 using SmartCommander.ViewModels;
 using System;
@@ -74,19 +75,18 @@ public class FileSearchViewModel : ViewModelBase
                 cancellationToken.ThrowIfCancellationRequested();
                 await SearchAsync(subDir, searchPattern, cancellationToken);
             }
-        }
-        // TODO: add logging
-        /*
-        catch (OperationCanceledException)
+        }     
+        catch (OperationCanceledException e)
         {
+            Log.Error("OperationCanceledException: " + e.Message);
         }
         catch (UnauthorizedAccessException e)
         {
-        }
-        */
-        catch (Exception)
+            Log.Error("UnauthorizedAccessException: " + e.Message);
+        }        
+        catch (Exception e)
         {
-
+            Log.Error("Exception: " + e.Message);
         }
         
         return true;
