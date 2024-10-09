@@ -15,7 +15,6 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -37,8 +36,7 @@ namespace SmartCommander.ViewModels
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
-        private bool _ascending = true;
-        public event EventHandler? FocusChanged;
+        private bool _ascending = true;        
 
         public string CurrentDirectory
         {
@@ -96,12 +94,7 @@ namespace SmartCommander.ViewModels
             set
             {
                 _isSelected = value;
-                this.RaisePropertyChanged(nameof(GridBorderBrush));
-
-                if (value)
-                {
-                    FocusChanged?.Invoke(this, EventArgs.Empty);
-                }
+                this.RaisePropertyChanged(nameof(GridBorderBrush));            
             }
         }
 
@@ -124,7 +117,7 @@ namespace SmartCommander.ViewModels
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
         }
 
-        public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler)
+        public FilesPaneViewModel(MainWindowViewModel mainVM)
         {
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
@@ -132,8 +125,7 @@ namespace SmartCommander.ViewModels
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
-            _mainVM = mainVM;
-            FocusChanged += focusHandler;
+            _mainVM = mainVM;            
         }
 
         public event Action<object, object>? ScrollToItemRequested;
@@ -151,12 +143,12 @@ namespace SmartCommander.ViewModels
 
         public void CellPointerPressed(object sender, object parameter)
         {
-            _mainVM.SelectedPane = this;
+            IsSelected = true;            
         }
 
         public void SortingStarted(object sender, object parameter)
         {
-            _mainVM.SelectedPane = this;
+            IsSelected = true;
 
             DataGridColumnEventArgs? args = parameter as DataGridColumnEventArgs;
             if (args != null)
@@ -248,7 +240,7 @@ namespace SmartCommander.ViewModels
 
         public void Tapped(object sender, object parameter)
         {
-            _mainVM.SelectedPane = this;
+            IsSelected = true;
         }
 
         public void DoubleTapped(object sender, object parameter)

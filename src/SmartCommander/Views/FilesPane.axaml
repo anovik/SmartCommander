@@ -42,8 +42,7 @@
     </Grid>	
 	    <DataGrid Name="PaneDataGrid" Loaded="OnLoaded"
 				  IsFocused="{Binding IsSelected, Mode=OneWayToSource}"
-          
-				  Margin="5" Grid.Row="1" IsTabStop="True"				
+          		  Margin="5" Grid.Row="1" IsTabStop="True"				
 				  ItemsSource="{Binding FoldersFilesList}" 
 				  AutoGenerateColumns="False"
 				  CanUserResizeColumns="True" 

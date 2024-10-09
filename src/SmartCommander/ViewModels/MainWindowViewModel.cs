@@ -2,6 +2,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
@@ -43,9 +44,9 @@ namespace SmartCommander.ViewModels
 
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
-            LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
-            RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
-            SelectedPane = RightFileViewModel;
+            LeftFileViewModel = new FilesPaneViewModel(this);
+            RightFileViewModel = new FilesPaneViewModel(this);
+            LeftFileViewModel.IsSelected = true;
 
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
             {
@@ -66,15 +67,7 @@ namespace SmartCommander.ViewModels
             var culture = new CultureInfo(cultureName);
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
-        }
-
-        private void OnFocusChanged(object? sender, EventArgs e)
-        {
-            if (sender is FilesPaneViewModel)
-            {
-                SelectedPane = (FilesPaneViewModel)sender;
-            }
-        }
+        }   
 
         public ReactiveCommand<Unit, Unit> ExitCommand { get; }
 
@@ -186,7 +179,26 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public FilesPaneViewModel SelectedPane { get; set; }
+        public FilesPaneViewModel SelectedPane
+        {
+            get
+            {
+                if (LeftFileViewModel.IsSelected)
+                {
+                    return LeftFileViewModel;
+                }
+                else if (RightFileViewModel.IsSelected)
+                {
+                    return RightFileViewModel;
+                }
+                else
+                {
+                    Log.Error("No pane is selected");
+                }
+                return LeftFileViewModel;
+            }
+        }
+
 
         public void Execute()
         {
