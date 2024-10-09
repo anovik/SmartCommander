@@ -42,7 +42,7 @@ namespace SmartCommander.Views
             {
                 var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
-                var result = await messageBoxWindow.ShowAsPopupAsync(owner);
+                var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
                 resultAction?.Invoke(result, parameter);
             });
         }
@@ -64,7 +64,7 @@ namespace SmartCommander.Views
                     },
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 });
-                var result = await messageBoxWindow.ShowAsPopupAsync(owner);
+                var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
                 resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
             });
         }
