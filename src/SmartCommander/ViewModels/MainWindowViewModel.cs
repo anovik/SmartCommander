@@ -461,7 +461,7 @@ namespace SmartCommander.ViewModels
                string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             var copy = new CopyMoveViewModel(false, text, SecondPane.CurrentDirectory);
             var result = await ShowCopyDialog.Handle(copy);
-            if (result != null)
+            if (result != null && result.IsCopying)
             {        
                 var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
 
