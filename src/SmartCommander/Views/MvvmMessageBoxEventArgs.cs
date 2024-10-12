@@ -59,8 +59,8 @@ namespace SmartCommander.Views
                     MinWidth = 300,
                     InputParams = new InputParams() { },
                     ButtonDefinitions = new[] {
-                        new ButtonDefinition {Name = Resources.OK},
-                        new ButtonDefinition {Name = Resources.Cancel, IsCancel = true, IsDefault = true}
+                        new ButtonDefinition {Name = Resources.OK, IsDefault = true},
+                        new ButtonDefinition {Name = Resources.Cancel, IsCancel = true}
                     },
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 });

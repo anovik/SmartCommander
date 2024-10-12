@@ -19,11 +19,11 @@ namespace SmartCommander.ViewModels
 
         public bool IsCopying { get; set; }
 
-        public string Text { get;set;}
+        public string Text { get; set; }
 
         public string Directory { get; set; }
 
-        public string CopyText => IsCopying? string.Format(Resources.CopyTo, Text) :
+        public string CopyText => IsCopying ? string.Format(Resources.CopyTo, Text) :
             string.Format(Resources.MoveTo, Text);
 
         public ReactiveCommand<Window, Unit> OKCommand { get; }
@@ -31,11 +31,13 @@ namespace SmartCommander.ViewModels
 
         public void SaveClose(Window window)
         {
+            IsCopying = true;
             window?.Close(this);
         }
 
         public void Close(Window window)
         {
+            IsCopying = false;
             window?.Close(this);
         }
     }
