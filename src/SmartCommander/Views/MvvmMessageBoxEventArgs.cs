@@ -42,7 +42,7 @@ namespace SmartCommander.Views
             {
                 var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                 .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
-                var result = await messageBoxWindow.ShowAsPopupAsync(owner);
+                var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
                 resultAction?.Invoke(result, parameter);
             });
         }
@@ -59,12 +59,12 @@ namespace SmartCommander.Views
                     MinWidth = 300,
                     InputParams = new InputParams() { },
                     ButtonDefinitions = new[] {
-                        new ButtonDefinition {Name = Resources.OK},
-                        new ButtonDefinition {Name = Resources.Cancel, IsCancel = true, IsDefault = true}
+                        new ButtonDefinition {Name = Resources.OK, IsDefault = true},
+                        new ButtonDefinition {Name = Resources.Cancel, IsCancel = true}
                     },
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 });
-                var result = await messageBoxWindow.ShowAsPopupAsync(owner);
+                var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
                 resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
             });
         }

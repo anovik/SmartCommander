@@ -11,19 +11,19 @@
         Icon="/Assets/main.ico"
 		CanResize="False"
         Title="SmartCommander">
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"></RowDefinition>
-      <RowDefinition Height="Auto"></RowDefinition>
-      <RowDefinition Height="Auto"></RowDefinition>
-    </Grid.RowDefinitions>
-    <TextBlock Margin="10" Text="{Binding CopyText}" TextWrapping="Wrap"></TextBlock>
-    <TextBlock Margin="10"  Grid.Row="1" Text="{Binding Directory}"></TextBlock>
-    <StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button Margin="5" Command="{Binding OKCommand}"  CommandParameter="{Binding $parent[Window]}" 
-			  Content="{x:Static assets:Resources.OK}"></Button>
-      <Button Margin="5" Command="{Binding CancelCommand}"  CommandParameter="{Binding $parent[Window]}"
-			   Content="{x:Static assets:Resources.Cancel}"></Button>
-    </StackPanel>
-  </Grid>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+		</Grid.RowDefinitions>
+		<TextBlock Margin="10" Text="{Binding CopyText}" TextWrapping="Wrap"></TextBlock>
+		<TextBlock Margin="10"  Grid.Row="1" Text="{Binding Directory}"></TextBlock>
+		<StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+			<Button Margin="5" Command="{Binding OKCommand}"  CommandParameter="{Binding $parent[Window]}"
+					Content="{x:Static assets:Resources.OK}" IsDefault="True"></Button>
+			<Button Margin="5" Command="{Binding CancelCommand}"  CommandParameter="{Binding $parent[Window]}"
+					 Content="{x:Static assets:Resources.Cancel}" IsCancel="True"></Button>
+		</StackPanel>
+	</Grid>
 </Window>
