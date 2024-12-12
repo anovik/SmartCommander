@@ -1,0 +1,327 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Alert" xml:space="preserve">
+    <value>Упозорење</value>
+  </data>
+  <data name="ArchiveExists" xml:space="preserve">
+    <value>Архива {0} већ постоји.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Откажи</value>
+  </data>
+  <data name="CantCopyFileToItself" xml:space="preserve">
+    <value>Не можете да копираjте датотеке у исту фасциклу</value>
+  </data>
+  <data name="CantEditFolder" xml:space="preserve">
+    <value>Не можете да уређиваjте фасциклу</value>
+  </data>
+  <data name="CantMoveFileToItself" xml:space="preserve">
+    <value>Не можете да преместите датотеке у исту фасциклу</value>
+  </data>
+  <data name="CantMoveFolderHere" xml:space="preserve">
+    <value>Овде не можете да преместите фасциклу</value>
+  </data>
+  <data name="CantMoveFolderToItself" xml:space="preserve">
+    <value>Не можете да премјестите фасциклу овде</value>
+  </data>
+  <data name="CantViewFolder" xml:space="preserve">
+    <value>Не можете да прегледаjте фасциклу</value>
+  </data>
+  <data name="CopyTo" xml:space="preserve">
+    <value>Копираj {0} у:</value>
+  </data>
+  <data name="CreateNewFolder" xml:space="preserve">
+    <value>Креирај нову фасциклу</value>
+  </data>
+  <data name="CurrentDirectoryName" xml:space="preserve">
+    <value>Назив тренутног директоријума</value>
+  </data>
+  <data name="CurrentDirInfo" xml:space="preserve">
+    <value>Датотеке: {0}, фасцикле: {1}.</value>
+  </data>
+  <data name="DarkTheme" xml:space="preserve">
+    <value>Тамна тема</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Датум</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value>Да ли сте сигурни да желите да обришете {0}?</value>
+  </data>
+  <data name="DeleteConfirmationNonEmpty" xml:space="preserve">
+    <value>Фасцикла није празна. Да ли сте сигурни да желите да избришете {0}?</value>
+  </data>
+  <data name="DisplayCommandLine" xml:space="preserve">
+    <value>Прикажи командну линију</value>
+  </data>
+  <data name="DisplayCurrentDirectory" xml:space="preserve">
+    <value>Прикажи тренутну фасциклу</value>
+  </data>
+  <data name="DisplayFunctionKeys" xml:space="preserve">
+    <value>Прикажи функционалне типке</value>
+  </data>
+  <data name="DriveNotAvailable" xml:space="preserve">
+    <value>Диск није доступан</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Уреди</value>
+  </data>
+  <data name="ErrorNoPane" xml:space="preserve">
+    <value>Грешка: ниједан панел није одабран</value>
+  </data>
+  <data name="Extension" xml:space="preserve">
+    <value>Екстензија</value>
+  </data>
+  <data name="F3View" xml:space="preserve">
+    <value>F3 Прегледај</value>
+  </data>
+  <data name="F4Edit" xml:space="preserve">
+    <value>F4 Уреди</value>
+  </data>
+  <data name="F5Copy" xml:space="preserve">
+    <value>F5 Копирај</value>
+  </data>
+  <data name="F6Move" xml:space="preserve">
+    <value>F6 Премјести</value>
+  </data>
+  <data name="F7CreateNewFolder" xml:space="preserve">
+    <value>F7 Креирај фасциклу</value>
+  </data>
+  <data name="F8Delete" xml:space="preserve">
+    <value>F8 Обриши</value>
+  </data>
+  <data name="FileExistsRewrite" xml:space="preserve">
+    <value>Датотека већ постоји. Да ли сте сигурни да желите да препишете {0}?</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Фасцикла</value>
+  </data>
+  <data name="FolderExists" xml:space="preserve">
+    <value>Фасцикла већ постоји</value>
+  </data>
+  <data name="ItemsNumber" xml:space="preserve">
+    <value>{0} елемената</value>
+  </data>
+  <data name="LightTheme" xml:space="preserve">
+    <value>Светла тема</value>
+  </data>
+  <data name="MenuConfiguration" xml:space="preserve">
+    <value>_Конфигурација</value>
+  </data>
+  <data name="MenuExit" xml:space="preserve">
+    <value>_Излаз</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>_Датотека</value>
+  </data>
+  <data name="MenuOptions" xml:space="preserve">
+    <value>_Опције</value>
+  </data>
+  <data name="MenuSortByDate" xml:space="preserve">
+    <value>Сортирај по _датуму</value>
+  </data>
+  <data name="MenuSortByExtension" xml:space="preserve">
+    <value>Сортирај по _екстензији</value>
+  </data>
+  <data name="MenuSortByName" xml:space="preserve">
+    <value>Сортираj по _називу датотеке</value>
+  </data>
+  <data name="MenuSortBySize" xml:space="preserve">
+    <value>Сортирај по _величини датотеке</value>
+  </data>
+  <data name="MenuView" xml:space="preserve">
+    <value>_Прегледај</value>
+  </data>
+  <data name="MoveTo" xml:space="preserve">
+    <value>Премјести {0} у:</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Назив</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Није пронађен: </value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>ОК</value>
+  </data>
+  <data name="OperationInProgress" xml:space="preserve">
+    <value>Операција у току:</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Опције</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Сачувај</value>
+  </data>
+  <data name="SaveSettingsOnExit" xml:space="preserve">
+    <value>Сачувај подешавања при изласку</value>
+  </data>
+  <data name="SaveWindowPositionSize" xml:space="preserve">
+    <value>Сачувај позицију и величину прозора апликације</value>
+  </data>
+  <data name="ShowHiddenFiles" xml:space="preserve">
+    <value>Прикажи скривене/системске датотеке</value>
+  </data>
+  <data name="ShowNonEmptyConfirmation" xml:space="preserve">
+    <value>Прикажи потврду приликом брисања директоријума који није празан</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Величина</value>
+  </data>
+  <data name="StopBackground" xml:space="preserve">
+    <value>Да ли желите да зауставите операцију у току?</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>Прегледај</value>
+  </data>
+  <data name="Zip" xml:space="preserve">
+    <value>Зип</value>
+  </data>
+  <data name="Unzip" xml:space="preserve">
+    <value>Распакуj</value>
+  </data>
+  <data name="DirectoryExists" xml:space="preserve">
+    <value>Фасцикла {0} већ постоји.</value>
+  </data>
+  <data name="TooLargeSize" xml:space="preserve">
+    <value>Величина датотеке је превелика за преглед.</value>
+  </data>
+  <data name="Reboot" xml:space="preserve">
+    <value>*Потребно је поновно покретање апликација</value>
+  </data>
+  <data name="AllowOnlyOneInstance" xml:space="preserve">
+    <value>Дозволи само једну инстанцу апликације</value>
+  </data>
+  <data name="FilesSearch" xml:space="preserve">
+    <value>Претрага датoтека</value>
+  </data>
+  <data name="StartSearch" xml:space="preserve">
+    <value>Започети претрагу</value>
+  </data>
+  <data name="CurrentFolder" xml:space="preserve">
+    <value>Тренутни директоријум</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>Назив датотеке (на пример, *.txt)</value>
+  </data>
+  <data name="MenuSearch" xml:space="preserve">
+    <value>_Тражи</value>
+  </data>
+</root>
