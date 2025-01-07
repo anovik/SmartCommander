@@ -1,6 +1,6 @@
 # SmartCommander
 
-A two-panel cross-platform open-source file manager based on Avalonia. Supports Windows and Linux.
+A two-panel cross-platform open-source file manager based on Avalonia (currently uses Avalonia version 11.0.10). Supports Windows and Linux.
 
 
 The main window on Ubuntu 22.04:
