@@ -324,4 +324,22 @@
   <data name="MenuSearch" xml:space="preserve">
     <value>_Traži</value>
   </data>
+  <data name="SearchTopDirectoryOnly" xml:space="preserve">
+    <value>Traži samo u gornjem direktorijumu</value>
+  </data>
+  <data name="SearchFileContent" xml:space="preserve">
+    <value>Traži sadržaj datoteke</value>
+  </data>
+  <data name="Header" xml:space="preserve">
+    <value>Zaglavlje</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operacija</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Jezik</value>
+  </data>
+  <data name="Plugins" xml:space="preserve">
+    <value>Dopune</value>
+  </data>
 </root>

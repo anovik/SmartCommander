@@ -11,9 +11,9 @@
         Title="{x:Static assets:Resources.FilesSearch}">
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="120"/>
+			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
-			<RowDefinition Height="25"/>
+			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
 		<Grid Grid.Row="0">
@@ -26,15 +26,22 @@
 			</Grid.RowDefinitions>
 
 			<StackPanel Margin="5">
-				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0" Text="{x:Static assets:Resources.FileName}"/>
-				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FileMask, Mode=TwoWay}"/>
-				<TextBlock Grid.Row="0" Grid.Column="0" Margin="0" Text="{x:Static assets:Resources.CurrentFolder}"/>
-				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CurrentFolder, Mode=TwoWay}"/>
+				<TextBlock Text="{x:Static assets:Resources.FileName}"/>
+				<TextBox  IsEnabled="{Binding ElementName=contentCheckBox, Path=!IsChecked}" Text="{Binding FileMask, Mode=TwoWay}"/>
+				<CheckBox Name="contentCheckBox" IsChecked="{Binding SearchContent, Mode=TwoWay}" 
+						  Content="{x:Static assets:Resources.SearchFileContent}"></CheckBox>
+				<TextBox IsEnabled="{Binding ElementName=contentCheckBox, Path=IsChecked}" Text="{Binding SearchText, Mode=TwoWay}" />
+				<TextBlock  Text="{x:Static assets:Resources.CurrentFolder}"/>
+				<TextBox Text="{Binding CurrentFolder, Mode=TwoWay}"/>
+				<CheckBox IsChecked="{Binding TopDirectoryOnly, Mode=TwoWay}" 
+						  Content="{x:Static assets:Resources.SearchTopDirectoryOnly}"></CheckBox>				
 			</StackPanel>
 			
 			<StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
-				<Button Content="{x:Static assets:Resources.StartSearch}" Command="{Binding StartSearchCommand}" IsEnabled="{Binding !IsSearching}"/>
-				<Button Content="{x:Static assets:Resources.Cancel}" Command="{Binding CancelSearchCommand}" IsEnabled="{Binding IsSearching}"/>
+				<Button Content="{x:Static assets:Resources.StartSearch}" Margin="5" 
+						Command="{Binding StartSearchCommand}" IsEnabled="{Binding !IsSearching}"/>
+				<Button Content="{x:Static assets:Resources.Cancel}" Margin="5" 
+						Command="{Binding CancelSearchCommand}" IsEnabled="{Binding IsSearching}"/>
 			</StackPanel>
 		</Grid>
 

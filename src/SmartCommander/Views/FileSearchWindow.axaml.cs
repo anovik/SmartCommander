@@ -1,13 +1,11 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 
 namespace SmartCommander;
 
 public partial class FileSearchWindow : Window
-{
+{  
     public FileSearchWindow()
     {
         InitializeComponent();

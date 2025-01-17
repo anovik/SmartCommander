@@ -23,7 +23,7 @@
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
 		<TabControl TabStripPlacement="Left">
-			<TabItem Header="Window">
+			<TabItem Header="{x:Static assets:Resources.Header}">
 				<StackPanel>
 					<CheckBox IsChecked="{Binding IsCurrentDirectoryDisplayed}"
 							  Content="{x:Static assets:Resources.DisplayCurrentDirectory}"></CheckBox>
@@ -41,7 +41,7 @@
 							  Content="{x:Static assets:Resources.DarkTheme}"></RadioButton>
 				</StackPanel>
 			</TabItem>
-			<TabItem Header="Operation">
+			<TabItem Header="{x:Static assets:Resources.Operation}">
 				<StackPanel>
 					<CheckBox IsChecked="{Binding IsHiddenSystemFilesDisplayed}"
 							  Content="{x:Static assets:Resources.ShowHiddenFiles}"></CheckBox>
@@ -51,7 +51,7 @@
 							  Content="{x:Static assets:Resources.ShowNonEmptyConfirmation}"></CheckBox>
 				</StackPanel>
 			</TabItem>
-			<TabItem Header="Language">
+			<TabItem Header="{x:Static assets:Resources.Language}">
 				<StackPanel>
 					<Label Content="{x:Static assets:Resources.Reboot}"/>
 					<ListBox ItemsSource="{Binding AvailableCultures}"
@@ -60,7 +60,7 @@
 						  />
 				</StackPanel>
 			</TabItem>
-			<TabItem Header="Plugins">
+			<TabItem Header="{x:Static assets:Resources.Plugins}">
 				<TabControl>
 					<TabItem Header="Lister (WLX)">
 						<StackPanel Orientation="Vertical">

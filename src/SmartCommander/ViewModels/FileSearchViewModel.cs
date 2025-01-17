@@ -27,6 +27,12 @@ public class FileSearchViewModel : ViewModelBase
 
     public string StatusFolder { get; set; } = "";
 
+    public bool TopDirectoryOnly { get; set; }
+
+    public bool SearchContent { get; set; }
+
+    public string SearchText { get; set; } = "";
+
     public string FileMask
     {
         get => _fileMask;
@@ -55,25 +61,48 @@ public class FileSearchViewModel : ViewModelBase
     }
 
     public async Task<bool> SearchAsync(string folderPath, string searchPattern, CancellationToken cancellationToken)
-    {
+    {      
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             _statusFolder = folderPath;
-            List<string> findedFolderAndFiles = new List<string>();
+            var findedFolderAndFiles = new List<string>();
 
-            var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
-            findedFolderAndFiles.AddRange(dirs);
-            string[] files = Directory.GetFiles(folderPath, searchPattern);
-            findedFolderAndFiles.AddRange(files);
-            SearchResults.AddRange(findedFolderAndFiles);
-
-            string[] subDirectories = Directory.GetDirectories(folderPath);
-            foreach (var subDir in subDirectories)
+            if (SearchContent)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                await SearchAsync(subDir, searchPattern, cancellationToken);
+                var files = Directory.GetFiles(folderPath, "*", SearchOption.TopDirectoryOnly);
+                foreach(var file in files)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    foreach (string line in File.ReadLines(file))
+                    {
+                        if (line.Contains(searchPattern))
+                        {
+                            SearchResults.Add(file);
+                            break;
+                        }
+                    }
+                }
+               
+            }
+            else
+            {
+                var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
+                findedFolderAndFiles.AddRange(dirs);
+                var files = Directory.GetFiles(folderPath, searchPattern);
+                findedFolderAndFiles.AddRange(files);
+                SearchResults.AddRange(findedFolderAndFiles);
+            }         
+
+            if (!TopDirectoryOnly)
+            {
+                var subDirectories = Directory.GetDirectories(folderPath);
+                foreach (var subDir in subDirectories)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await SearchAsync(subDir, searchPattern, cancellationToken);
+                }
             }
         }     
         catch (OperationCanceledException e)
@@ -101,7 +130,7 @@ public class FileSearchViewModel : ViewModelBase
         SearchResults.Clear();
         _cancellationTokenSource = new CancellationTokenSource();
         _timer = new Timer(OnTimerTick, null, 0, 500);
-        await Task.Run(() => SearchAsync(CurrentFolder, FileMask, _cancellationTokenSource.Token));
+        await Task.Run(() => SearchAsync(CurrentFolder, SearchContent ? SearchText :  FileMask, _cancellationTokenSource.Token));
 
         _statusFolder = "";
         IsSearching = false;
