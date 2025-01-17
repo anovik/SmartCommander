@@ -324,4 +324,22 @@
   <data name="MenuSearch" xml:space="preserve">
     <value>_Rechercher</value>
   </data>
+  <data name="SearchTopDirectoryOnly" xml:space="preserve">
+    <value>Rechercher dans le répertoire supérieur uniquement</value>
+  </data>
+  <data name="SearchFileContent" xml:space="preserve">
+    <value>Rechercher dans le contenu du fichier</value>
+  </data>
+  <data name="Header" xml:space="preserve">
+    <value>En-tête</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Opération</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="Plugins" xml:space="preserve">
+    <value>Plugins</value>
+  </data>
 </root>

@@ -403,11 +403,29 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Header.
+        /// </summary>
+        public static string Header {
+            get {
+                return ResourceManager.GetString("Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} items.
         /// </summary>
         public static string ItemsNumber {
             get {
                 return ResourceManager.GetString("ItemsNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string Language {
+            get {
+                return ResourceManager.GetString("Language", resourceCulture);
             }
         }
         
@@ -547,6 +565,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation.
+        /// </summary>
+        public static string Operation {
+            get {
+                return ResourceManager.GetString("Operation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation in Progress:.
         /// </summary>
         public static string OperationInProgress {
@@ -561,6 +588,15 @@ namespace SmartCommander.Assets {
         public static string Options {
             get {
                 return ResourceManager.GetString("Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plugins.
+        /// </summary>
+        public static string Plugins {
+            get {
+                return ResourceManager.GetString("Plugins", resourceCulture);
             }
         }
         
@@ -597,6 +633,24 @@ namespace SmartCommander.Assets {
         public static string SaveWindowPositionSize {
             get {
                 return ResourceManager.GetString("SaveWindowPositionSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search in file content.
+        /// </summary>
+        public static string SearchFileContent {
+            get {
+                return ResourceManager.GetString("SearchFileContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search in top directory only.
+        /// </summary>
+        public static string SearchTopDirectoryOnly {
+            get {
+                return ResourceManager.GetString("SearchTopDirectoryOnly", resourceCulture);
             }
         }
         
