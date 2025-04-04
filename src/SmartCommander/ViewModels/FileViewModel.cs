@@ -94,7 +94,7 @@ namespace SmartCommander.ViewModels
                 }
                 else
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
+                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value + "." + Extension);
                     File.Move(FullName, destination);
                 }
                 _name = value;
