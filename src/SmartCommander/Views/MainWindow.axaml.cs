@@ -15,13 +15,23 @@ namespace SmartCommander.Views
         public MainWindow() 
         {
             Opened += OnOpened;
-            InitializeComponent();           
+            InitializeComponent();
 
-            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowDialogAsync<CopyMoveViewModel, CopyMoveWindow>)));
-            this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowDialogAsync<OptionsViewModel, OptionsWindow>)));
-            this.WhenActivated(d => d(ViewModel!.LeftFileViewModel.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
-            this.WhenActivated(d => d(ViewModel!.RightFileViewModel.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
-            this.WhenActivated(d => d(ViewModel!.ShowSearchsDialog.RegisterHandler(DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>)));
+            this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(
+              interaction => DoShowDialogAsync<CopyMoveViewModel, CopyMoveWindow>(interaction)
+            )));
+            this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<OptionsViewModel, OptionsWindow>(interaction)
+            )));
+            this.WhenActivated(d => d(ViewModel!.LeftFileViewModel.ShowViewerDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<ViewerViewModel, ViewerWindow>(interaction)
+            )));
+            this.WhenActivated(d => d(ViewModel!.RightFileViewModel.ShowViewerDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<ViewerViewModel, ViewerWindow>(interaction)
+            )));
+            this.WhenActivated(d => d(ViewModel!.ShowSearchsDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>(interaction)
+            )));
 
             progressWindow = new ProgressWindow();
 
@@ -58,7 +68,8 @@ namespace SmartCommander.Views
             };
         }
 
-        private async Task DoShowDialogAsync<T1, T2>(InteractionContext<T1, T1?> interaction) where T2 : Window, new()
+        private async Task DoShowDialogAsync<T1, T2>(IInteractionContext<T1, T1?> interaction)
+            where T2 : Window, new()
         {
             var dialog = new T2();
             dialog.DataContext = interaction.Input;
@@ -66,7 +77,7 @@ namespace SmartCommander.Views
 
             var result = await dialog.ShowDialog<T1>(this);
             interaction.SetOutput(result);
-        }     
+        }
 
         private void OnOpened(object? sender, EventArgs e)
         {
