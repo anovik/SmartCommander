@@ -24,7 +24,8 @@ namespace SmartCommander.ViewModels
         {
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
-            ShowSearchsDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
+            ShowSearchDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
+            ShowFTPDialog = new Interaction<FtpViewModel, FtpViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -43,6 +44,9 @@ namespace SmartCommander.ViewModels
 
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
+            ConnectFTPCommand = ReactiveCommand.CreateFromTask(ConnectFTP);
+            DisconnectFTPCommand = ReactiveCommand.CreateFromTask(DisconnectFTP);
+
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
             RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
             SelectedPane = RightFileViewModel;
@@ -57,7 +61,7 @@ namespace SmartCommander.ViewModels
             }
             SetLanguage(); 
             SetTheme();
-            _progress = new Progress<int>(v => Progress_Show(v));
+            _progress = new Progress<int>(Progress_Show);
         }
 
         private void SetLanguage()
@@ -93,6 +97,9 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F8Command { get; }
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
 
+        public ReactiveCommand<Unit, Unit> ConnectFTPCommand { get; }
+        public ReactiveCommand<Unit, Unit> DisconnectFTPCommand { get; }
+
         public FilesPaneViewModel LeftFileViewModel { get; }
 
         public FilesPaneViewModel RightFileViewModel { get; }
@@ -121,7 +128,9 @@ namespace SmartCommander.ViewModels
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
-        public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchsDialog { get; }      
+        public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
+
+        public Interaction<FtpViewModel, FtpViewModel?> ShowFTPDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -161,7 +170,7 @@ namespace SmartCommander.ViewModels
         public async void SearchFilesDialog()
         {
             var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
-            await ShowSearchsDialog.Handle(searchModel);
+            await ShowSearchDialog.Handle(searchModel);
             searchModel.CancelSearch();
             
             if (searchModel.ResultFilename != string.Empty)
@@ -551,6 +560,21 @@ namespace SmartCommander.ViewModels
                 _progress?.Report(100);
             }
             catch { }
+        }
+
+        public async Task ConnectFTP()
+        {                    
+            var ftpModel = new FtpViewModel();
+            var result = await ShowFTPDialog.Handle(ftpModel);          
+            if (result != null)
+            {  
+                await RightFileViewModel.ConnectFTP(result.FtpName, result.IsAnonymous, result.UserName, result.Password);
+            }
+        }
+
+        public async Task DisconnectFTP()
+        {
+            await RightFileViewModel.DisconnectFTP();
         }
 
         public async Task ShowOptions()

@@ -1,8 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using FluentFTP;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
@@ -15,7 +17,6 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -26,6 +27,12 @@ namespace SmartCommander.ViewModels
         SortingByExt,
         SortingBySize,
         SortingByDate,
+    }
+
+    public enum Mode
+    {
+        FileSystem,
+        FTP    
     }
 
     public class FilesPaneViewModel : ViewModelBase
@@ -40,6 +47,9 @@ namespace SmartCommander.ViewModels
         private bool _ascending = true;
         public event EventHandler? FocusChanged;
 
+        public Mode Mode { get; private set; } = Mode.FileSystem;
+        private AsyncFtpClient? _ftpClient;
+
         public string CurrentDirectory
         {
             get => _currentDirectory;
@@ -50,6 +60,59 @@ namespace SmartCommander.ViewModels
                 this.RaisePropertyChanged(nameof(CurrentDirectory));
                 this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
             }
+        }
+
+        public async Task ConnectFTP(string? ftpName, bool anonymous, string? username, string? password)
+        {
+            try
+            {
+                // create an FTP client and specify the host, username and password
+                // (delete the credentials to use the "anonymous" account)
+                if (anonymous)
+                {
+                    username = "anonymous";
+                    password = "";
+                }
+                _ftpClient = new AsyncFtpClient(ftpName, username, password);
+
+                // connect to the server and automatically detect working FTP settings
+                await _ftpClient.AutoConnect();
+
+                // get a list of files and directories in the "/htdocs" folder
+                foreach (FtpListItem item in await _ftpClient.GetListing("/htdocs"))
+                {
+                    // if this is a file
+                    if (item.Type == FtpObjectType.File)
+                    {
+                        // get the file size
+                        long size = await _ftpClient.GetFileSize(item.FullName);
+
+                        // calculate a hash for the file on the server side (default algorithm)
+                        FtpHash hash = await _ftpClient.GetChecksum(item.FullName);
+                    }
+
+                    // get modified date/time of the file or folder
+                    DateTime time = await _ftpClient.GetModifiedTime(item.FullName);
+                    
+
+                    // TODO: add to FilesFoldersList
+                }
+                Mode = Mode.FTP;
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.Message);             
+            } 
+        }
+
+        public async Task DisconnectFTP()
+        {
+            if (_ftpClient != null && await _ftpClient.IsStillConnected())
+            {
+                await _ftpClient.Disconnect();
+            }
+            _ftpClient = null;
+            Mode = Mode.FileSystem;
         }
 
 

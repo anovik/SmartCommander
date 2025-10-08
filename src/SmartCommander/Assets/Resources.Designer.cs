@@ -403,11 +403,38 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FTP.
+        /// </summary>
+        public static string FTP {
+            get {
+                return ResourceManager.GetString("FTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FTP Name:.
+        /// </summary>
+        public static string FtpName {
+            get {
+                return ResourceManager.GetString("FtpName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Header.
         /// </summary>
         public static string Header {
             get {
                 return ResourceManager.GetString("Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anonymous user.
+        /// </summary>
+        public static string IsAnonymous {
+            get {
+                return ResourceManager.GetString("IsAnonymous", resourceCulture);
             }
         }
         
@@ -448,6 +475,24 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connect to FTP....
+        /// </summary>
+        public static string MenuConnectFTP {
+            get {
+                return ResourceManager.GetString("MenuConnectFTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnect.
+        /// </summary>
+        public static string MenuDisconnectFTP {
+            get {
+                return ResourceManager.GetString("MenuDisconnectFTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Exit.
         /// </summary>
         public static string MenuExit {
@@ -462,6 +507,15 @@ namespace SmartCommander.Assets {
         public static string MenuFile {
             get {
                 return ResourceManager.GetString("MenuFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FTP.
+        /// </summary>
+        public static string MenuFTP {
+            get {
+                return ResourceManager.GetString("MenuFTP", resourceCulture);
             }
         }
         
@@ -592,6 +646,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Password:.
+        /// </summary>
+        public static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Plugins.
         /// </summary>
         public static string Plugins {
@@ -655,6 +718,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select existing FTP:.
+        /// </summary>
+        public static string SelectExistingFTP {
+            get {
+                return ResourceManager.GetString("SelectExistingFTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show Hidden/System Files.
         /// </summary>
         public static string ShowHiddenFiles {
@@ -714,6 +786,15 @@ namespace SmartCommander.Assets {
         public static string Unzip {
             get {
                 return ResourceManager.GetString("Unzip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User name:.
+        /// </summary>
+        public static string UserName {
+            get {
+                return ResourceManager.GetString("UserName", resourceCulture);
             }
         }
         

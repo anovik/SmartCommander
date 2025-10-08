@@ -19,9 +19,10 @@ namespace SmartCommander.Views
 
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(DoShowDialogAsync<CopyMoveViewModel, CopyMoveWindow>)));
             this.WhenActivated(d => d(ViewModel!.ShowOptionsDialog.RegisterHandler(DoShowDialogAsync<OptionsViewModel, OptionsWindow>)));
+            this.WhenActivated(d => d(ViewModel!.ShowFTPDialog.RegisterHandler(DoShowDialogAsync<FtpViewModel, FTPWindow>)));
             this.WhenActivated(d => d(ViewModel!.LeftFileViewModel.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
             this.WhenActivated(d => d(ViewModel!.RightFileViewModel.ShowViewerDialog.RegisterHandler(DoShowDialogAsync<ViewerViewModel, ViewerWindow>)));
-            this.WhenActivated(d => d(ViewModel!.ShowSearchsDialog.RegisterHandler(DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>)));
+            this.WhenActivated(d => d(ViewModel!.ShowSearchDialog.RegisterHandler(DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>)));
 
             progressWindow = new ProgressWindow();
 
@@ -83,7 +84,8 @@ namespace SmartCommander.Views
                 else
                 {
                     WindowState = WindowState.Normal;                    
-                    this.Arrange(new Avalonia.Rect(OptionsModel.Instance.Left, OptionsModel.Instance.Top, OptionsModel.Instance.Width, OptionsModel.Instance.Height));
+                    this.Arrange(new Avalonia.Rect(OptionsModel.Instance.Left, OptionsModel.Instance.Top, 
+                        OptionsModel.Instance.Width, OptionsModel.Instance.Height));
                 }
             }
 

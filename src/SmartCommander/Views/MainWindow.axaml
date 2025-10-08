@@ -65,6 +65,11 @@
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortBySize}"  Command="{Binding SortSizeCommand}"></MenuItem>
 		  <MenuItem Header="{x:Static assets:Resources.MenuSortByDate}" Command="{Binding SortDateCommand}"></MenuItem>
 	  </MenuItem>
+
+		<MenuItem Header="{x:Static assets:Resources.MenuFTP}" IsTabStop="False" >
+			<MenuItem Header="{x:Static assets:Resources.MenuConnectFTP}" Command="{Binding ConnectFTPCommand}"></MenuItem>
+			<MenuItem Header="{x:Static assets:Resources.MenuDisconnectFTP}" Command="{Binding DisconnectFTPCommand}"></MenuItem>
+		</MenuItem>
 		
       <MenuItem Header="{x:Static assets:Resources.MenuConfiguration}" IsTabStop="False" >
 		  <MenuItem Header="{x:Static assets:Resources.MenuOptions}" Command="{Binding OptionsCommand}"></MenuItem>

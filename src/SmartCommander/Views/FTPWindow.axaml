@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+        Width="600" Height="400"
+        x:Class="SmartCommander.Views.FTPWindow"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+		xmlns:assets="clr-namespace:SmartCommander.Assets"
+        Icon="/Assets/main.ico"
+		CanResize="False"
+        Title="{x:Static assets:Resources.FTP}">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width ="Auto"></ColumnDefinition>
+			<ColumnDefinition Width ="*"></ColumnDefinition>
+		</Grid.ColumnDefinitions>
+		<TextBlock  Margin="10" Text="{x:Static assets:Resources.SelectExistingFTP}"></TextBlock>
+		<ComboBox Margin="10"  Grid.Row="0" Grid.Column="1"></ComboBox>
+
+		<TextBlock Margin="10" Grid.Row="1" Text="{x:Static assets:Resources.FtpName}" ></TextBlock>
+		<TextBox Margin="10"  Grid.Row="1" Grid.Column="1" Text="{Binding FtpName}"></TextBox>	
+		
+		<CheckBox Margin="10"  Grid.Row="2" Grid.Column="1" 
+				  IsChecked="{Binding IsAnonymous}"
+				  Content="{x:Static assets:Resources.IsAnonymous}"></CheckBox>
+
+		<TextBlock Margin="10" Grid.Row="3" Text="{x:Static assets:Resources.UserName}"></TextBlock>
+		<TextBox Margin="10"  Grid.Row="3" Grid.Column="1" Text="{Binding UserName}"></TextBox>
+
+
+		<TextBlock Margin="10" Grid.Row="4" Text="{x:Static assets:Resources.Password}"></TextBlock>
+		<TextBox Margin="10"  Grid.Row="4" Grid.Column="1" Text="{Binding Password}"></TextBox>
+		
+		<StackPanel Margin="10" Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+			<Button Margin="5" Command="{Binding OKCommand}"  CommandParameter="{Binding $parent[Window]}"
+					Content="{x:Static assets:Resources.OK}" IsDefault="True"></Button>
+			<Button Margin="5" Command="{Binding CancelCommand}"  CommandParameter="{Binding $parent[Window]}"
+					 Content="{x:Static assets:Resources.Cancel}" IsCancel="True"></Button>
+		</StackPanel>
+	</Grid>
+</Window>

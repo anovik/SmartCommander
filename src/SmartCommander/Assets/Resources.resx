@@ -342,4 +342,31 @@
   <data name="Plugins" xml:space="preserve">
     <value>Plugins</value>
   </data>
+  <data name="MenuFTP" xml:space="preserve">
+    <value>FTP</value>
+  </data>
+  <data name="MenuConnectFTP" xml:space="preserve">
+    <value>Connect to FTP...</value>
+  </data>
+  <data name="MenuDisconnectFTP" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="FTP" xml:space="preserve">
+    <value>FTP</value>
+  </data>
+  <data name="IsAnonymous" xml:space="preserve">
+    <value>Anonymous user</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>User name:</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="FtpName" xml:space="preserve">
+    <value>FTP Name:</value>
+  </data>
+  <data name="SelectExistingFTP" xml:space="preserve">
+    <value>Select existing FTP:</value>
+  </data>
 </root>

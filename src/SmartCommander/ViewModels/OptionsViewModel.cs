@@ -17,7 +17,6 @@ namespace SmartCommander.ViewModels
 {
     public class OptionsViewModel : ViewModelBase
     {
-
         public ObservableCollection<CultureInfo> AvailableCultures { get; }
 
         public CultureInfo SelectedCulture { get; set; }
