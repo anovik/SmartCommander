@@ -1,13 +1,15 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:vm="using:SmartCommander.ViewModels"
-			 xmlns:converter="using:SmartCommander.Converters"
-             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
-             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+             xmlns:vm="using:SmartCommander.ViewModels"
+             xmlns:converter="using:SmartCommander.Converters"
+             xmlns:i="using:Avalonia.Xaml.Interactivity"
+             xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-			 xmlns:assets="clr-namespace:SmartCommander.Assets"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             xmlns:assets="using:SmartCommander.Assets"
              x:Class="SmartCommander.Views.FilesPane">
 
 	<UserControl.Resources>
@@ -17,7 +19,7 @@
 	<Design.DataContext>
 		<vm:FilesPaneViewModel/>
 	</Design.DataContext>
-
+	
 	<i:Interaction.Behaviors>
 		<ia:EventTriggerBehavior EventName="Tapped">
 			<ia:CallMethodAction TargetObject="{Binding}" MethodName="Tapped"/>
@@ -25,31 +27,40 @@
 	</i:Interaction.Behaviors>
 
 	<Grid>
-		<Grid.RowDefinitions>			
-			<RowDefinition Height="Auto"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="Auto"></RowDefinition>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
-    <Grid Margin="5" IsVisible="{Binding IsCurrentDirectoryDisplayed}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"></ColumnDefinition>
-        <ColumnDefinition Width="Auto"></ColumnDefinition>      
-      </Grid.ColumnDefinitions>
-			<TextBox IsTabStop="False" Text="{Binding CurrentDirectory}" >      
-			</TextBox>
-      <ComboBox Grid.Column="1" IsVisible="{Binding IsWindows}" Name="driveCombo" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}" IsTabStop="False">      
-      </ComboBox>
-    </Grid>	
-	    <DataGrid Name="PaneDataGrid" Loaded="OnLoaded"
-				  IsFocused="{Binding IsSelected, Mode=OneWayToSource}"
-          
-				  Margin="5" Grid.Row="1" IsTabStop="True"				
-				  ItemsSource="{Binding FoldersFilesList}" 
-				  AutoGenerateColumns="False"
-				  CanUserResizeColumns="True" 
-				  CanUserSortColumns="True"	
-				  SelectedItem="{Binding CurrentItem, Mode=TwoWay}"
-          BorderBrush="{Binding GridBorderBrush}" BorderThickness="1">			
+
+		<Grid Margin="5" IsVisible="{Binding IsCurrentDirectoryDisplayed}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+
+			<TextBox IsTabStop="False" Text="{Binding CurrentDirectory}" />
+			<ComboBox Grid.Column="1"
+                      IsVisible="{Binding IsWindows}"
+                      Name="driveCombo"
+                      SelectedItem="{Binding SelectedDrive, Mode=TwoWay}"
+                      IsTabStop="False"/>
+		</Grid>
+
+		<DataGrid Name="PaneDataGrid"
+                  Loaded="OnLoaded"
+                  IsFocused="{Binding IsSelected, Mode=OneWayToSource}"
+                  Margin="5"
+                  Grid.Row="1"
+                  IsTabStop="True"
+                  ItemsSource="{Binding FoldersFilesList}"
+                  AutoGenerateColumns="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  SelectedItem="{Binding CurrentItem, Mode=TwoWay}"
+                  BorderBrush="{Binding GridBorderBrush}"
+                  BorderThickness="1">
+
 			<DataGrid.Styles>
 				<Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
 					<Setter Property="IsVisible" Value="False" />
@@ -61,48 +72,69 @@
 					<Setter Property="IsVisible" Value="False" />
 				</Style>
 			</DataGrid.Styles>
-        <DataGrid.ContextFlyout>
-			<MenuFlyout>
-				<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}"></MenuItem>
-				<MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}"></MenuItem>
-				<MenuItem Header="{x:Static assets:Resources.Zip}" IsVisible="{Binding !IsUnzip, Mode=TwoWay}"  Command="{Binding ZipCommand}"></MenuItem>
-				<MenuItem Header="{x:Static assets:Resources.Unzip}" IsVisible="{Binding IsUnzip, Mode=TwoWay}" Command="{Binding UnzipCommand}"></MenuItem>
-			</MenuFlyout>          
-        </DataGrid.ContextFlyout>
+
+			<DataGrid.ContextFlyout>
+				<MenuFlyout>
+					<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Zip}"
+                              IsVisible="{Binding !IsUnzip, Mode=TwoWay}"
+                              Command="{Binding ZipCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Unzip}"
+                              IsVisible="{Binding IsUnzip, Mode=TwoWay}"
+                              Command="{Binding UnzipCommand}" />
+				</MenuFlyout>
+			</DataGrid.ContextFlyout>
+
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="" Width="20" MaxWidth="20">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Image VerticalAlignment="Center" HorizontalAlignment="Center" 
-								   Source="{Binding ImageSource, Converter={StaticResource variableImage}}"
-									Width="16"/>
+							<Image VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Source="{Binding ImageSource, Converter={StaticResource variableImage}}"
+                                   Width="16" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
-				<DataGridTextColumn Width="2*" Header="{x:Static assets:Resources.Name}" Binding="{Binding Name}"></DataGridTextColumn>
-				<DataGridTextColumn Width="*" Header="{x:Static assets:Resources.Extension}" Binding="{Binding Extension}"></DataGridTextColumn>
-				<DataGridTextColumn Width="*" Header="{x:Static assets:Resources.Size}" Binding="{Binding Size}"></DataGridTextColumn>
-				<DataGridTextColumn Width="*" Header="{x:Static assets:Resources.Date}" Binding="{Binding DateCreated}"></DataGridTextColumn>
+
+				<DataGridTextColumn Width="2*"
+                                    Header="{x:Static assets:Resources.Name}"
+                                    Binding="{Binding Name}" />
+				<DataGridTextColumn Width="*"
+                                    Header="{x:Static assets:Resources.Extension}"
+                                    Binding="{Binding Extension}" />
+				<DataGridTextColumn Width="*"
+                                    Header="{x:Static assets:Resources.Size}"
+                                    Binding="{Binding Size}" />
+				<DataGridTextColumn Width="*"
+                                    Header="{x:Static assets:Resources.Date}"
+                                    Binding="{Binding DateCreated}" />
 			</DataGrid.Columns>
-			
-		  <i:Interaction.Behaviors>		
-			<ia:EventTriggerBehavior EventName="Sorting" SourceObject="{Binding #FoldersFilesList}">
-				<ia:CallMethodAction TargetObject="{Binding}" MethodName="SortingStarted"/>
-			</ia:EventTriggerBehavior>
-			<ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
-			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
-			</ia:EventTriggerBehavior>			
-			<ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
-			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
-			</ia:EventTriggerBehavior>
-		   <ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
-			  <ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
-			</ia:EventTriggerBehavior>
-			  <ia:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding #FoldersFilesList}">
-				  <ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
-			  </ia:EventTriggerBehavior>
-		  </i:Interaction.Behaviors>
-		</DataGrid>				
-		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}"></TextBlock>
+		
+			<i:Interaction.Behaviors>
+				<ia:EventTriggerBehavior EventName="Sorting" SourceObject="{Binding #FoldersFilesList}">
+					<ia:CallMethodAction TargetObject="{Binding}" MethodName="SortingStarted"/>
+				</ia:EventTriggerBehavior>
+
+				<ia:EventTriggerBehavior EventName="CellPointerPressed" SourceObject="{Binding #FoldersFilesList}">
+					<ia:CallMethodAction TargetObject="{Binding}" MethodName="CellPointerPressed"/>
+				</ia:EventTriggerBehavior>
+
+				<ia:EventTriggerBehavior EventName="DoubleTapped" SourceObject="{Binding #FoldersFilesList}">
+					<ia:CallMethodAction TargetObject="{Binding}" MethodName="DoubleTapped"/>
+				</ia:EventTriggerBehavior>
+
+				<ia:EventTriggerBehavior EventName="BeginningEdit" SourceObject="{Binding #FoldersFilesList}">
+					<ia:CallMethodAction TargetObject="{Binding}" MethodName="BeginningEdit"/>
+				</ia:EventTriggerBehavior>
+
+				<ia:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding #FoldersFilesList}">
+					<ia:CallMethodAction TargetObject="{Binding}" MethodName="SelectionChanged"/>
+				</ia:EventTriggerBehavior>
+			</i:Interaction.Behaviors>
+		</DataGrid>
+
+		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}" />
 	</Grid>
 </UserControl>
