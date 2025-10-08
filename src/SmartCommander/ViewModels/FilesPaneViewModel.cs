@@ -66,36 +66,23 @@ namespace SmartCommander.ViewModels
         {
             try
             {
-                // create an FTP client and specify the host, username and password
-                // (delete the credentials to use the "anonymous" account)
+                // create an FTP client and specify the host, username and password             
                 if (anonymous)
                 {
                     username = "anonymous";
-                    password = "";
+                    password = "anonymous";
                 }
                 _ftpClient = new AsyncFtpClient(ftpName, username, password);
 
-                // connect to the server and automatically detect working FTP settings
+                // TODO: process possible exceptions
                 await _ftpClient.AutoConnect();
 
-                // get a list of files and directories in the "/htdocs" folder
-                foreach (FtpListItem item in await _ftpClient.GetListing("/htdocs"))
-                {
-                    // if this is a file
-                    if (item.Type == FtpObjectType.File)
-                    {
-                        // get the file size
-                        long size = await _ftpClient.GetFileSize(item.FullName);
+                FoldersFilesList.Clear();
 
-                        // calculate a hash for the file on the server side (default algorithm)
-                        FtpHash hash = await _ftpClient.GetChecksum(item.FullName);
-                    }
-
-                    // get modified date/time of the file or folder
-                    DateTime time = await _ftpClient.GetModifiedTime(item.FullName);
-                    
-
-                    // TODO: add to FilesFoldersList
+                // get a list of files and directories in the root folder
+                foreach (FtpListItem item in await _ftpClient.GetListing("/"))
+                { 
+                    FoldersFilesList.Add(new FileViewModel(item.FullName, item.Type == FtpObjectType.Directory));
                 }
                 Mode = Mode.FTP;
             }
