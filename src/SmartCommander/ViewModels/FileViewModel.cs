@@ -46,7 +46,10 @@ namespace SmartCommander.ViewModels
                     _name = Path.GetFileNameWithoutExtension(fullName);
                     Extension = Path.GetExtension(fullName).TrimStart('.');
                 }
-                Size = new FileInfo(fullName).Length.ToString();
+                if (!fullName.StartsWith("/"))
+                {
+                    Size = new FileInfo(fullName).Length.ToString();
+                }               
                 DateCreated = File.GetCreationTime(fullName);
                 if (ImageExtensions.Contains(Extension.ToLower()))
                 {

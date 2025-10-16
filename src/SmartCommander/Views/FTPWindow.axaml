@@ -25,7 +25,15 @@
 			<ColumnDefinition Width ="*"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
 		<TextBlock  Margin="10" Text="{x:Static assets:Resources.SelectExistingFTP}"></TextBlock>
-		<ComboBox Margin="10"  Grid.Row="0" Grid.Column="1"></ComboBox>
+		<ComboBox Margin="10"  Grid.Row="0" Grid.Column="1"  ItemsSource="{Binding Ftps}"
+				  HorizontalAlignment="Stretch"
+				  SelectedItem="{Binding SelectedFtp, Mode=TwoWay}" >
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding FtpName}" />
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
 
 		<TextBlock Margin="10" Grid.Row="1" Text="{x:Static assets:Resources.FtpName}" ></TextBlock>
 		<TextBox Margin="10"  Grid.Row="1" Grid.Column="1" Text="{Binding FtpName}"></TextBox>	
@@ -39,7 +47,7 @@
 
 
 		<TextBlock Margin="10" Grid.Row="4" Text="{x:Static assets:Resources.Password}"></TextBlock>
-		<TextBox Margin="10"  Grid.Row="4" Grid.Column="1" Text="{Binding Password}"></TextBox>
+		<TextBox Margin="10"  Grid.Row="4" Grid.Column="1" Text="{Binding Password}" PasswordChar="*" ></TextBox>
 		
 		<StackPanel Margin="10" Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
 			<Button Margin="5" Command="{Binding OKCommand}"  CommandParameter="{Binding $parent[Window]}"

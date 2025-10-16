@@ -50,23 +50,26 @@ namespace SmartCommander.ViewModels
         public Mode Mode { get; private set; } = Mode.FileSystem;
         private AsyncFtpClient? _ftpClient;
 
+        private string _lastFilePath = string.Empty;
+
         public string CurrentDirectory
         {
             get => _currentDirectory;
             set
             {
                 _currentDirectory = value;
-                GetFilesFolders(CurrentDirectory, FoldersFilesList);
+                // TODO: need to change logic here
+                _= GetFilesFolders(CurrentDirectory, FoldersFilesList);
                 this.RaisePropertyChanged(nameof(CurrentDirectory));
                 this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
             }
         }
 
-        public async Task ConnectFTP(string? ftpName, bool anonymous, string? username, string? password)
+        public async Task ConnectFTP(string ftpName, bool anonymous, string? username, string? password)
         {
+            _lastFilePath = CurrentDirectory;
             try
-            {
-                // create an FTP client and specify the host, username and password             
+            {                             
                 if (anonymous)
                 {
                     username = "anonymous";
@@ -77,18 +80,13 @@ namespace SmartCommander.ViewModels
                 // TODO: process possible exceptions
                 await _ftpClient.AutoConnect();
 
-                FoldersFilesList.Clear();
-
-                // get a list of files and directories in the root folder
-                foreach (FtpListItem item in await _ftpClient.GetListing("/"))
-                { 
-                    FoldersFilesList.Add(new FileViewModel(item.FullName, item.Type == FtpObjectType.Directory));
-                }
                 Mode = Mode.FTP;
+                CurrentDirectory = ftpName;
             }
             catch(Exception ex)
             {
-                Log.Error(ex.Message);             
+                Log.Error(ex.Message);
+                await DisconnectFTP();
             } 
         }
 
@@ -100,6 +98,7 @@ namespace SmartCommander.ViewModels
             }
             _ftpClient = null;
             Mode = Mode.FileSystem;
+            CurrentDirectory = _lastFilePath;
         }
 
 
@@ -154,7 +153,6 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
-
 
         public static bool IsCurrentDirectoryDisplayed
         {
@@ -283,8 +281,7 @@ namespace SmartCommander.ViewModels
 
         public void SelectionChanged(object sender, object parameter)
         {
-            SelectionChangedEventArgs? args = parameter as SelectionChangedEventArgs;
-            if (args != null)
+            if (parameter is SelectionChangedEventArgs args)
             {
                 DataGrid? grid = args.Source as DataGrid;
                 if (grid != null)
@@ -491,122 +488,146 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
+        private async Task GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
         {
-            if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
-                return;
-            filesFoldersList.Clear();
-            _totalFolders = _totalFiles = 0;
-            bool isParent = false;
-            if (Directory.GetParent(CurrentDirectory) != null)
+            if (Mode == Mode.FileSystem)
             {
-                filesFoldersList.Add(new FileViewModel("..", true));
-                isParent = true;
+                if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
+                    return;
+                filesFoldersList.Clear();
+                _totalFolders = _totalFiles = 0;
+                bool isParent = false;
+                if (Directory.GetParent(CurrentDirectory) != null)
+                {
+                    filesFoldersList.Add(new FileViewModel("..", true));
+                    isParent = true;
+                }
+
+                if (OperatingSystem.IsWindows())
+                {
+                    FileInfo f = new FileInfo(CurrentDirectory);
+                    SelectedDrive = Path.GetPathRoot(f.FullName);
+                }
+
+                var options = new EnumerationOptions()
+                {
+                    AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
+                    IgnoreInaccessible = true,
+                    RecurseSubdirectories = false,
+                };
+
+                var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
+                var foldersList = new List<FileViewModel>();
+                foreach (string subdirectory in subdirectoryEntries)
+                {
+                    try
+                    {
+                        foldersList.Add(new FileViewModel(subdirectory, true));
+                        ++_totalFolders;
+                    }
+                    catch { }
+                }
+
+                var filesList = new List<FileViewModel>();
+                var fileEntries = Directory.EnumerateFiles(dir, "*", options);
+                foreach (string fileName in fileEntries)
+                {
+                    try
+                    {
+                        filesList.Add(new FileViewModel(fileName, false));
+                        ++_totalFiles;
+                    }
+                    catch { }
+                }
+                if (Sorting == SortingBy.SortingByName)
+                {
+                    if (Ascending)
+                    {
+                        foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
+                        filesList = filesList.OrderBy(entry => entry.Name).ToList();
+                    }
+                    else
+                    {
+                        foldersList = foldersList.OrderByDescending(entry => entry.Name).ToList();
+                        filesList = filesList.OrderByDescending(entry => entry.Name).ToList();
+                    }
+                }
+                else if (Sorting == SortingBy.SortingByExt)
+                {
+                    if (Ascending)
+                    {
+                        foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
+                        filesList = filesList.OrderBy(entry => entry.Extension).ToList();
+                    }
+                    else
+                    {
+                        foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
+                        filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
+                    }
+                }
+                else if (Sorting == SortingBy.SortingBySize)
+                {
+                    if (Ascending)
+                    {
+                        foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
+                        filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
+                    }
+                    else
+                    {
+                        foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
+                        filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
+                    }
+                }
+                else if (Sorting == SortingBy.SortingByDate)
+                {
+                    if (Ascending)
+                    {
+                        foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
+                        filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
+                    }
+                    else
+                    {
+                        foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
+                        filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
+                    }
+                }
+
+                foreach (var folder in foldersList)
+                {
+                    filesFoldersList.Add(folder);
+                }
+
+                foreach (var file in filesList)
+                {
+                    filesFoldersList.Add(file);
+                }
+
+                if (filesFoldersList.Count > 0)
+                {
+                    CurrentItem = (isParent && filesFoldersList.Count > 1) ?
+                        filesFoldersList[1] : filesFoldersList[0];
+                }
             }
-
-            if (OperatingSystem.IsWindows())
+            else if (Mode == Mode.FTP)
             {
-                FileInfo f = new FileInfo(CurrentDirectory);
-                SelectedDrive = Path.GetPathRoot(f.FullName);
-            }
+                FoldersFilesList.Clear();
 
-            var options = new EnumerationOptions()
-            {
-                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = false,
-            };
-
-            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
-            var foldersList = new List<FileViewModel>();
-            foreach (string subdirectory in subdirectoryEntries)
-            {
                 try
                 {
-                    foldersList.Add(new FileViewModel(subdirectory, true));
-                    ++_totalFolders;
+                    if (_ftpClient != null)
+                    {                      
+                        // TODO: need to read from different folders, not only root
+                        foreach (FtpListItem item in await _ftpClient.GetListing("/"))
+                        {
+                            FoldersFilesList.Add(new FileViewModel(item.FullName, item.Type == FtpObjectType.Directory));
+                        }
+                    }
                 }
-                catch { }
-            }
-
-            var filesList = new List<FileViewModel>();
-            var fileEntries = Directory.EnumerateFiles(dir, "*", options);
-            foreach (string fileName in fileEntries)
-            {
-                try
+                catch (Exception ex)
                 {
-                    filesList.Add(new FileViewModel(fileName, false));
-                    ++_totalFiles;
+                    Log.Error(ex.Message);
+                    await DisconnectFTP();
                 }
-                catch { }
-            }
-            if (Sorting == SortingBy.SortingByName)
-            {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
-                    filesList = filesList.OrderBy(entry => entry.Name).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Name).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.Name).ToList();
-                }
-            }
-            else if (Sorting == SortingBy.SortingByExt)
-            {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
-                    filesList = filesList.OrderBy(entry => entry.Extension).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
-                }
-            }
-            else if (Sorting == SortingBy.SortingBySize)
-            {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
-                    filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
-                    filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
-                }
-            }
-            else if (Sorting == SortingBy.SortingByDate)
-            {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
-                    filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
-                }
-            }
-
-            foreach (var folder in foldersList)
-            {
-                filesFoldersList.Add(folder);
-            }
-
-            foreach (var file in filesList)
-            {
-                filesFoldersList.Add(file);
-            }
-
-            if (filesFoldersList.Count > 0)
-            {
-                CurrentItem = (isParent && filesFoldersList.Count > 1) ?
-                    filesFoldersList[1] : filesFoldersList[0];
             }
         }
 

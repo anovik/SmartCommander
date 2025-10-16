@@ -42,9 +42,9 @@ namespace SmartCommander.Views
             {
                 if (!e.IsProgrammatic)
                 {
-                    MainWindowViewModel? vm = DataContext as MainWindowViewModel;
-                    if (vm != null)
+                    if (DataContext is MainWindowViewModel vm)
                     {
+                        await vm.DisconnectFTP();
                         if (vm.IsBackgroundOperation)
                         {
                             e.Cancel = true;
@@ -74,8 +74,10 @@ namespace SmartCommander.Views
         private async Task DoShowDialogAsync<T1, T2>(IInteractionContext<T1, T1?> interaction)
             where T2 : Window, new()
         {
-            var dialog = new T2();
-            dialog.DataContext = interaction.Input;
+            var dialog = new T2
+            {
+                DataContext = interaction.Input
+            };
             dialog.Activate();
 
             var result = await dialog.ShowDialog<T1>(this);

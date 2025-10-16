@@ -20,7 +20,7 @@ namespace SmartCommander.Models
     }
     public class FtpModel
     {
-        public static OptionsModel Instance { get; } = new OptionsModel();
+        public static FtpModel Instance { get; } = new FtpModel();
         static readonly string _settingsDir = Path.Combine(GetFolderPath(SpecialFolder.ApplicationData), "SmartCommander");
         static readonly string _settingsPath = Path.Combine(_settingsDir, "ftps.json");
         static FtpModel()
@@ -28,7 +28,7 @@ namespace SmartCommander.Models
             Directory.CreateDirectory(_settingsDir);
             if (File.Exists(_settingsPath))
             {
-                var options = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
+                var options = JsonConvert.DeserializeObject<FtpModel>(File.ReadAllText(_settingsPath));
                 if (options != null)
                 {
                     Instance = options;
@@ -38,7 +38,6 @@ namespace SmartCommander.Models
         public void Save() => File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(this, Formatting.Indented));
 
         public List<Ftp> Ftps { get; set; } = [];
-        public Ftp? CurrentFtp { get; set; }
 
     }
 }
