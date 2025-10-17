@@ -44,8 +44,11 @@ namespace SmartCommander.ViewModels
 
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
-            ConnectFTPCommand = ReactiveCommand.CreateFromTask(ConnectFTP);
-            DisconnectFTPCommand = ReactiveCommand.CreateFromTask(DisconnectFTP);
+            var canConnect = this.WhenAnyValue(vm => vm.IsConnected).Select(isConnected => !isConnected);
+            var canDisconnect = this.WhenAnyValue(vm => vm.IsConnected);
+
+            ConnectFTPCommand = ReactiveCommand.CreateFromTask(ConnectFTP, canConnect);
+            DisconnectFTPCommand = ReactiveCommand.CreateFromTask(DisconnectFTP, canDisconnect);
 
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
             RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
@@ -62,6 +65,13 @@ namespace SmartCommander.ViewModels
             SetLanguage(); 
             SetTheme();
             _progress = new Progress<int>(Progress_Show);
+        }
+
+        private bool _isConnected;
+        public bool IsConnected
+        {
+            get => _isConnected;
+            set => this.RaiseAndSetIfChanged(ref _isConnected, value);
         }
 
         private void SetLanguage()
@@ -569,12 +579,14 @@ namespace SmartCommander.ViewModels
             if (result != null)
             {  
                 await RightFileViewModel.ConnectFTP(result.FtpName, result.IsAnonymous, result.UserName, result.Password);
+                IsConnected = true;
             }
         }
 
         public async Task DisconnectFTP()
         {
             await RightFileViewModel.DisconnectFTP();
+            IsConnected = false;
         }
 
         public async Task ShowOptions()
