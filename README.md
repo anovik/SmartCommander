@@ -1,6 +1,6 @@
 # SmartCommander
 
-A two-panel cross-platform open-source file manager based on Avalonia (currently uses Avalonia version 11.0.10). Supports Windows and Linux.
+A two-panel cross-platform open-source file manager based on Avalonia (currently uses Avalonia version 11.3.9). Supports Windows and Linux.
 
 
 The main window on Ubuntu 22.04:
@@ -15,10 +15,11 @@ The main window on Windows 11:<br/><br/>
 
 ## How to build
 
-Please make sure you have .NET 8 SDK (or later) installed.
+Please make sure you have .NET 10 SDK installed.
 ```
 dotnet build src --configuration Release
 ```
+
 ## Main features
 
 - Configurable interface (you can fully manage panels, columns, operations, themes, etc.)
