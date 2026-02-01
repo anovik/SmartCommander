@@ -37,8 +37,8 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\src\SmartCommander\bin\Release\net8.0\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\src\SmartCommander\bin\Release\net8.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\SmartCommander\bin\Release\net10.0\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\src\SmartCommander\bin\Release\net10.0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

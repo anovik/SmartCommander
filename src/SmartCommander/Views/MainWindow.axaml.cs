@@ -1,5 +1,5 @@
 using Avalonia.Controls;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Models;
