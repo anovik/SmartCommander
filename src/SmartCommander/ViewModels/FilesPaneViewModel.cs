@@ -112,6 +112,8 @@ namespace SmartCommander.ViewModels
         }
 
 
+        public bool IsWindows => OperatingSystem.IsWindows();
+
         public static Brush SelectedBrush = new SolidColorBrush(Colors.LightSkyBlue);
         public static Brush NotSelectedBrush = new SolidColorBrush(Colors.Transparent);
         public Brush GridBorderBrush => IsSelected ? SelectedBrush : NotSelectedBrush;
@@ -131,7 +133,9 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
+            ShowMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowMoreOptions);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
+            ShowWindowsContextMenuInteraction = new Interaction<string[], Unit>();
             _mainVM = mainVM;
             FocusChanged += focusHandler;
         }
@@ -146,8 +150,10 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
+        public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
 
         public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog { get; }
+        public Interaction<string[], Unit>? ShowWindowsContextMenuInteraction { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -346,6 +352,32 @@ namespace SmartCommander.ViewModels
         public void Unzip()
         {
             _mainVM.Unzip();
+        }
+
+        public async Task ShowMoreOptions()
+        {
+            if (CurrentItems == null || CurrentItems.Count == 0)
+            {
+                if (CurrentItem != null)
+                {
+                    CurrentItems = new List<FileViewModel> { CurrentItem };
+                }
+                else
+                {
+                    // No items selected, show background context menu for current directory
+                    if (ShowWindowsContextMenuInteraction != null)
+                    {
+                        await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
+                    }
+                    return;
+                }
+            }
+
+            var paths = CurrentItems.Select(i => i.FullName).ToArray();
+            if (ShowWindowsContextMenuInteraction != null)
+            {
+                await ShowWindowsContextMenuInteraction.Handle(paths);
+            }
         }
 
         private void LaunchProcess(string program, string argument)

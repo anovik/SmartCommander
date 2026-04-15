@@ -718,6 +718,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More Options.
+        /// </summary>
+        public static string MoreOptions {
+            get {
+                return ResourceManager.GetString("MoreOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to View.
         /// </summary>
         public static string View {

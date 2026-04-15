@@ -26,12 +26,20 @@
 		</ia:EventTriggerBehavior>
 	</i:Interaction.Behaviors>
 
-	<Grid>
+	<Grid Background="Transparent">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
+
+		<Grid.ContextFlyout>
+			<MenuFlyout>
+				<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
+						  IsVisible="{Binding IsWindows}"
+						  Command="{Binding ShowMoreOptionsCommand}" />
+			</MenuFlyout>
+		</Grid.ContextFlyout>
 
 		<Grid Margin="5" IsVisible="{Binding IsCurrentDirectoryDisplayed}">
 			<Grid.ColumnDefinitions>
@@ -83,6 +91,9 @@
 					<MenuItem Header="{x:Static assets:Resources.Unzip}"
                               IsVisible="{Binding IsUnzip, Mode=TwoWay}"
                               Command="{Binding UnzipCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
+                              IsVisible="{Binding IsWindows}"
+                              Command="{Binding ShowMoreOptionsCommand}" />
 				</MenuFlyout>
 			</DataGrid.ContextFlyout>
 
