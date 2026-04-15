@@ -167,7 +167,6 @@ namespace SmartCommander.ViewModels
             if (searchModel.ResultFilename != string.Empty)
             {
                 SelectedPane.NavigateToFileItem(searchModel.ResultFilename);
-                Console.Write(searchModel.ResultFilename);
             }
         }
 

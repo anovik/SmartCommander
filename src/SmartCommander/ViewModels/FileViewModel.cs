@@ -9,14 +9,10 @@ namespace SmartCommander.ViewModels
     public class FileViewModel : ViewModelBase
     {
         private string _name = "";
-        public static readonly List<string> ImageExtensions = new List<string>
-                { "jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png" };
-        public static readonly List<string> VideoExtensions = new List<string>
-                { "mp4", "mov", "avi", "wmv" };
-        public static readonly List<string> ArchiveExtensions = new List<string>
-                { "zip", "rar", "7z" };
-        public static readonly List<string> DocumentExtensions = new List<string>
-                { "doc", "docx", "txt","xslx", "xsl", "pdf" };
+        public static readonly List<string> ImageExtensions = ["jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png"];
+        public static readonly List<string> VideoExtensions = ["mp4", "mov", "avi", "wmv"];
+        public static readonly List<string> ArchiveExtensions = ["zip", "rar", "7z"];
+        public static readonly List<string> DocumentExtensions = ["doc", "docx", "txt", "xlsx", "xls", "pdf"];
         public FileViewModel()
         {
 

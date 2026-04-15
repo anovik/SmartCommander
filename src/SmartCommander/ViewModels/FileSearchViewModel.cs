@@ -67,7 +67,7 @@ public class FileSearchViewModel : ViewModelBase
             cancellationToken.ThrowIfCancellationRequested();
 
             _statusFolder = folderPath;
-            var findedFolderAndFiles = new List<string>();
+            var foundFolderAndFiles = new List<string>();
 
             if (SearchContent)
             {
@@ -89,10 +89,10 @@ public class FileSearchViewModel : ViewModelBase
             else
             {
                 var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
-                findedFolderAndFiles.AddRange(dirs);
+                foundFolderAndFiles.AddRange(dirs);
                 var files = Directory.GetFiles(folderPath, searchPattern);
-                findedFolderAndFiles.AddRange(files);
-                SearchResults.AddRange(findedFolderAndFiles);
+                foundFolderAndFiles.AddRange(files);
+                SearchResults.AddRange(foundFolderAndFiles);
             }         
 
             if (!TopDirectoryOnly)

@@ -72,7 +72,7 @@ namespace SmartCommander.ViewModels
             SelectedCulture = lang ?? AvailableCultures.First();
 
             ListerPlugins.AddRange(Model.ListerPlugins);
-            AddFileCommand = ReactiveCommand.Create<Window>(AddFileAsync);
+            AddFileCommand = ReactiveCommand.Create<Window>(AddFile);
             RemoveFileCommand = ReactiveCommand.Create<Window>(RemoveFile);
         }
 
@@ -109,7 +109,7 @@ namespace SmartCommander.ViewModels
         {
             Patterns = new[] { /*"*.wlx",*/ "*.wlx64" }
         };
-        private void AddFileAsync(Window window)
+        private void AddFile(Window window)
         {
             var desktop = (IClassicDesktopStyleApplicationLifetime?)Application.Current?.ApplicationLifetime;
             var topLevel = TopLevel.GetTopLevel(desktop?.MainWindow);
@@ -117,7 +117,7 @@ namespace SmartCommander.ViewModels
             {
                 Title = "Choose plugin",
                 AllowMultiple = false,
-                FileTypeFilter = new[] { ListerPluginsFilter }
+                FileTypeFilter = [ListerPluginsFilter]
             }).Result;
 
             if (files?.Count >= 1)
