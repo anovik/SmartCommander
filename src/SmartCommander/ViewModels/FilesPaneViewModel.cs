@@ -153,7 +153,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
 
         public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog { get; }
-        public Interaction<string[], Unit> ShowWindowsContextMenuInteraction { get; }
+        public Interaction<string[], Unit>? ShowWindowsContextMenuInteraction { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -365,13 +365,19 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     // No items selected, show background context menu for current directory
-                    await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
+                    if (ShowWindowsContextMenuInteraction != null)
+                    {
+                        await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
+                    }
                     return;
                 }
             }
 
             var paths = CurrentItems.Select(i => i.FullName).ToArray();
-            await ShowWindowsContextMenuInteraction.Handle(paths);
+            if (ShowWindowsContextMenuInteraction != null)
+            {
+                await ShowWindowsContextMenuInteraction.Handle(paths);
+            }
         }
 
         private void LaunchProcess(string program, string argument)

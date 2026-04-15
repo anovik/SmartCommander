@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Versioning;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
 
 namespace SmartCommander
 {
+    [SupportedOSPlatform("windows")]
     public static class ShellContextMenuHelper
     {
         [ComImport]

@@ -27,7 +27,7 @@ namespace SmartCommander.Views
             {
                 DataContextChanged += (s, e) =>
                 {
-                    if (DataContext is FilesPaneViewModel viewModel)
+                    if (DataContext is FilesPaneViewModel viewModel && viewModel.ShowWindowsContextMenuInteraction != null)
                     {
                         viewModel.ShowWindowsContextMenuInteraction.RegisterHandler(interaction =>
                         {
@@ -85,13 +85,16 @@ namespace SmartCommander.Views
                                             }
                                         }
 
-                                        if (isBackground)
+                                        if (OperatingSystem.IsWindows())
                                         {
-                                            ShellContextMenuHelper.ShowBackgroundContextMenu(hwnd, interaction.Input[0]);
-                                        }
-                                        else
-                                        {
-                                            ShellContextMenuHelper.ShowContextMenu(hwnd, interaction.Input);
+                                            if (isBackground)
+                                            {
+                                                ShellContextMenuHelper.ShowBackgroundContextMenu(hwnd, interaction.Input[0]);
+                                            }
+                                            else
+                                            {
+                                                ShellContextMenuHelper.ShowContextMenu(hwnd, interaction.Input);
+                                            }
                                         }
                                     }
                                     else
