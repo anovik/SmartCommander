@@ -57,7 +57,7 @@ namespace SmartCommander.ViewModels
 
         public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
 
-        public FileViewModel? _currentItem;
+        private FileViewModel? _currentItem;
         public FileViewModel? CurrentItem
         {
             get => _currentItem;
@@ -247,7 +247,6 @@ namespace SmartCommander.ViewModels
                 {
                     // non-bindable property
                     CurrentItems = grid.SelectedItems.Cast<FileViewModel>().ToList();
-                    ///grid.SelectedIndex = 0;
                 }
             }
         }

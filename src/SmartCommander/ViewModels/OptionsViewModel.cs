@@ -107,7 +107,7 @@ namespace SmartCommander.ViewModels
 
         public static FilePickerFileType ListerPluginsFilter { get; } = new("Lister Plugins (64bit)")
         {
-            Patterns = new[] { /*"*.wlx",*/ "*.wlx64" }
+            Patterns = ["*.wlx64"]
         };
         private void AddFile(Window window)
         {
