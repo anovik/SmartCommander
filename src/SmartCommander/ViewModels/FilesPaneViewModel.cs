@@ -121,7 +121,8 @@ namespace SmartCommander.ViewModels
 
         public FilesPaneViewModel()
         {
-            _mainVM = new MainWindowViewModel();
+            // Design-time only: avoid recursive construction chain
+            _mainVM = null!;
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
         }
 
