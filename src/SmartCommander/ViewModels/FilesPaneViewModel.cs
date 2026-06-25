@@ -15,7 +15,6 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Path = System.IO.Path;
 
 namespace SmartCommander.ViewModels
@@ -436,7 +435,8 @@ namespace SmartCommander.ViewModels
                 }
 
                 var prevFolder = Path.GetFileName(CurrentDirectory);
-                CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
+                var parent = Directory.GetParent(CurrentDirectory);
+                CurrentDirectory = parent != null ? parent.FullName : CurrentDirectory;
                 CurrentItem = FoldersFilesList.FirstOrDefault(f => f.Name == prevFolder);
                 if (CurrentItem == null)
                     CurrentItem = FoldersFilesList[0];
@@ -448,7 +448,8 @@ namespace SmartCommander.ViewModels
                 if (CurrentItem.FullName == "..")
                 {
                     var prevFolder = Path.GetFileName(CurrentDirectory);
-                    CurrentDirectory = Directory.GetParent(CurrentDirectory) != null ? Directory.GetParent(CurrentDirectory)!.FullName : CurrentDirectory;
+                    var parent = Directory.GetParent(CurrentDirectory);
+                    CurrentDirectory = parent != null ? parent.FullName : CurrentDirectory;
                     CurrentItem = FoldersFilesList.FirstOrDefault(f => f.Name == prevFolder);
                     if (CurrentItem == null)
                         CurrentItem = FoldersFilesList[0];
@@ -595,8 +596,12 @@ namespace SmartCommander.ViewModels
         {
             var parent = Directory.GetParent(resultFilename);
             CurrentDirectory = parent!.FullName;
-            CurrentItem = FoldersFilesList.First(f => f.FullName == resultFilename);
-            RequestScroll(CurrentItem, null);
+            var item = FoldersFilesList.FirstOrDefault(f => f.FullName == resultFilename);
+            if (item != null)
+            {
+                CurrentItem = item;
+                RequestScroll(CurrentItem, null);
+            }
         }
 
         string? _selectedDrive;

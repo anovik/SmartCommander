@@ -317,7 +317,6 @@ namespace SmartCommander
                 {
                     IShellFolder folder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
                     
-                    Guid guidIContextMenu = new Guid("000214e4-0000-0000-c000-000000000046");
                     Guid guidIID_IContextMenu = new Guid("000214e4-0000-0000-c000-000000000046");
                     
                     int hrV = folder.CreateViewObject(hwnd, ref guidIID_IContextMenu, out IntPtr ppv);

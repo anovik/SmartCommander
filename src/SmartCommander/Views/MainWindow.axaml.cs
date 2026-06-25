@@ -29,7 +29,7 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.RightFileViewModel.ShowViewerDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<ViewerViewModel, ViewerWindow>(interaction)
             )));
-            this.WhenActivated(d => d(ViewModel!.ShowSearchsDialog.RegisterHandler(
+            this.WhenActivated(d => d(ViewModel!.ShowSearchDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>(interaction)
             )));
 

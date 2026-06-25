@@ -24,7 +24,7 @@ namespace SmartCommander.ViewModels
         {
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
-            ShowSearchsDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
+            ShowSearchDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -121,7 +121,7 @@ namespace SmartCommander.ViewModels
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
-        public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchsDialog { get; }      
+        public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -161,7 +161,7 @@ namespace SmartCommander.ViewModels
         public async void SearchFilesDialog()
         {
             var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
-            await ShowSearchsDialog.Handle(searchModel);
+            await ShowSearchDialog.Handle(searchModel);
             searchModel.CancelSearch();
             
             if (searchModel.ResultFilename != string.Empty)

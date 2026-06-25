@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace SmartCommander;
+namespace SmartCommander.Views;
 
 public partial class FileSearchWindow : Window
 {  
@@ -29,7 +29,7 @@ public partial class FileSearchWindow : Window
 
     private void HandleItemAction(string? filename)
     {
-        var viewModel=DataContext as FileSearchViewModel;
+        var viewModel=DataContext as SmartCommander.ViewModels.FileSearchViewModel;
         viewModel!.ResultFilename = filename?? string.Empty;
     }
 }

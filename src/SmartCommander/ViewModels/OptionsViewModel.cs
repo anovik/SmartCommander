@@ -33,11 +33,11 @@ namespace SmartCommander.ViewModels
 
         private static IEnumerable<CultureInfo> GetAvailableCultures()
         {
-            List<CultureInfo> result = new List<CultureInfo>();
-            ResourceManager rm = new ResourceManager(typeof(Resources));
-            CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+            var result = new List<CultureInfo>();
+            var rm = new ResourceManager(typeof(Resources));
+            var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
 
-            foreach (CultureInfo culture in cultures)
+            foreach (var culture in cultures)
             {
                 if (culture.Equals(CultureInfo.InvariantCulture))
                 {
@@ -68,8 +68,9 @@ namespace SmartCommander.ViewModels
             AllowOnlyOneInstance = Model.AllowOnlyOneInstance;
 
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
-            var lang = AvailableCultures.First(x => x.Name == Model.Language);
-            SelectedCulture = lang ?? AvailableCultures.First();
+            SelectedCulture = AvailableCultures.FirstOrDefault(x => x.Name == Model.Language) ?? 
+                              AvailableCultures.FirstOrDefault() ?? 
+                              CultureInfo.CurrentUICulture;
 
             ListerPlugins.AddRange(Model.ListerPlugins);
             AddFileCommand = ReactiveCommand.Create<Window>(AddFile);
