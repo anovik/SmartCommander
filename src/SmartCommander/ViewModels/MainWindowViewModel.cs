@@ -230,7 +230,7 @@ namespace SmartCommander.ViewModels
 
             using (tokenSource = new SmartCancellationTokenSource())
             {
-                await Task.Run(() => ZipAsync(tokenSource.Token));
+                await Task.Run(() => ZipCore(tokenSource.Token));
                 SelectedPane.Update();
             }
         }
@@ -242,12 +242,12 @@ namespace SmartCommander.ViewModels
 
             using (tokenSource = new SmartCancellationTokenSource())
             {
-                await Task.Run(() => UnzipAsync(tokenSource.Token));
+                await Task.Run(() => UnzipCore(tokenSource.Token));
                 SelectedPane.Update();
             }
 
         }
-        public void UnzipAsync(CancellationToken ct)
+        private void UnzipCore(CancellationToken ct)
         {
             try
             {
@@ -271,7 +271,7 @@ namespace SmartCommander.ViewModels
             catch { }
         }
 
-        public void ZipAsync(CancellationToken ct)
+        private void ZipCore(CancellationToken ct)
         {
             try
             {
@@ -390,14 +390,14 @@ namespace SmartCommander.ViewModels
         {
             using (tokenSource = new SmartCancellationTokenSource())
             {
-                await Task.Run(() => CopySelectedFilesAsync(overwrite, tokenSource.Token));
+                await Task.Run(() => CopySelectedFilesCore(overwrite, tokenSource.Token));
 
                 SelectedPane.Update();
                 SecondPane.Update();
             }
         }
 
-        private void CopySelectedFilesAsync(bool overwrite, CancellationToken ct)
+        private void CopySelectedFilesCore(bool overwrite, CancellationToken ct)
         {
             try
             {
@@ -490,13 +490,13 @@ namespace SmartCommander.ViewModels
         {
             using (tokenSource = new SmartCancellationTokenSource())
             {
-                await Task.Run(() => MoveSelectedItemsAsync(overwrite, tokenSource.Token));
+                await Task.Run(() => MoveSelectedItemsCore(overwrite, tokenSource.Token));
                 SelectedPane.Update();
                 SecondPane.Update();
             }
         }
 
-        private void MoveSelectedItemsAsync(bool overwrite,CancellationToken ct)
+        private void MoveSelectedItemsCore(bool overwrite,CancellationToken ct)
         {
             try 
             {
@@ -655,14 +655,14 @@ namespace SmartCommander.ViewModels
         {
             using (tokenSource = new SmartCancellationTokenSource())
             {
-                await Task.Run(() => DeleteSelectedItemsAsync(overwrite, nonEmptyFolders, tokenSource.Token));
+                await Task.Run(() => DeleteSelectedItemsCore(overwrite, nonEmptyFolders, tokenSource.Token));
                 SelectedPane.Update();
                 SecondPane.Update();
             }
             _F8Busy = false;
         }
 
-        private void DeleteSelectedItemsAsync(bool overwrite, List<string>? nonEmptyFolders, CancellationToken ct)
+        private void DeleteSelectedItemsCore(bool overwrite, List<string>? nonEmptyFolders, CancellationToken ct)
         {
             try
             {
