@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reactive;
 using System.Resources;
+using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
 {
@@ -73,7 +74,7 @@ namespace SmartCommander.ViewModels
                               CultureInfo.CurrentUICulture;
 
             ListerPlugins.AddRange(Model.ListerPlugins);
-            AddFileCommand = ReactiveCommand.Create<Window>(AddFile);
+            AddFileCommand = ReactiveCommand.CreateFromTask<Window>(AddFile);
             RemoveFileCommand = ReactiveCommand.Create<Window>(RemoveFile);
         }
 
@@ -110,16 +111,20 @@ namespace SmartCommander.ViewModels
         {
             Patterns = ["*.wlx64"]
         };
-        private void AddFile(Window window)
+        private async Task AddFile(Window window)
         {
             var desktop = (IClassicDesktopStyleApplicationLifetime?)Application.Current?.ApplicationLifetime;
             var topLevel = TopLevel.GetTopLevel(desktop?.MainWindow);
-            var files = topLevel?.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            if (topLevel == null)
+            {
+                return;
+            }
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Choose plugin",
                 AllowMultiple = false,
                 FileTypeFilter = [ListerPluginsFilter]
-            }).Result;
+            });
 
             if (files?.Count >= 1)
             {

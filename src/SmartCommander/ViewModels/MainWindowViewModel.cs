@@ -185,7 +185,12 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public FilesPaneViewModel SelectedPane { get; set; }
+        private FilesPaneViewModel _selectedPane;
+        public FilesPaneViewModel SelectedPane
+        {
+            get => _selectedPane;
+            set => this.RaiseAndSetIfChanged(ref _selectedPane, value);
+        }
 
         public void Execute()
         {

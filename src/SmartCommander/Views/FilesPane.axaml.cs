@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.ViewModels;
 using System;
 using System.IO;
@@ -99,12 +100,12 @@ namespace SmartCommander.Views
                                     }
                                     else
                                     {
-                                        System.Diagnostics.Debug.WriteLine("[DEBUG_LOG] Could not retrieve HWND from PlatformImpl.");
+                                        Log.Warning("Could not retrieve HWND from PlatformImpl");
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] Error getting HWND: {ex}");
+                                    Log.Error(ex, "Error getting HWND");
                                 }
                             }
                             interaction.SetOutput(Unit.Default);

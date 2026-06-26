@@ -302,7 +302,7 @@ namespace SmartCommander.ViewModels
                 return;
             if (!CurrentItem.IsFolder)
             {
-                if (Convert.ToUInt64(CurrentItem.Size) > 128 * 1024 * 1024)
+                if (ulong.TryParse(CurrentItem.Size, out var fileSize) && fileSize > 128 * 1024 * 1024)
                 {
                     MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
                     return;

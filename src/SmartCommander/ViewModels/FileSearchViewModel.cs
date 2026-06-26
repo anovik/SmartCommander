@@ -109,6 +109,7 @@ namespace SmartCommander.ViewModels
             catch (OperationCanceledException e)
             {
                 Log.Error("OperationCanceledException: " + e.Message);
+                throw;
             }
             catch (UnauthorizedAccessException e)
             {
@@ -131,10 +132,20 @@ namespace SmartCommander.ViewModels
             SearchResults.Clear();
             _cancellationTokenSource = new CancellationTokenSource();
             _timer = new Timer(OnTimerTick, null, 0, 500);
-            await Task.Run(() => SearchAsync(CurrentFolder, SearchContent ? SearchText :  FileMask, _cancellationTokenSource.Token));
-
-            _statusFolder = "";
-            IsSearching = false;
+            try
+            {
+                await Task.Run(() => SearchAsync(CurrentFolder, SearchContent ? SearchText :  FileMask, _cancellationTokenSource.Token));
+            }
+            catch (OperationCanceledException)
+            {
+                // expected when user cancels
+            }
+            finally
+            {
+                _timer?.Dispose();
+                _statusFolder = "";
+                IsSearching = false;
+            }
         }
 
         private void OnTimerTick(object? state)
