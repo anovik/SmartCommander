@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.Assets;
 using SmartCommander.Models;
 using System;
@@ -14,6 +15,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Path = System.IO.Path;
 
@@ -33,6 +35,7 @@ namespace SmartCommander.ViewModels
 
         private int _totalFiles = 0;
         private int _totalFolders = 0;
+        private CancellationTokenSource? _loadCts;
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
@@ -45,9 +48,8 @@ namespace SmartCommander.ViewModels
             set
             {
                 _currentDirectory = value;
-                GetFilesFolders(CurrentDirectory, FoldersFilesList);
                 this.RaisePropertyChanged(nameof(CurrentDirectory));
-                this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
+                _ = LoadDirectoryAsync(value);
             }
         }
 
@@ -405,8 +407,9 @@ namespace SmartCommander.ViewModels
                     File.Delete(item.FullName);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex, "Delete failed: {FullName}", item?.FullName);
             }
         }
 
@@ -474,123 +477,154 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void GetFilesFolders(string dir, IList<FileViewModel> filesFoldersList)
+        private async Task LoadDirectoryAsync(string dir)
         {
-            if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
-                return;
-            filesFoldersList.Clear();
-            _totalFolders = _totalFiles = 0;
-            bool isParent = false;
-            if (Directory.GetParent(CurrentDirectory) != null)
+            _loadCts?.Cancel();
+            _loadCts?.Dispose();
+            var cts = _loadCts = new CancellationTokenSource();
+
+            var sortingBy = Sorting;
+            var ascending = Ascending;
+
+            List<FileViewModel> folders;
+            List<FileViewModel> files;
+            int totalFolders, totalFiles;
+            bool isParent;
+            string? selectedDrive;
+
+            try
             {
-                filesFoldersList.Add(new FileViewModel("..", true));
-                isParent = true;
+                (folders, files, totalFolders, totalFiles, isParent, selectedDrive) =
+                    await Task.Run(() => BuildEntries(dir, sortingBy, ascending, cts.Token), cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to load directory {Dir}", dir);
+                return;
+            }
+
+            _totalFolders = totalFolders;
+            _totalFiles = totalFiles;
+            FoldersFilesList.Clear();
+
+            if (isParent)
+            {
+                FoldersFilesList.Add(new FileViewModel("..", true));
+            }
+            foreach (var f in folders)
+            {
+                FoldersFilesList.Add(f);
+            }
+            foreach (var f in files)
+            {
+                FoldersFilesList.Add(f);
+            }
+
+            if (FoldersFilesList.Count > 0)
+            {
+                CurrentItem = (isParent && FoldersFilesList.Count > 1)
+                    ? FoldersFilesList[1] : FoldersFilesList[0];
             }
 
             if (OperatingSystem.IsWindows())
             {
-                FileInfo f = new FileInfo(CurrentDirectory);
-                SelectedDrive = Path.GetPathRoot(f.FullName);
+                SelectedDrive = selectedDrive;
             }
 
-            var options = new EnumerationOptions()
+            this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
+        }
+
+        private static (List<FileViewModel> Folders, List<FileViewModel> Files, int TotalFolders, int TotalFiles, bool IsParent, string? SelectedDrive)
+            BuildEntries(string dir, SortingBy sorting, bool ascending, CancellationToken ct)
+        {
+            if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
             {
-                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed ? 0 : FileAttributes.Hidden | FileAttributes.System,
+                return ([], [], 0, 0, false, null);
+            }
+
+            bool isParent = Directory.GetParent(dir) != null;
+
+            string? selectedDrive = null;
+            if (OperatingSystem.IsWindows())
+            {
+                selectedDrive = Path.GetPathRoot(new FileInfo(dir).FullName);
+            }
+
+            var options = new EnumerationOptions
+            {
+                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed
+                    ? 0 : FileAttributes.Hidden | FileAttributes.System,
                 IgnoreInaccessible = true,
                 RecurseSubdirectories = false,
             };
 
-            var subdirectoryEntries = Directory.EnumerateDirectories(dir, "*", options);
+            int totalFolders = 0, totalFiles = 0;
             var foldersList = new List<FileViewModel>();
-            foreach (string subdirectory in subdirectoryEntries)
+            foreach (string subdirectory in Directory.EnumerateDirectories(dir, "*", options))
             {
+                ct.ThrowIfCancellationRequested();
                 try
                 {
                     foldersList.Add(new FileViewModel(subdirectory, true));
-                    ++_totalFolders;
+                    ++totalFolders;
                 }
                 catch { }
             }
 
             var filesList = new List<FileViewModel>();
-            var fileEntries = Directory.EnumerateFiles(dir, "*", options);
-            foreach (string fileName in fileEntries)
+            foreach (string fileName in Directory.EnumerateFiles(dir, "*", options))
             {
+                ct.ThrowIfCancellationRequested();
                 try
                 {
                     filesList.Add(new FileViewModel(fileName, false));
-                    ++_totalFiles;
+                    ++totalFiles;
                 }
                 catch { }
             }
-            if (Sorting == SortingBy.SortingByName)
+
+            if (sorting == SortingBy.SortingByName)
             {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.Name).ToList();
-                    filesList = filesList.OrderBy(entry => entry.Name).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Name).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.Name).ToList();
-                }
+                foldersList = ascending
+                    ? foldersList.OrderBy(e => e.Name).ToList()
+                    : foldersList.OrderByDescending(e => e.Name).ToList();
+                filesList = ascending
+                    ? filesList.OrderBy(e => e.Name).ToList()
+                    : filesList.OrderByDescending(e => e.Name).ToList();
             }
-            else if (Sorting == SortingBy.SortingByExt)
+            else if (sorting == SortingBy.SortingByExt)
             {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.Extension).ToList();
-                    filesList = filesList.OrderBy(entry => entry.Extension).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Extension).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.Extension).ToList();
-                }
+                foldersList = ascending
+                    ? foldersList.OrderBy(e => e.Extension).ToList()
+                    : foldersList.OrderByDescending(e => e.Extension).ToList();
+                filesList = ascending
+                    ? filesList.OrderBy(e => e.Extension).ToList()
+                    : filesList.OrderByDescending(e => e.Extension).ToList();
             }
-            else if (Sorting == SortingBy.SortingBySize)
+            else if (sorting == SortingBy.SortingBySize)
             {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.Size).ToList();
-                    filesList = filesList.OrderBy(entry => Convert.ToUInt64(entry.Size)).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.Size).ToList();
-                    filesList = filesList.OrderByDescending(entry => Convert.ToUInt64(entry.Size)).ToList();
-                }
+                foldersList = ascending
+                    ? foldersList.OrderBy(e => e.Size).ToList()
+                    : foldersList.OrderByDescending(e => e.Size).ToList();
+                filesList = ascending
+                    ? filesList.OrderBy(e => Convert.ToUInt64(e.Size)).ToList()
+                    : filesList.OrderByDescending(e => Convert.ToUInt64(e.Size)).ToList();
             }
-            else if (Sorting == SortingBy.SortingByDate)
+            else if (sorting == SortingBy.SortingByDate)
             {
-                if (Ascending)
-                {
-                    foldersList = foldersList.OrderBy(entry => entry.DateCreated).ToList();
-                    filesList = filesList.OrderBy(entry => entry.DateCreated).ToList();
-                }
-                else
-                {
-                    foldersList = foldersList.OrderByDescending(entry => entry.DateCreated).ToList();
-                    filesList = filesList.OrderByDescending(entry => entry.DateCreated).ToList();
-                }
+                foldersList = ascending
+                    ? foldersList.OrderBy(e => e.DateCreated).ToList()
+                    : foldersList.OrderByDescending(e => e.DateCreated).ToList();
+                filesList = ascending
+                    ? filesList.OrderBy(e => e.DateCreated).ToList()
+                    : filesList.OrderByDescending(e => e.DateCreated).ToList();
             }
 
-            foreach (var folder in foldersList)
-            {
-                filesFoldersList.Add(folder);
-            }
-
-            foreach (var file in filesList)
-            {
-                filesFoldersList.Add(file);
-            }
-
-            if (filesFoldersList.Count > 0)
-            {
-                CurrentItem = (isParent && filesFoldersList.Count > 1) ?
-                    filesFoldersList[1] : filesFoldersList[0];
-            }
+            return (foldersList, filesList, totalFolders, totalFiles, isParent, selectedDrive);
         }
 
         public void NavigateToFileItem(string resultFilename)

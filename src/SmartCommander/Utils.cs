@@ -11,7 +11,6 @@ namespace SmartCommander
 {
     static internal class Utils
     {
-        static int oldProgressValue = 0;
         static internal void ReportProgress(IProgress<int>? progress, long processedSize, long totalSize)
         {
             if (progress == null)
@@ -19,11 +18,7 @@ namespace SmartCommander
                 return;
             }
             int newValue = totalSize == 0 ? 0 : Convert.ToInt32(processedSize * 100 / totalSize);
-            if (newValue != oldProgressValue)
-            {
-                oldProgressValue = newValue;
-                progress?.Report(newValue);
-            }
+            progress.Report(newValue);
         }
         static internal void DeleteDirectoryWithHiddenFiles(string path)
         {
@@ -146,16 +141,18 @@ namespace SmartCommander
                                       long totalSize)
         {
             long size = new FileInfo(source).Length;
-            processedSize += size;
+
             if (ct.IsCancellationRequested)
             {
                 ct.ThrowIfCancellationRequested();
             }
 
             if (!overwrite)
-            {              
+            {
                 if (File.Exists(dest))
                 {
+                    processedSize += size;
+                    ReportProgress(progress, processedSize, totalSize);
                     return;
                 }
             }
@@ -165,22 +162,23 @@ namespace SmartCommander
                 if (OperatingSystem.IsWindows())
                 {
                     if (Path.GetPathRoot(source) == Path.GetPathRoot(dest))
-                    {                      
-                        File.Move(source, dest,overwrite);
+                    {
+                        File.Move(source, dest, overwrite);
+                        processedSize += size;
+                        ReportProgress(progress, processedSize, totalSize);
                         return;
-                    }                    
+                    }
                 }
             }
 
             const int bufferSize = 1024 * 1024; // 1MB
-            const long limit = 10 * bufferSize;          
+            const long limit = 10 * bufferSize;
 
             if (size > limit)
             {
                 using (Stream from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Write))
                 using (Stream to = new FileStream(dest, FileMode.OpenOrCreate))
                 {
-                    // TODO: report progress by chunks
                     int readCount;
                     byte[] buffer = new byte[bufferSize];
                     while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
@@ -190,19 +188,22 @@ namespace SmartCommander
                             ct.ThrowIfCancellationRequested();
                         }
                         to.Write(buffer, 0, readCount);
+                        processedSize += readCount;
+                        ReportProgress(progress, processedSize, totalSize);
                     }
                 }
             }
             else
             {
                 File.Copy(source, dest, overwrite);
+                processedSize += size;
+                ReportProgress(progress, processedSize, totalSize);
             }
 
             if (delete)
             {
                 File.Delete(source);
             }
-            Utils.ReportProgress(progress, processedSize, totalSize);
         }
       
         static internal void CopyDirectory(string sourceDir, 

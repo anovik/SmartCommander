@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using Serilog;
 using SmartCommander.Assets;
 using System;
 using System.Collections.Generic;
@@ -81,27 +82,35 @@ namespace SmartCommander.ViewModels
                 }
 
                 string destination = "";
-                
-                // moving here is fast since they are guaranteed to be on the same drive
-                if (IsFolder)
+
+                try
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
-                    Directory.Move(FullName, destination);
-                }
-                else
-                {
-                    var destName = value;
-                    if (!string.IsNullOrEmpty(Extension))
+                    // moving here is fast since they are guaranteed to be on the same drive
+                    if (IsFolder)
                     {
-                        destName += "." + Extension;
+                        destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
+                        Directory.Move(FullName, destination);
                     }
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", destName);
-                    File.Move(FullName, destination);
+                    else
+                    {
+                        var destName = value;
+                        if (!string.IsNullOrEmpty(Extension))
+                        {
+                            destName += "." + Extension;
+                        }
+                        destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", destName);
+                        File.Move(FullName, destination);
+                    }
+                    _name = value;
+                    FullName = destination;
+                    this.RaisePropertyChanged(nameof(Name));
+                    this.RaisePropertyChanged(nameof(FullName));
                 }
-                _name = value;
-                FullName = destination;
-                this.RaisePropertyChanged(nameof(Name));
-                this.RaisePropertyChanged(nameof(FullName));
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Rename failed: {FullName}", FullName);
+                    this.RaisePropertyChanged(nameof(Name));
+                }
             }
         }
 

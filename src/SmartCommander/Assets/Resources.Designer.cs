@@ -97,6 +97,15 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t copy file here.
+        /// </summary>
+        public static string CantCopyFileHere {
+            get {
+                return ResourceManager.GetString("CantCopyFileHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t copy files to the same directory.
         /// </summary>
         public static string CantCopyFileToItself {
@@ -104,7 +113,7 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("CantCopyFileToItself", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Can&apos;t edit the folder.
         /// </summary>
@@ -113,7 +122,16 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("CantEditFolder", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t move file here.
+        /// </summary>
+        public static string CantMoveFileHere {
+            get {
+                return ResourceManager.GetString("CantMoveFileHere", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Can&apos;t move files to the same directory.
         /// </summary>

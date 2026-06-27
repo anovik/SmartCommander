@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
+using Serilog;
 using SmartCommander.Assets;
 using System;
 using System.Threading.Tasks;
@@ -40,10 +41,26 @@ namespace SmartCommander.Views
         {
             _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
-                .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
-                var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
-                resultAction?.Invoke(result, parameter);
+                ButtonResult result;
+                try
+                {
+                    var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                        .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
+                    result = await messageBoxWindow.ShowWindowDialogAsync(owner);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "MessageBox failed");
+                    return;
+                }
+                try
+                {
+                    resultAction?.Invoke(result, parameter);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "MessageBox callback failed");
+                }
             });
         }
 
@@ -51,21 +68,38 @@ namespace SmartCommander.Views
         {
             _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
-                .GetMessageBoxCustom(new MessageBoxCustomParams()
+                string callbackArg;
+                try
                 {
-                    ContentHeader = caption,
-                    ContentMessage = messageBoxText,
-                    MinWidth = 300,
-                    InputParams = new InputParams() { },
-                    ButtonDefinitions = new[] {
-                        new ButtonDefinition {Name = Resources.OK, IsDefault = true},
-                        new ButtonDefinition {Name = Resources.Cancel, IsCancel = true}
-                    },
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                });
-                var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
-                resultInputAction?.Invoke(result == Resources.OK ? messageBoxWindow.InputValue : "");
+                    var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                        .GetMessageBoxCustom(new MessageBoxCustomParams()
+                        {
+                            ContentHeader = caption,
+                            ContentMessage = messageBoxText,
+                            MinWidth = 300,
+                            InputParams = new InputParams() { },
+                            ButtonDefinitions = new[] {
+                                new ButtonDefinition {Name = Resources.OK, IsDefault = true},
+                                new ButtonDefinition {Name = Resources.Cancel, IsCancel = true}
+                            },
+                            WindowStartupLocation = WindowStartupLocation.CenterOwner
+                        });
+                    var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
+                    callbackArg = result == Resources.OK ? messageBoxWindow.InputValue : "";
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "MessageBox input failed");
+                    return;
+                }
+                try
+                {
+                    resultInputAction?.Invoke(callbackArg);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "MessageBox input callback failed");
+                }
             });
         }
     }

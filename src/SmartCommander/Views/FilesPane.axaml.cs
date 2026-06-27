@@ -42,38 +42,6 @@ namespace SmartCommander.Views
                                     {
                                         hwnd = platformHandle.Handle;
                                     }
-                                    
-                                    if (hwnd == IntPtr.Zero)
-                                    {
-                                        var platformImpl = topLevel.PlatformImpl;
-                                        if (platformImpl != null)
-                                        {
-                                            var handleProperty = platformImpl.GetType().GetProperty("Handle");
-                                            if (handleProperty == null)
-                                            {
-                                                handleProperty = platformImpl.GetType().GetProperty("Handle", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-                                            }
-
-                                            var handleObject = handleProperty?.GetValue(platformImpl);
-                                            if (handleObject is IntPtr ptr)
-                                            {
-                                                hwnd = ptr;
-                                            }
-                                            else if (handleObject is Avalonia.Platform.IPlatformHandle ph)
-                                            {
-                                                hwnd = ph.Handle;
-                                            }
-                                            else if (handleObject != null)
-                                            {
-                                                var innerHandleProperty = handleObject.GetType().GetProperty("Handle");
-                                                if (innerHandleProperty != null)
-                                                {
-                                                    var val = innerHandleProperty.GetValue(handleObject);
-                                                    if (val is IntPtr ptr2) hwnd = ptr2;
-                                                }
-                                            }
-                                        }
-                                    }
 
                                     if (hwnd != IntPtr.Zero)
                                     {
