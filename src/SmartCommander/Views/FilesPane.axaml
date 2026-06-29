@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:CompileBindings="False"
              xmlns:vm="using:SmartCommander.ViewModels"
              xmlns:converter="using:SmartCommander.Converters"
              xmlns:i="using:Avalonia.Xaml.Interactivity"

@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI.Avalonia;
 using MsBox.Avalonia.Enums;
@@ -107,7 +108,9 @@ namespace SmartCommander.Views
                 else
                 {
                     WindowState = WindowState.Normal;                    
-                    this.Arrange(new Avalonia.Rect(OptionsModel.Instance.Left, OptionsModel.Instance.Top, OptionsModel.Instance.Width, OptionsModel.Instance.Height));
+                    Position = new PixelPoint((int)OptionsModel.Instance.Left, (int)OptionsModel.Instance.Top);
+                    Width = OptionsModel.Instance.Width;
+                    Height = OptionsModel.Instance.Height;
                 }
             }
 

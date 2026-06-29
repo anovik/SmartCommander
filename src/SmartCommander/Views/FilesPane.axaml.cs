@@ -38,7 +38,8 @@ namespace SmartCommander.Views
                                 try 
                                 {
                                     IntPtr hwnd = IntPtr.Zero;
-                                    if (topLevel.PlatformImpl is Avalonia.Platform.IPlatformHandle platformHandle)
+                                    var platformHandle = topLevel.TryGetPlatformHandle();
+                                    if (platformHandle != null)
                                     {
                                         hwnd = platformHandle.Handle;
                                     }
