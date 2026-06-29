@@ -36,6 +36,8 @@ namespace SmartCommander.ViewModels
         private int _totalFiles = 0;
         private int _totalFolders = 0;
         private CancellationTokenSource? _loadCts;
+        private string? _pendingRestoreItemName;
+        private string? _pendingScrollTargetFullName;
 
         private bool _isSelected;
         private SortingBy _sorting = SortingBy.SortingByName;
@@ -440,10 +442,8 @@ namespace SmartCommander.ViewModels
 
                 var prevFolder = Path.GetFileName(CurrentDirectory);
                 var parent = Directory.GetParent(CurrentDirectory);
+                _pendingRestoreItemName = prevFolder;
                 CurrentDirectory = parent != null ? parent.FullName : CurrentDirectory;
-                CurrentItem = FoldersFilesList.FirstOrDefault(f => f.Name == prevFolder);
-                if (CurrentItem == null)
-                    CurrentItem = FoldersFilesList[0];
                 return;
             }
 
@@ -453,15 +453,12 @@ namespace SmartCommander.ViewModels
                 {
                     var prevFolder = Path.GetFileName(CurrentDirectory);
                     var parent = Directory.GetParent(CurrentDirectory);
+                    _pendingRestoreItemName = prevFolder;
                     CurrentDirectory = parent != null ? parent.FullName : CurrentDirectory;
-                    CurrentItem = FoldersFilesList.FirstOrDefault(f => f.Name == prevFolder);
-                    if (CurrentItem == null)
-                        CurrentItem = FoldersFilesList[0];
                 }
                 else
                 {
                     CurrentDirectory = CurrentItem.FullName;
-                    CurrentItem = FoldersFilesList[0];
                 }
             }
             else
@@ -507,6 +504,11 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
+            if (cts != _loadCts)
+            {
+                return;
+            }
+
             _totalFolders = totalFolders;
             _totalFiles = totalFiles;
             FoldersFilesList.Clear();
@@ -528,6 +530,30 @@ namespace SmartCommander.ViewModels
             {
                 CurrentItem = (isParent && FoldersFilesList.Count > 1)
                     ? FoldersFilesList[1] : FoldersFilesList[0];
+            }
+            else
+            {
+                CurrentItem = null;
+            }
+
+            if (_pendingRestoreItemName != null)
+            {
+                var restore = FoldersFilesList.FirstOrDefault(f => f.Name == _pendingRestoreItemName);
+                if (restore != null)
+                {
+                    CurrentItem = restore;
+                }
+                _pendingRestoreItemName = null;
+            }
+            else if (_pendingScrollTargetFullName != null)
+            {
+                var target = FoldersFilesList.FirstOrDefault(f => f.FullName == _pendingScrollTargetFullName);
+                if (target != null)
+                {
+                    CurrentItem = target;
+                    RequestScroll(target, null);
+                }
+                _pendingScrollTargetFullName = null;
             }
 
             if (OperatingSystem.IsWindows())
@@ -611,8 +637,8 @@ namespace SmartCommander.ViewModels
                     ? foldersList.OrderBy(e => e.Size).ToList()
                     : foldersList.OrderByDescending(e => e.Size).ToList();
                 filesList = ascending
-                    ? filesList.OrderBy(e => Convert.ToUInt64(e.Size)).ToList()
-                    : filesList.OrderByDescending(e => Convert.ToUInt64(e.Size)).ToList();
+                    ? filesList.OrderBy(e => ulong.TryParse(e.Size, out var sz) ? sz : 0UL).ToList()
+                    : filesList.OrderByDescending(e => ulong.TryParse(e.Size, out var sz) ? sz : 0UL).ToList();
             }
             else if (sorting == SortingBy.SortingByDate)
             {
@@ -630,13 +656,8 @@ namespace SmartCommander.ViewModels
         public void NavigateToFileItem(string resultFilename)
         {
             var parent = Directory.GetParent(resultFilename);
+            _pendingScrollTargetFullName = resultFilename;
             CurrentDirectory = parent!.FullName;
-            var item = FoldersFilesList.FirstOrDefault(f => f.FullName == resultFilename);
-            if (item != null)
-            {
-                CurrentItem = item;
-                RequestScroll(CurrentItem, null);
-            }
         }
 
         string? _selectedDrive;

@@ -1,5 +1,6 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using Serilog;
@@ -58,13 +59,7 @@ namespace SmartCommander.ViewModels
             }
             SetLanguage(); 
             SetTheme();
-            int lastReportedProgress = -1;
-            _progress = new Progress<int>(v =>
-            {
-                if (v != 0 && v == lastReportedProgress) return;
-                lastReportedProgress = v;
-                Progress_Show(v);
-            });
+            _progress = new FilteringProgress(Progress_Show);
         }
 
         private void SetLanguage()
@@ -760,9 +755,9 @@ namespace SmartCommander.ViewModels
                 {
                     ct.ThrowIfCancellationRequested();
                 }
-                _progress?.Report(0);               
+                _progress?.Report(0);
                 long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
-                long processedSize = 0;            
+                long processedSize = 0;
                 foreach (var item in SelectedPane.CurrentItems)
                 {
                     if (ct.IsCancellationRequested)
@@ -783,10 +778,25 @@ namespace SmartCommander.ViewModels
 
                     Utils.ReportProgress(_progress, processedSize, totalSize);
                 }
-                _progress?.Report(100);
-              
             }
             catch { }
+            finally
+            {
+                _progress?.Report(100);
+            }
+        }
+
+        private sealed class FilteringProgress : IProgress<int>
+        {
+            private volatile int _last = -1;
+            private readonly Action<int> _callback;
+            internal FilteringProgress(Action<int> callback) => _callback = callback;
+            public void Report(int value)
+            {
+                if (value == _last) return;
+                _last = value;
+                Dispatcher.UIThread.Post(() => _callback(value));
+            }
         }     
     }
 }

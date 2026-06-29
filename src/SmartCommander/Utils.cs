@@ -177,7 +177,7 @@ namespace SmartCommander
             if (size > limit)
             {
                 using (Stream from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Write))
-                using (Stream to = new FileStream(dest, FileMode.OpenOrCreate))
+                using (Stream to = new FileStream(dest, FileMode.Create))
                 {
                     int readCount;
                     byte[] buffer = new byte[bufferSize];

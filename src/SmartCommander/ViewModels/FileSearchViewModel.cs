@@ -126,7 +126,9 @@ namespace SmartCommander.ViewModels
         private async Task StartSearch()
         {
             if (string.IsNullOrEmpty(CurrentFolder) || string.IsNullOrEmpty(FileMask))
+            {
                 return;
+            }
 
             IsSearching = true;
             SearchResults.Clear();
@@ -162,6 +164,7 @@ namespace SmartCommander.ViewModels
             _cancellationTokenSource?.Cancel();
             IsSearching = false;
             _timer?.Dispose();
+            _statusFolder = "";
         }
     }
 }
