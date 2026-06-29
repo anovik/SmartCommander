@@ -506,6 +506,8 @@ namespace SmartCommander.ViewModels
 
             if (cts != _loadCts)
             {
+                _pendingRestoreItemName = null;
+                _pendingScrollTargetFullName = null;
                 return;
             }
 
@@ -544,6 +546,7 @@ namespace SmartCommander.ViewModels
                     CurrentItem = restore;
                 }
                 _pendingRestoreItemName = null;
+                _pendingScrollTargetFullName = null;
             }
             else if (_pendingScrollTargetFullName != null)
             {
@@ -655,9 +658,13 @@ namespace SmartCommander.ViewModels
 
         public void NavigateToFileItem(string resultFilename)
         {
-            var parent = Directory.GetParent(resultFilename);
+            var parent = Path.GetDirectoryName(resultFilename);
+            if (parent == null)
+            {
+                return;
+            }
             _pendingScrollTargetFullName = resultFilename;
-            CurrentDirectory = parent!.FullName;
+            CurrentDirectory = parent;
         }
 
         string? _selectedDrive;

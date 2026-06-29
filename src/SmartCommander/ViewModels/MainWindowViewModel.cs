@@ -556,7 +556,7 @@ namespace SmartCommander.ViewModels
 
                 foreach (var preCheck in SelectedPane.CurrentItems)
                 {
-                    if (preCheck.IsFolder && preCheck.FullName == SecondPane.CurrentDirectory)
+                    if (preCheck.IsFolder && IsDestinationInsideSource(preCheck.FullName, SecondPane.CurrentDirectory))
                     {
                         MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                         return;
@@ -784,6 +784,17 @@ namespace SmartCommander.ViewModels
             {
                 _progress?.Report(100);
             }
+        }
+
+        private static bool IsDestinationInsideSource(string sourceFolder, string destination)
+        {
+            var src = sourceFolder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var dst = destination.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var comparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            return string.Equals(src, dst, comparison) ||
+                   dst.StartsWith(src + Path.DirectorySeparatorChar, comparison);
         }
 
         private sealed class FilteringProgress : IProgress<int>
