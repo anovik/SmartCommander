@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using Serilog;
 using SmartCommander.Assets;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,10 @@ namespace SmartCommander.ViewModels
     public class FileViewModel : ViewModelBase
     {
         private string _name = "";
-        public static readonly List<string> ImageExtensions = new List<string>
-                { "jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png" };
-        public static readonly List<string> VideoExtensions = new List<string>
-                { "mp4", "mov", "avi", "wmv" };
-        public static readonly List<string> ArchiveExtensions = new List<string>
-                { "zip", "rar", "7z" };
-        public static readonly List<string> DocumentExtensions = new List<string>
-                { "doc", "docx", "txt","xslx", "xsl", "pdf" };
+        public static readonly List<string> ImageExtensions = ["jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png"];
+        public static readonly List<string> VideoExtensions = ["mp4", "mov", "avi", "wmv"];
+        public static readonly List<string> ArchiveExtensions = ["zip", "rar", "7z"];
+        public static readonly List<string> DocumentExtensions = ["doc", "docx", "txt", "xlsx", "xls", "pdf"];
         public FileViewModel()
         {
 
@@ -85,27 +82,35 @@ namespace SmartCommander.ViewModels
                 }
 
                 string destination = "";
-                
-                // moving here is fast since they are guaranteed to be on the same drive
-                if (IsFolder)
+
+                try
                 {
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
-                    Directory.Move(FullName, destination);
-                }
-                else
-                {
-                    var destName = value;
-                    if (!string.IsNullOrEmpty(Extension))
+                    // moving here is fast since they are guaranteed to be on the same drive
+                    if (IsFolder)
                     {
-                        destName += "." + Extension;
+                        destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
+                        Directory.Move(FullName, destination);
                     }
-                    destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", destName);
-                    File.Move(FullName, destination);
+                    else
+                    {
+                        var destName = value;
+                        if (!string.IsNullOrEmpty(Extension))
+                        {
+                            destName += "." + Extension;
+                        }
+                        destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", destName);
+                        File.Move(FullName, destination);
+                    }
+                    _name = value;
+                    FullName = destination;
+                    this.RaisePropertyChanged(nameof(Name));
+                    this.RaisePropertyChanged(nameof(FullName));
                 }
-                _name = value;
-                FullName = destination;
-                this.RaisePropertyChanged(nameof(Name));
-                this.RaisePropertyChanged(nameof(FullName));
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Rename failed: {FullName}", FullName);
+                    this.RaisePropertyChanged(nameof(Name));
+                }
             }
         }
 

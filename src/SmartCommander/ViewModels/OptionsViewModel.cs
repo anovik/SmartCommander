@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reactive;
 using System.Resources;
+using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
 {
@@ -33,11 +34,11 @@ namespace SmartCommander.ViewModels
 
         private static IEnumerable<CultureInfo> GetAvailableCultures()
         {
-            List<CultureInfo> result = new List<CultureInfo>();
-            ResourceManager rm = new ResourceManager(typeof(Resources));
-            CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+            var result = new List<CultureInfo>();
+            var rm = new ResourceManager(typeof(Resources));
+            var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
 
-            foreach (CultureInfo culture in cultures)
+            foreach (var culture in cultures)
             {
                 if (culture.Equals(CultureInfo.InvariantCulture))
                 {
@@ -68,11 +69,12 @@ namespace SmartCommander.ViewModels
             AllowOnlyOneInstance = Model.AllowOnlyOneInstance;
 
             AvailableCultures = new ObservableCollection<CultureInfo>(GetAvailableCultures());
-            var lang = AvailableCultures.First(x => x.Name == Model.Language);
-            SelectedCulture = lang ?? AvailableCultures.First();
+            SelectedCulture = AvailableCultures.FirstOrDefault(x => x.Name == Model.Language) ?? 
+                              AvailableCultures.FirstOrDefault() ?? 
+                              CultureInfo.CurrentUICulture;
 
             ListerPlugins.AddRange(Model.ListerPlugins);
-            AddFileCommand = ReactiveCommand.Create<Window>(AddFileAsync);
+            AddFileCommand = ReactiveCommand.CreateFromTask<Window>(AddFile);
             RemoveFileCommand = ReactiveCommand.Create<Window>(RemoveFile);
         }
 
@@ -107,18 +109,22 @@ namespace SmartCommander.ViewModels
 
         public static FilePickerFileType ListerPluginsFilter { get; } = new("Lister Plugins (64bit)")
         {
-            Patterns = new[] { /*"*.wlx",*/ "*.wlx64" }
+            Patterns = ["*.wlx64"]
         };
-        private void AddFileAsync(Window window)
+        private async Task AddFile(Window window)
         {
             var desktop = (IClassicDesktopStyleApplicationLifetime?)Application.Current?.ApplicationLifetime;
             var topLevel = TopLevel.GetTopLevel(desktop?.MainWindow);
-            var files = topLevel?.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            if (topLevel == null)
+            {
+                return;
+            }
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Choose plugin",
                 AllowMultiple = false,
-                FileTypeFilter = new[] { ListerPluginsFilter }
-            }).Result;
+                FileTypeFilter = [ListerPluginsFilter]
+            });
 
             if (files?.Count >= 1)
             {

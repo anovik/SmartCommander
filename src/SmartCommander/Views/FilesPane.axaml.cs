@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.ViewModels;
 using System;
 using System.IO;
@@ -41,38 +42,6 @@ namespace SmartCommander.Views
                                     {
                                         hwnd = platformHandle.Handle;
                                     }
-                                    
-                                    if (hwnd == IntPtr.Zero)
-                                    {
-                                        var platformImpl = topLevel.PlatformImpl;
-                                        if (platformImpl != null)
-                                        {
-                                            var handleProperty = platformImpl.GetType().GetProperty("Handle");
-                                            if (handleProperty == null)
-                                            {
-                                                handleProperty = platformImpl.GetType().GetProperty("Handle", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-                                            }
-
-                                            var handleObject = handleProperty?.GetValue(platformImpl);
-                                            if (handleObject is IntPtr ptr)
-                                            {
-                                                hwnd = ptr;
-                                            }
-                                            else if (handleObject is Avalonia.Platform.IPlatformHandle ph)
-                                            {
-                                                hwnd = ph.Handle;
-                                            }
-                                            else if (handleObject != null)
-                                            {
-                                                var innerHandleProperty = handleObject.GetType().GetProperty("Handle");
-                                                if (innerHandleProperty != null)
-                                                {
-                                                    var val = innerHandleProperty.GetValue(handleObject);
-                                                    if (val is IntPtr ptr2) hwnd = ptr2;
-                                                }
-                                            }
-                                        }
-                                    }
 
                                     if (hwnd != IntPtr.Zero)
                                     {
@@ -99,12 +68,12 @@ namespace SmartCommander.Views
                                     }
                                     else
                                     {
-                                        System.Diagnostics.Debug.WriteLine("[DEBUG_LOG] Could not retrieve HWND from PlatformImpl.");
+                                        Log.Warning("Could not retrieve HWND from PlatformImpl");
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] Error getting HWND: {ex}");
+                                    Log.Error(ex, "Error getting HWND");
                                 }
                             }
                             interaction.SetOutput(Unit.Default);

@@ -2,7 +2,6 @@
 using ReactiveUI;
 using Serilog;
 using SmartCommander.Extensions;
-using SmartCommander.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,145 +9,162 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class FileSearchViewModel : ViewModelBase
+namespace SmartCommander.ViewModels
 {
-    private string _currentFolder = "";
-    private string _statusFolder = "";
-    private string _fileMask = "";
-    private bool _isSearching = false;
-    private CancellationTokenSource? _cancellationTokenSource;
-    private Timer? _timer;
-
-    public string CurrentFolder
+    public class FileSearchViewModel : ViewModelBase
     {
-        get => _currentFolder;
-        set => this.RaiseAndSetIfChanged(ref _currentFolder, value);
-    }
+        private string _currentFolder = "";
+        private string _statusFolder = "";
+        private string _fileMask = "";
+        private bool _isSearching = false;
+        private CancellationTokenSource? _cancellationTokenSource;
+        private Timer? _timer;
 
-    public string StatusFolder { get; set; } = "";
-
-    public bool TopDirectoryOnly { get; set; }
-
-    public bool SearchContent { get; set; }
-
-    public string SearchText { get; set; } = "";
-
-    public string FileMask
-    {
-        get => _fileMask;
-        set => this.RaiseAndSetIfChanged(ref _fileMask, value);
-    }
-
-    public bool IsSearching
-    {
-        get => _isSearching;
-        set => this.RaiseAndSetIfChanged(ref _isSearching, value);
-    }
-
-    public string ResultFilename { get; set; } = string.Empty;
-
-    public BulkObservableCollection<string> SearchResults { get; }
-    public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
-    public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
-
-    public FileSearchViewModel(string folder = "")
-    {
-        CurrentFolder = folder ?? "c:\\";
-        FileMask = "*.txt";
-        SearchResults = new BulkObservableCollection<string>();
-        StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);
-        CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
-    }
-
-    public async Task<bool> SearchAsync(string folderPath, string searchPattern, CancellationToken cancellationToken)
-    {      
-        try
+        public string CurrentFolder
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            get => _currentFolder;
+            set => this.RaiseAndSetIfChanged(ref _currentFolder, value);
+        }
 
-            _statusFolder = folderPath;
-            var findedFolderAndFiles = new List<string>();
+        public string StatusFolder { get; set; } = "";
 
-            if (SearchContent)
+        public bool TopDirectoryOnly { get; set; }
+
+        public bool SearchContent { get; set; }
+
+        public string SearchText { get; set; } = "";
+
+        public string FileMask
+        {
+            get => _fileMask;
+            set => this.RaiseAndSetIfChanged(ref _fileMask, value);
+        }
+
+        public bool IsSearching
+        {
+            get => _isSearching;
+            set => this.RaiseAndSetIfChanged(ref _isSearching, value);
+        }
+
+        public string ResultFilename { get; set; } = string.Empty;
+
+        public BulkObservableCollection<string> SearchResults { get; }
+        public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
+        public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
+
+        public FileSearchViewModel(string folder = "")
+        {
+            CurrentFolder = folder ?? "c:\\";
+            FileMask = "*.txt";
+            SearchResults = new BulkObservableCollection<string>();
+            StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);
+            CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
+        }
+
+        public async Task<bool> SearchAsync(string folderPath, string searchPattern, CancellationToken cancellationToken)
+        {      
+            try
             {
-                var files = Directory.GetFiles(folderPath, "*", SearchOption.TopDirectoryOnly);
-                foreach(var file in files)
+                cancellationToken.ThrowIfCancellationRequested();
+
+                _statusFolder = folderPath;
+                var foundFolderAndFiles = new List<string>();
+
+                if (SearchContent)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    foreach (string line in File.ReadLines(file))
+                    var files = Directory.GetFiles(folderPath, "*", SearchOption.TopDirectoryOnly);
+                    foreach(var file in files)
                     {
-                        if (line.Contains(searchPattern))
+                        cancellationToken.ThrowIfCancellationRequested();
+                        foreach (string line in File.ReadLines(file))
                         {
-                            SearchResults.Add(file);
-                            break;
+                            if (line.Contains(searchPattern))
+                            {
+                                SearchResults.Add(file);
+                                break;
+                            }
                         }
                     }
+                   
                 }
-               
-            }
-            else
-            {
-                var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
-                findedFolderAndFiles.AddRange(dirs);
-                var files = Directory.GetFiles(folderPath, searchPattern);
-                findedFolderAndFiles.AddRange(files);
-                SearchResults.AddRange(findedFolderAndFiles);
-            }         
-
-            if (!TopDirectoryOnly)
-            {
-                var subDirectories = Directory.GetDirectories(folderPath);
-                foreach (var subDir in subDirectories)
+                else
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    await SearchAsync(subDir, searchPattern, cancellationToken);
+                    var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
+                    foundFolderAndFiles.AddRange(dirs);
+                    var files = Directory.GetFiles(folderPath, searchPattern);
+                    foundFolderAndFiles.AddRange(files);
+                    SearchResults.AddRange(foundFolderAndFiles);
+                }         
+
+                if (!TopDirectoryOnly)
+                {
+                    var subDirectories = Directory.GetDirectories(folderPath);
+                    foreach (var subDir in subDirectories)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await SearchAsync(subDir, searchPattern, cancellationToken);
+                    }
                 }
+            }     
+            catch (OperationCanceledException e)
+            {
+                Log.Error("OperationCanceledException: " + e.Message);
+                throw;
             }
-        }     
-        catch (OperationCanceledException e)
-        {
-            Log.Error("OperationCanceledException: " + e.Message);
+            catch (UnauthorizedAccessException e)
+            {
+                Log.Error("UnauthorizedAccessException: " + e.Message);
+            }        
+            catch (Exception e)
+            {
+                Log.Error("Exception: " + e.Message);
+            }
+            
+            return true;
         }
-        catch (UnauthorizedAccessException e)
+
+        private async Task StartSearch()
         {
-            Log.Error("UnauthorizedAccessException: " + e.Message);
-        }        
-        catch (Exception e)
-        {
-            Log.Error("Exception: " + e.Message);
+            if (string.IsNullOrEmpty(CurrentFolder) || string.IsNullOrEmpty(FileMask))
+            {
+                return;
+            }
+
+            IsSearching = true;
+            SearchResults.Clear();
+            _cancellationTokenSource = new CancellationTokenSource();
+            _timer = new Timer(OnTimerTick, null, 0, 500);
+            try
+            {
+                await Task.Run(() => SearchAsync(CurrentFolder, SearchContent ? SearchText :  FileMask, _cancellationTokenSource.Token));
+            }
+            catch (OperationCanceledException)
+            {
+                // expected when user cancels
+            }
+            finally
+            {
+                _timer?.Dispose();
+                _statusFolder = "";
+                IsSearching = false;
+            }
         }
-        
-        return true;
-    }
 
-    private async Task StartSearch()
-    {
-        if (string.IsNullOrEmpty(CurrentFolder) || string.IsNullOrEmpty(FileMask))
-            return;
-
-        IsSearching = true;
-        SearchResults.Clear();
-        _cancellationTokenSource = new CancellationTokenSource();
-        _timer = new Timer(OnTimerTick, null, 0, 500);
-        await Task.Run(() => SearchAsync(CurrentFolder, SearchContent ? SearchText :  FileMask, _cancellationTokenSource.Token));
-
-        _statusFolder = "";
-        IsSearching = false;
-    }
-
-    private void OnTimerTick(object? state)
-    {
-        Dispatcher.UIThread.Post(() =>
+        private void OnTimerTick(object? state)
         {
-            StatusFolder = _statusFolder;
-            this.RaisePropertyChanged(nameof(StatusFolder));
-        });
-    }
+            Dispatcher.UIThread.Post(() =>
+            {
+                StatusFolder = _statusFolder;
+                this.RaisePropertyChanged(nameof(StatusFolder));
+            });
+        }
 
-    public void CancelSearch()
-    {
-        _cancellationTokenSource?.Cancel();
-        IsSearching = false;
-        _timer?.Dispose();
+        public void CancelSearch()
+        {
+            _cancellationTokenSource?.Cancel();
+            IsSearching = false;
+            _timer?.Dispose();
+            _statusFolder = "";
+        }
     }
 }

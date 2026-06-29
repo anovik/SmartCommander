@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using ReactiveUI.Avalonia;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
+using Serilog;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using System;
@@ -29,7 +30,7 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.RightFileViewModel.ShowViewerDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<ViewerViewModel, ViewerWindow>(interaction)
             )));
-            this.WhenActivated(d => d(ViewModel!.ShowSearchsDialog.RegisterHandler(
+            this.WhenActivated(d => d(ViewModel!.ShowSearchDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>(interaction)
             )));
 
@@ -37,35 +38,47 @@ namespace SmartCommander.Views
 
             Closing += async (s, e) =>
             {
-                if (!e.IsProgrammatic)
+                try
                 {
-                    MainWindowViewModel? vm = DataContext as MainWindowViewModel;
-                    if (vm != null)
-                    {
-                        if (vm.IsBackgroundOperation)
-                        {
-                            e.Cancel = true;
-                            var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
-                            .GetMessageBoxStandard(Assets.Resources.Alert,
-                                Assets.Resources.StopBackground + Environment.NewLine,
-                                ButtonEnum.YesNo,
-                                MsBox.Avalonia.Enums.Icon.Question);
-                            var result = await messageBoxWindow.ShowAsPopupAsync(this);
-                            if (result == ButtonResult.Yes)
-                            {
-                                vm.Cancel();
-                                this.Close();
-                            }
-                            else
-                            {
-                                return;
-                            }
-                        }
-                    }
-
-                    progressWindow.Close();
+                    await HandleClosingAsync(e);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unhandled exception in MainWindow.Closing");
                 }
             };
+        }
+
+        private async Task HandleClosingAsync(WindowClosingEventArgs e)
+        {
+            if (!e.IsProgrammatic)
+            {
+                MainWindowViewModel? vm = DataContext as MainWindowViewModel;
+                if (vm != null)
+                {
+                    if (vm.IsBackgroundOperation)
+                    {
+                        e.Cancel = true;
+                        var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                        .GetMessageBoxStandard(Assets.Resources.Alert,
+                            Assets.Resources.StopBackground + Environment.NewLine,
+                            ButtonEnum.YesNo,
+                            MsBox.Avalonia.Enums.Icon.Question);
+                        var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                        if (result == ButtonResult.Yes)
+                        {
+                            vm.Cancel();
+                            this.Close();
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                progressWindow.Close();
+            }
         }
 
         private async Task DoShowDialogAsync<T1, T2>(IInteractionContext<T1, T1?> interaction)

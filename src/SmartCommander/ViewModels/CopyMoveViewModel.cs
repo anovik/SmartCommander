@@ -17,7 +17,8 @@ namespace SmartCommander.ViewModels
             CancelCommand = ReactiveCommand.Create<Window>(Close);
         }
 
-        public bool IsCopying { get; set; }
+        public bool IsCopying { get; private set; }
+        public bool IsConfirmed { get; private set; }
 
         public string Text { get; set; }
 
@@ -31,13 +32,12 @@ namespace SmartCommander.ViewModels
 
         public void SaveClose(Window window)
         {
-            IsCopying = true;
+            IsConfirmed = true;
             window?.Close(this);
         }
 
         public void Close(Window window)
         {
-            IsCopying = false;
             window?.Close(this);
         }
     }

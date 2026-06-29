@@ -9,8 +9,8 @@ namespace SmartCommander.Models
     public class OptionsModel
     {
         public static OptionsModel Instance { get; } = new OptionsModel();
-        static string _settingsDir = Path.Combine(GetFolderPath(SpecialFolder.ApplicationData), "SmartCommander");
-        static string _settingsPath = Path.Combine(_settingsDir, "settings.json");
+        private static readonly string _settingsDir = Path.Combine(GetFolderPath(SpecialFolder.ApplicationData), "SmartCommander");
+        private static readonly string _settingsPath = Path.Combine(_settingsDir, "settings.json");
         static OptionsModel()
         {
             Directory.CreateDirectory(_settingsDir);
@@ -58,6 +58,6 @@ namespace SmartCommander.Models
         public bool AllowOnlyOneInstance { get; set; } = true;
         public string Language { get; set; } = "en-US";
 
-        public List<string> ListerPlugins { get; set; }= new List<string>();
+        public List<string> ListerPlugins { get; set; }= [];
     }
 }

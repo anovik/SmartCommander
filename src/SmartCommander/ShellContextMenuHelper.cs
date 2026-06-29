@@ -7,6 +7,7 @@ using System.Runtime.Versioning;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
+using Serilog;
 
 namespace SmartCommander
 {
@@ -181,7 +182,7 @@ namespace SmartCommander
                     int hrP = SHParseDisplayName(paths[i], IntPtr.Zero, out absolutePidls[i], 0, out sfgaoOut);
                     if (hrP != 0)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] SHParseDisplayName failed for {paths[i]}: {hrP}");
+                        Log.Warning("SHParseDisplayName failed for {Path}: {HResult}", paths[i], hrP);
                         continue;
                     }
 
@@ -220,7 +221,7 @@ namespace SmartCommander
                         int hr2 = menu.QueryContextMenu(hMenu, 0, 1, 0x7FFF, CMF_EXPLORER);
                         if (hr2 < 0)
                         {
-                            System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] QueryContextMenu failed: {hr2}");
+                            Log.Warning("QueryContextMenu failed: {HResult}", hr2);
                             return;
                         }
 
@@ -248,7 +249,7 @@ namespace SmartCommander
                                 int hr3 = menu.InvokeCommand(iciPtr);
                                 if (hr3 < 0)
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] InvokeCommand failed: {hr3}");
+                                    Log.Warning("InvokeCommand failed: {HResult}", hr3);
                                 }
                             }
                             finally
@@ -259,7 +260,7 @@ namespace SmartCommander
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] Context menu error: {ex}");
+                        Log.Error(ex, "Context menu error");
                     }
                     finally
                     {
@@ -269,7 +270,7 @@ namespace SmartCommander
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] ShellContextMenuHelper error: {ex}");
+                Log.Error(ex, "ShellContextMenuHelper error");
             }
             finally
             {
@@ -317,7 +318,6 @@ namespace SmartCommander
                 {
                     IShellFolder folder = (IShellFolder)Marshal.GetTypedObjectForIUnknown(folderPtr, typeof(IShellFolder));
                     
-                    Guid guidIContextMenu = new Guid("000214e4-0000-0000-c000-000000000046");
                     Guid guidIID_IContextMenu = new Guid("000214e4-0000-0000-c000-000000000046");
                     
                     int hrV = folder.CreateViewObject(hwnd, ref guidIID_IContextMenu, out IntPtr ppv);
@@ -370,7 +370,7 @@ namespace SmartCommander
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DEBUG_LOG] ShowBackgroundContextMenu error: {ex}");
+                Log.Error(ex, "ShowBackgroundContextMenu error");
             }
             finally
             {
