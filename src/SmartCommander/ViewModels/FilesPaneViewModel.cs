@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using MsBox.Avalonia.Enums;
@@ -6,6 +6,7 @@ using ReactiveUI;
 using Serilog;
 using SmartCommander.Assets;
 using SmartCommander.Models;
+using SmartCommander.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,6 +32,7 @@ namespace SmartCommander.ViewModels
 
     public class FilesPaneViewModel : ViewModelBase
     {
+        private readonly IFileSystemService _fs = null!;
         private string _currentDirectory = "";
 
         private int _totalFiles = 0;
@@ -55,7 +57,6 @@ namespace SmartCommander.ViewModels
             }
         }
 
-
         private MainWindowViewModel _mainVM;
 
         public string CurrentDirectoryInfo => string.Format(Resources.CurrentDirInfo, _totalFiles, _totalFolders);
@@ -71,7 +72,6 @@ namespace SmartCommander.ViewModels
 
         public bool IsUnzip => CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
 
-
         public SortingBy Sorting
         {
             get => _sorting;
@@ -84,7 +84,6 @@ namespace SmartCommander.ViewModels
 
         public bool Ascending
         {
-
             get => _ascending;
             set
             {
@@ -108,12 +107,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-
-        public static bool IsCurrentDirectoryDisplayed
-        {
-            get => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
-        }
-
+        public static bool IsCurrentDirectoryDisplayed => OptionsModel.Instance.IsCurrentDirectoryDisplayed;
 
         public bool IsWindows => OperatingSystem.IsWindows();
 
@@ -130,8 +124,9 @@ namespace SmartCommander.ViewModels
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
         }
 
-        public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler)
+        public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler, IFileSystemService fs)
         {
+            _fs = fs;
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
@@ -150,6 +145,7 @@ namespace SmartCommander.ViewModels
         {
             ScrollToItemRequested?.Invoke(item, column!);
         }
+
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
@@ -303,7 +299,9 @@ namespace SmartCommander.ViewModels
         public async Task View(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
+            {
                 return;
+            }
             if (!CurrentItem.IsFolder)
             {
                 if (ulong.TryParse(CurrentItem.Size, out var fileSize) && fileSize > 128 * 1024 * 1024)
@@ -320,6 +318,7 @@ namespace SmartCommander.ViewModels
                 MessageBox_Show(resultAction, Resources.CantViewFolder, Resources.Alert, ButtonEnum.Ok);
             }
         }
+
         public void Edit()
         {
             Edit(null);
@@ -328,7 +327,9 @@ namespace SmartCommander.ViewModels
         public void Edit(Action<ButtonResult, object?>? resultAction)
         {
             if (CurrentItem == null)
+            {
                 return;
+            }
             if (!CurrentItem.IsFolder)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -367,7 +368,6 @@ namespace SmartCommander.ViewModels
                 }
                 else
                 {
-                    // No items selected, show background context menu for current directory
                     if (ShowWindowsContextMenuInteraction != null)
                     {
                         await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
@@ -386,44 +386,21 @@ namespace SmartCommander.ViewModels
         private void LaunchProcess(string program, string argument)
         {
             var process = new Process();
-            process.StartInfo.FileName = "x-terminal-emulator"; // Use the default terminal emulator
-            process.StartInfo.Arguments = $"-e {program} \"{argument}\""; // Specify the command to run in the new terminal window
-            process.StartInfo.UseShellExecute = false; // Required to use the terminal emulator
+            process.StartInfo.FileName = "x-terminal-emulator";
+            process.StartInfo.Arguments = $"-e {program} \"{argument}\"";
+            process.StartInfo.UseShellExecute = false;
             process.Start();
         }
 
-        public void Delete(FileViewModel? item)
-        {
-            try
-            {
-                if (item == null)
-                {
-                    return;
-                }
-                if (item.IsFolder)
-                {
-                    Utils.DeleteDirectoryWithHiddenFiles(item.FullName);
-                }
-                else
-                {
-                    File.Delete(item.FullName);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Delete failed: {FullName}", item?.FullName);
-            }
-        }
-
-        public void CreateNewFolder(string name)
+        public async Task CreateNewFolder(string name)
         {
             string newFolder = Path.Combine(CurrentDirectory, name);
-            if (Directory.Exists(newFolder))
+            if (_fs.DirectoryExists(newFolder))
             {
                 MessageBox_Show(null, Resources.FolderExists, Resources.Alert, ButtonEnum.Ok);
                 return;
             }
-            Directory.CreateDirectory(newFolder);
+            await _fs.CreateDirectoryAsync(newFolder);
         }
 
         public void ProcessCurrentItem(bool goToParent = false)
@@ -435,15 +412,13 @@ namespace SmartCommander.ViewModels
 
             if (goToParent)
             {
-                if (Directory.GetParent(CurrentDirectory) == null)
+                var parentPath = _fs.GetDirectoryParent(CurrentDirectory);
+                if (parentPath == null)
                 {
                     return;
                 }
-
-                var prevFolder = Path.GetFileName(CurrentDirectory);
-                var parent = Directory.GetParent(CurrentDirectory);
-                _pendingRestoreItemName = prevFolder;
-                CurrentDirectory = parent != null ? parent.FullName : CurrentDirectory;
+                _pendingRestoreItemName = Path.GetFileName(CurrentDirectory);
+                CurrentDirectory = parentPath;
                 return;
             }
 
@@ -451,10 +426,9 @@ namespace SmartCommander.ViewModels
             {
                 if (CurrentItem.FullName == "..")
                 {
-                    var prevFolder = Path.GetFileName(CurrentDirectory);
-                    var parent = Directory.GetParent(CurrentDirectory);
-                    _pendingRestoreItemName = prevFolder;
-                    CurrentDirectory = parent != null ? parent.FullName : CurrentDirectory;
+                    var parentPath = _fs.GetDirectoryParent(CurrentDirectory);
+                    _pendingRestoreItemName = Path.GetFileName(CurrentDirectory);
+                    CurrentDirectory = parentPath ?? CurrentDirectory;
                 }
                 else
                 {
@@ -463,7 +437,6 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-                // it is a file, open it
                 new Process
                 {
                     StartInfo = new ProcessStartInfo(CurrentItem.FullName)
@@ -483,16 +456,28 @@ namespace SmartCommander.ViewModels
             var sortingBy = Sorting;
             var ascending = Ascending;
 
-            List<FileViewModel> folders;
-            List<FileViewModel> files;
-            int totalFolders, totalFiles;
-            bool isParent;
-            string? selectedDrive;
+            if (!_fs.DirectoryExists(dir) || !Path.IsPathFullyQualified(dir))
+            {
+                return;
+            }
 
+            bool isParent = _fs.GetDirectoryParent(dir) != null;
+            string? selectedDrive = OperatingSystem.IsWindows() ? _fs.GetPathRoot(dir) : null;
+
+            var options = new EnumerationOptions
+            {
+                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed
+                    ? 0 : FileAttributes.Hidden | FileAttributes.System,
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = false,
+            };
+
+            IReadOnlyList<string> dirPaths;
+            IReadOnlyList<string> filePaths;
             try
             {
-                (folders, files, totalFolders, totalFiles, isParent, selectedDrive) =
-                    await Task.Run(() => BuildEntries(dir, sortingBy, ascending, cts.Token), cts.Token);
+                dirPaths = await _fs.GetDirectoriesAsync(dir, options, cts.Token);
+                filePaths = await _fs.GetFilesAsync(dir, options, cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -501,6 +486,32 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to load directory {Dir}", dir);
+                return;
+            }
+
+            if (cts != _loadCts)
+            {
+                _pendingRestoreItemName = null;
+                _pendingScrollTargetFullName = null;
+                return;
+            }
+
+            // Build FileViewModel entries off the UI thread (CreateAsync does metadata I/O via service)
+            List<FileViewModel> folders;
+            List<FileViewModel> files;
+            int totalFolders, totalFiles;
+            try
+            {
+                (folders, files, totalFolders, totalFiles) =
+                    await Task.Run(() => BuildEntries(dirPaths, filePaths, sortingBy, ascending, _fs, cts.Token), cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to build entries for {Dir}", dir);
                 return;
             }
 
@@ -567,50 +578,30 @@ namespace SmartCommander.ViewModels
             this.RaisePropertyChanged(nameof(CurrentDirectoryInfo));
         }
 
-        private static (List<FileViewModel> Folders, List<FileViewModel> Files, int TotalFolders, int TotalFiles, bool IsParent, string? SelectedDrive)
-            BuildEntries(string dir, SortingBy sorting, bool ascending, CancellationToken ct)
+        private static async Task<(List<FileViewModel> Folders, List<FileViewModel> Files, int TotalFolders, int TotalFiles)>
+            BuildEntries(IReadOnlyList<string> dirPaths, IReadOnlyList<string> filePaths,
+                         SortingBy sorting, bool ascending, IFileSystemService fs, CancellationToken ct)
         {
-            if (!Directory.Exists(dir) || !Path.IsPathFullyQualified(dir))
-            {
-                return ([], [], 0, 0, false, null);
-            }
-
-            bool isParent = Directory.GetParent(dir) != null;
-
-            string? selectedDrive = null;
-            if (OperatingSystem.IsWindows())
-            {
-                selectedDrive = Path.GetPathRoot(new FileInfo(dir).FullName);
-            }
-
-            var options = new EnumerationOptions
-            {
-                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed
-                    ? 0 : FileAttributes.Hidden | FileAttributes.System,
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = false,
-            };
-
             int totalFolders = 0, totalFiles = 0;
             var foldersList = new List<FileViewModel>();
-            foreach (string subdirectory in Directory.EnumerateDirectories(dir, "*", options))
+            foreach (string subdirectory in dirPaths)
             {
                 ct.ThrowIfCancellationRequested();
                 try
                 {
-                    foldersList.Add(new FileViewModel(subdirectory, true));
+                    foldersList.Add(await FileViewModel.CreateAsync(subdirectory, true, fs));
                     ++totalFolders;
                 }
                 catch { }
             }
 
             var filesList = new List<FileViewModel>();
-            foreach (string fileName in Directory.EnumerateFiles(dir, "*", options))
+            foreach (string fileName in filePaths)
             {
                 ct.ThrowIfCancellationRequested();
                 try
                 {
-                    filesList.Add(new FileViewModel(fileName, false));
+                    filesList.Add(await FileViewModel.CreateAsync(fileName, false, fs));
                     ++totalFiles;
                 }
                 catch { }
@@ -653,7 +644,7 @@ namespace SmartCommander.ViewModels
                     : filesList.OrderByDescending(e => e.DateCreated).ToList();
             }
 
-            return (foldersList, filesList, totalFolders, totalFiles, isParent, selectedDrive);
+            return (foldersList, filesList, totalFolders, totalFiles);
         }
 
         public void NavigateToFileItem(string resultFilename)
@@ -673,19 +664,18 @@ namespace SmartCommander.ViewModels
             get { return _selectedDrive; }
             set
             {
-                if (!Directory.Exists(value))
+                if (value == null || !_fs.DirectoryExists(value))
                 {
                     MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok);
                     return;
                 }
 
-                FileInfo f = new FileInfo(CurrentDirectory);
-                var driveFromDirectory = Path.GetPathRoot(f.FullName);
+                var driveFromDirectory = _fs.GetPathRoot(CurrentDirectory);
 
                 _selectedDrive = value;
                 if (_selectedDrive != driveFromDirectory)
                 {
-                    CurrentDirectory = _selectedDrive;
+                    CurrentDirectory = _selectedDrive!;
                 }
                 this.RaisePropertyChanged(nameof(SelectedDrive));
             }

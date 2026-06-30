@@ -1,10 +1,7 @@
-﻿using Avalonia.Threading;
 using ReactiveUI;
-using Serilog;
 using SmartCommander.Extensions;
+using SmartCommander.Services;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,12 +10,11 @@ namespace SmartCommander.ViewModels
 {
     public class FileSearchViewModel : ViewModelBase
     {
+        private readonly IFileSystemService _fs;
         private string _currentFolder = "";
-        private string _statusFolder = "";
         private string _fileMask = "";
         private bool _isSearching = false;
         private CancellationTokenSource? _cancellationTokenSource;
-        private Timer? _timer;
 
         public string CurrentFolder
         {
@@ -52,75 +48,14 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> StartSearchCommand { get; }
         public ReactiveCommand<Unit, Unit> CancelSearchCommand { get; }
 
-        public FileSearchViewModel(string folder = "")
+        public FileSearchViewModel(string folder, IFileSystemService fs)
         {
-            CurrentFolder = folder ?? "c:\\";
+            _fs = fs;
+            CurrentFolder = folder;
             FileMask = "*.txt";
             SearchResults = new BulkObservableCollection<string>();
             StartSearchCommand = ReactiveCommand.CreateFromTask(StartSearch);
             CancelSearchCommand = ReactiveCommand.Create(CancelSearch);
-        }
-
-        public async Task<bool> SearchAsync(string folderPath, string searchPattern, CancellationToken cancellationToken)
-        {      
-            try
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                _statusFolder = folderPath;
-                var foundFolderAndFiles = new List<string>();
-
-                if (SearchContent)
-                {
-                    var files = Directory.GetFiles(folderPath, "*", SearchOption.TopDirectoryOnly);
-                    foreach(var file in files)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        foreach (string line in File.ReadLines(file))
-                        {
-                            if (line.Contains(searchPattern))
-                            {
-                                SearchResults.Add(file);
-                                break;
-                            }
-                        }
-                    }
-                   
-                }
-                else
-                {
-                    var dirs = Directory.GetDirectories(folderPath, searchPattern, SearchOption.TopDirectoryOnly);
-                    foundFolderAndFiles.AddRange(dirs);
-                    var files = Directory.GetFiles(folderPath, searchPattern);
-                    foundFolderAndFiles.AddRange(files);
-                    SearchResults.AddRange(foundFolderAndFiles);
-                }         
-
-                if (!TopDirectoryOnly)
-                {
-                    var subDirectories = Directory.GetDirectories(folderPath);
-                    foreach (var subDir in subDirectories)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        await SearchAsync(subDir, searchPattern, cancellationToken);
-                    }
-                }
-            }     
-            catch (OperationCanceledException e)
-            {
-                Log.Error("OperationCanceledException: " + e.Message);
-                throw;
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Log.Error("UnauthorizedAccessException: " + e.Message);
-            }        
-            catch (Exception e)
-            {
-                Log.Error("Exception: " + e.Message);
-            }
-            
-            return true;
         }
 
         private async Task StartSearch()
@@ -133,38 +68,44 @@ namespace SmartCommander.ViewModels
             IsSearching = true;
             SearchResults.Clear();
             _cancellationTokenSource = new CancellationTokenSource();
-            _timer = new Timer(OnTimerTick, null, 0, 500);
+
+            var resultsProgress = new Progress<string>(result => SearchResults.Add(result));
+            var statusProgress = new Progress<string>(path =>
+            {
+                StatusFolder = path;
+                this.RaisePropertyChanged(nameof(StatusFolder));
+            });
+
             try
             {
-                await Task.Run(() => SearchAsync(CurrentFolder, SearchContent ? SearchText :  FileMask, _cancellationTokenSource.Token));
+                await _fs.SearchAsync(
+                    CurrentFolder,
+                    FileMask,
+                    TopDirectoryOnly,
+                    SearchContent,
+                    SearchText,
+                    resultsProgress,
+                    statusProgress,
+                    _cancellationTokenSource.Token);
             }
-            catch (OperationCanceledException)
+            catch (System.OperationCanceledException)
             {
                 // expected when user cancels
             }
             finally
             {
-                _timer?.Dispose();
-                _statusFolder = "";
+                StatusFolder = "";
+                this.RaisePropertyChanged(nameof(StatusFolder));
                 IsSearching = false;
             }
-        }
-
-        private void OnTimerTick(object? state)
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                StatusFolder = _statusFolder;
-                this.RaisePropertyChanged(nameof(StatusFolder));
-            });
         }
 
         public void CancelSearch()
         {
             _cancellationTokenSource?.Cancel();
             IsSearching = false;
-            _timer?.Dispose();
-            _statusFolder = "";
+            StatusFolder = "";
+            this.RaisePropertyChanged(nameof(StatusFolder));
         }
     }
 }

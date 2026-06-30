@@ -1,9 +1,12 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Threading;
+using ReactiveUI;
 using Serilog;
 using SmartCommander.Assets;
+using SmartCommander.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
 {
@@ -81,44 +84,100 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                string destination = "";
+                var oldName = _name;
+                var oldFullName = FullName;
+                var destName = IsFolder ? value : (value + (!string.IsNullOrEmpty(Extension) ? "." + Extension : ""));
+                var destination = Path.Combine(Path.GetDirectoryName(oldFullName) ?? "", destName);
 
-                try
+                // Optimistic update so the DataGrid reflects the new name immediately
+                _name = value;
+                FullName = destination;
+                this.RaisePropertyChanged(nameof(Name));
+                this.RaisePropertyChanged(nameof(FullName));
+
+                _ = Task.Run(async () =>
                 {
-                    // moving here is fast since they are guaranteed to be on the same drive
-                    if (IsFolder)
+                    try
                     {
-                        destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", value);
-                        Directory.Move(FullName, destination);
-                    }
-                    else
-                    {
-                        var destName = value;
-                        if (!string.IsNullOrEmpty(Extension))
+                        if (IsFolder)
                         {
-                            destName += "." + Extension;
+                            Directory.Move(oldFullName, destination);
                         }
-                        destination = Path.Combine(Path.GetDirectoryName(FullName) ?? "", destName);
-                        File.Move(FullName, destination);
+                        else
+                        {
+                            File.Move(oldFullName, destination);
+                        }
                     }
-                    _name = value;
-                    FullName = destination;
-                    this.RaisePropertyChanged(nameof(Name));
-                    this.RaisePropertyChanged(nameof(FullName));
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Rename failed: {FullName}", FullName);
-                    this.RaisePropertyChanged(nameof(Name));
-                }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Rename failed: {FullName}", oldFullName);
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            _name = oldName;
+                            FullName = oldFullName;
+                            this.RaisePropertyChanged(nameof(Name));
+                            this.RaisePropertyChanged(nameof(FullName));
+                        });
+                    }
+                });
             }
         }
 
         public string Extension { get; set; } = "";
         public string Size { get; set; } = "";
         public DateTime DateCreated { get; set; }
-        public bool IsFolder { get; set; } 
+        public bool IsFolder { get; set; }
 
         public string? ImageSource { get; set; }
+
+        // Preferred factory for normal file/folder entries — uses IFileSystemService for metadata
+        // so no sync I/O on the calling thread. Call from a background thread (e.g. inside Task.Run).
+        public static async Task<FileViewModel> CreateAsync(string fullName, bool isFolder, IFileSystemService fs)
+        {
+            var vm = new FileViewModel
+            {
+                FullName = fullName,
+                IsFolder = isFolder,
+            };
+
+            if (isFolder)
+            {
+                vm._name = Path.GetFileName(fullName);
+                vm.Extension = "";
+                vm.Size = Resources.Folder;
+                vm.DateCreated = await fs.GetCreationTimeAsync(fullName);
+                vm.ImageSource = "Assets/folder.png";
+            }
+            else
+            {
+                (vm._name, vm.Extension) = ParseNameAndExtension(fullName);
+                vm.Size = (await fs.GetFileSizeAsync(fullName)).ToString();
+                vm.DateCreated = await fs.GetCreationTimeAsync(fullName);
+                vm.ImageSource = SelectIconSource(vm.Extension);
+            }
+
+            return vm;
+        }
+
+        // Extracted for unit testing — pure path logic, no I/O.
+        internal static (string Name, string Extension) ParseNameAndExtension(string fullName)
+        {
+            if (string.IsNullOrEmpty(Path.GetFileNameWithoutExtension(fullName)))
+            {
+                return (Path.GetFileName(fullName), "");
+            }
+            return (Path.GetFileNameWithoutExtension(fullName), Path.GetExtension(fullName).TrimStart('.'));
+        }
+
+        // Extracted for unit testing — pure extension-to-icon mapping.
+        internal static string SelectIconSource(string extension)
+        {
+            var ext = extension.ToLower();
+            if (ImageExtensions.Contains(ext)) return "Assets/image.png";
+            if (VideoExtensions.Contains(ext)) return "Assets/video.png";
+            if (ArchiveExtensions.Contains(ext)) return "Assets/archive.png";
+            if (DocumentExtensions.Contains(ext)) return "Assets/document.png";
+            return "Assets/file.png";
+        }
     }
 }

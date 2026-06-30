@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
 using SmartCommander.Models;
+using SmartCommander.Services;
 using SmartCommander.ViewModels;
 using SmartCommander.Views;
 using System.IO.Pipes;
@@ -28,7 +29,7 @@ namespace SmartCommander
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                vm = new MainWindowViewModel();
+                vm = new MainWindowViewModel(new LocalFileSystemService());
                 mainWindow = new MainWindow
                 {
                     DataContext = vm,
