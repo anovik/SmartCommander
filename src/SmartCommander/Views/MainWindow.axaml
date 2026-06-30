@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:CompileBindings="False"
         xmlns:vm="using:SmartCommander.ViewModels"
 		xmlns:views="using:SmartCommander.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"

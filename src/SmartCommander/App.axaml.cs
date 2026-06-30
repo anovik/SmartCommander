@@ -120,9 +120,9 @@ namespace SmartCommander
             {                
                 if (desktop != null && desktop.MainWindow != null)
                 {
-                    OptionsModel.Instance.Left = desktop.MainWindow.Bounds.Left;
+                    OptionsModel.Instance.Left = desktop.MainWindow.Position.X;
+                    OptionsModel.Instance.Top = desktop.MainWindow.Position.Y;
                     OptionsModel.Instance.Width = desktop.MainWindow.Bounds.Width;
-                    OptionsModel.Instance.Top = desktop.MainWindow.Bounds.Top;
                     OptionsModel.Instance.Height = desktop.MainWindow.Bounds.Height;
                     OptionsModel.Instance.IsMaximized = desktop.MainWindow.WindowState == WindowState.Maximized;
                 }

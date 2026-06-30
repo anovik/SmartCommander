@@ -54,7 +54,7 @@ namespace SmartCommander
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI(_ => { });
 
       
     }
