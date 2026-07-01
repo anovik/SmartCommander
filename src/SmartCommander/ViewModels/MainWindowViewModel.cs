@@ -252,11 +252,12 @@ namespace SmartCommander.ViewModels
 
             try
             {
-                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
-                long totalSize = await _fs.GetTotalSizeAsync(items);
+                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder, i.Name)).ToList();
+                string zipDir = SelectedPane.CurrentDirectory;
+                long totalSize = await _fs.GetTotalSizeAsync(items.Select(i => (i.FullName, i.IsFolder)).ToList());
                 using (tokenSource = new SmartCancellationTokenSource())
                 {
-                    await Task.Run(() => ZipCore(totalSize, tokenSource.Token));
+                    await Task.Run(() => ZipCore(items, zipDir, totalSize, tokenSource.Token));
                     SelectedPane.Update();
                 }
             }
@@ -312,20 +313,17 @@ namespace SmartCommander.ViewModels
             catch { }
         }
 
-        private void ZipCore(long totalSize, CancellationToken ct)
+        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipDir, long totalSize, CancellationToken ct)
         {
             try
             {
-                if (ct.IsCancellationRequested)
-                {
-                    ct.ThrowIfCancellationRequested();
-                }
-                if (SelectedPane.CurrentItems.Count < 1)
+                ct.ThrowIfCancellationRequested();
+                if (snapshot.Count < 1)
                 {
                     return;
                 }
 
-                var zipName = Path.Combine(SelectedPane.CurrentDirectory, SelectedPane.CurrentItems[0].Name + ".zip");
+                var zipName = Path.Combine(zipDir, snapshot[0].Name + ".zip");
                 if (File.Exists(zipName))
                 {
                     MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
@@ -334,9 +332,8 @@ namespace SmartCommander.ViewModels
                 _progress?.Report(0);
                 long processedSize = 0;
 
-                var items = SelectedPane.CurrentItems;
                 List<Tuple<string, string>> itemsToProcess = new();
-                foreach (var item in items)
+                foreach (var item in snapshot)
                 {
                     itemsToProcess.Add(Tuple.Create("", item.FullName));
                 }
