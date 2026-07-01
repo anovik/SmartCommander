@@ -1,6 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+﻿using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using AvaloniaEdit.Utils;
 using ReactiveUI;
@@ -113,8 +111,7 @@ namespace SmartCommander.ViewModels
         };
         private async Task AddFile(Window window)
         {
-            var desktop = (IClassicDesktopStyleApplicationLifetime?)Application.Current?.ApplicationLifetime;
-            var topLevel = TopLevel.GetTopLevel(desktop?.MainWindow);
+            var topLevel = GetTopLevel();
             if (topLevel == null)
             {
                 return;

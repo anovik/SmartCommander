@@ -1,3 +1,6 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Views;
@@ -10,6 +13,15 @@ namespace SmartCommander.ViewModels
         public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxRequest;
         public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxInputRequest;
         public event EventHandler<int>? ProgressRequest;
+
+        protected static TopLevel? GetTopLevel()
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                return TopLevel.GetTopLevel(desktopLifetime.MainWindow);
+            }
+            return null;
+        }
 
         protected void Progress_Show(int value)
         {

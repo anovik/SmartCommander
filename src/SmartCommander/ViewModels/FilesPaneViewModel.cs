@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Media;
@@ -375,14 +373,16 @@ namespace SmartCommander.ViewModels
             _mainVM.Unzip();
         }
 
+        // Cut/copy intent travels with the clipboard payload itself (rather than app-local state)
+        // so a paste always reflects whatever is actually on the clipboard right now — including
+        // clipboard content replaced by another application after an in-app Cut.
+        private static readonly DataFormat<string> CutMarkerFormat =
+            DataFormat.CreateStringApplicationFormat("SmartCommander.Cut");
+
         private static (IClipboard? Clipboard, IStorageProvider? StorageProvider) GetClipboardServices()
         {
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-            {
-                var topLevel = TopLevel.GetTopLevel(desktopLifetime.MainWindow);
-                return (topLevel?.Clipboard, topLevel?.StorageProvider);
-            }
-            return (null, null);
+            var topLevel = GetTopLevel();
+            return (topLevel?.Clipboard, topLevel?.StorageProvider);
         }
 
         private async Task CopyOrCutToClipboard(bool isCut)
@@ -402,7 +402,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
-            var storageItems = new List<IStorageItem>();
+            var dataTransfer = new DataTransfer();
             foreach (var item in items)
             {
                 var uri = new Uri(item.FullName);
@@ -411,17 +411,21 @@ namespace SmartCommander.ViewModels
                     : await storageProvider.TryGetFileFromPathAsync(uri);
                 if (storageItem != null)
                 {
-                    storageItems.Add(storageItem);
+                    dataTransfer.Add(DataTransferItem.Create(DataFormat.File, storageItem));
                 }
             }
 
-            if (storageItems.Count == 0)
+            if (dataTransfer.Items.Count == 0)
             {
                 return;
             }
 
-            _mainVM.ClipboardIsCut = isCut;
-            await clipboard.SetFilesAsync(storageItems);
+            if (isCut)
+            {
+                dataTransfer.Add(DataTransferItem.Create(CutMarkerFormat, "1"));
+            }
+
+            await clipboard.SetDataAsync(dataTransfer);
             CanPaste = true;
         }
 
@@ -439,8 +443,9 @@ namespace SmartCommander.ViewModels
                 var formats = await clipboard.GetDataFormatsAsync();
                 CanPaste = formats.Contains(DataFormat.File);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex, "Failed to query clipboard formats");
                 CanPaste = false;
             }
         }
@@ -463,7 +468,13 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
-            var files = await clipboard.TryGetFilesAsync();
+            using var dataTransfer = await clipboard.TryGetDataAsync();
+            if (dataTransfer == null)
+            {
+                return;
+            }
+
+            var files = await dataTransfer.TryGetFilesAsync();
             if (files == null || files.Length == 0)
             {
                 return;
@@ -480,7 +491,8 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
-            await _mainVM.PasteFiles(CurrentDirectory, sourcePaths);
+            bool isCut = dataTransfer.Contains(CutMarkerFormat);
+            await _mainVM.PasteFiles(CurrentDirectory, sourcePaths, isCut);
         }
 
         public async Task ShowMoreOptions()
