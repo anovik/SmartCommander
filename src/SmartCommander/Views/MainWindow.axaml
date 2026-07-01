@@ -36,6 +36,10 @@
 		<KeyBinding Gesture="F7" Command="{Binding F7Command}" />
 		<KeyBinding Gesture="F8" Command="{Binding F8Command}" />
 
+		<KeyBinding Gesture="Ctrl+C" Command="{Binding CopyToClipboardCommand}" />
+		<KeyBinding Gesture="Ctrl+X" Command="{Binding CutToClipboardCommand}" />
+		<KeyBinding Gesture="Ctrl+V" Command="{Binding PasteFromClipboardCommand}" />
+
 		<KeyBinding Gesture="Alt+F7" Command="{Binding SearchFilesCommand}" />
 		
 

@@ -1,6 +1,10 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using Serilog;
@@ -72,6 +76,13 @@ namespace SmartCommander.ViewModels
 
         public bool IsUnzip => CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
 
+        private bool _canPaste;
+        public bool CanPaste
+        {
+            get => _canPaste;
+            private set => this.RaiseAndSetIfChanged(ref _canPaste, value);
+        }
+
         public SortingBy Sorting
         {
             get => _sorting;
@@ -132,6 +143,9 @@ namespace SmartCommander.ViewModels
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.Create(Zip);
             UnzipCommand = ReactiveCommand.Create(Unzip);
+            CopyCommand = ReactiveCommand.CreateFromTask(Copy);
+            CutCommand = ReactiveCommand.CreateFromTask(Cut);
+            PasteCommand = ReactiveCommand.CreateFromTask(Paste, this.WhenAnyValue(x => x.CanPaste));
             ShowMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowMoreOptions);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             ShowWindowsContextMenuInteraction = new Interaction<string[], Unit>();
@@ -150,6 +164,9 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
+        public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
+        public ReactiveCommand<Unit, Unit>? CutCommand { get; }
+        public ReactiveCommand<Unit, Unit>? PasteCommand { get; }
         public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
 
         public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog { get; }
@@ -356,6 +373,114 @@ namespace SmartCommander.ViewModels
         public void Unzip()
         {
             _mainVM.Unzip();
+        }
+
+        private static (IClipboard? Clipboard, IStorageProvider? StorageProvider) GetClipboardServices()
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                var topLevel = TopLevel.GetTopLevel(desktopLifetime.MainWindow);
+                return (topLevel?.Clipboard, topLevel?.StorageProvider);
+            }
+            return (null, null);
+        }
+
+        private async Task CopyOrCutToClipboard(bool isCut)
+        {
+            var items = (CurrentItems.Count > 0 ? CurrentItems :
+                (CurrentItem != null ? new List<FileViewModel> { CurrentItem } : new List<FileViewModel>()))
+                .Where(i => i.FullName != "..")
+                .ToList();
+            if (items.Count == 0)
+            {
+                return;
+            }
+
+            var (clipboard, storageProvider) = GetClipboardServices();
+            if (clipboard == null || storageProvider == null)
+            {
+                return;
+            }
+
+            var storageItems = new List<IStorageItem>();
+            foreach (var item in items)
+            {
+                var uri = new Uri(item.FullName);
+                IStorageItem? storageItem = item.IsFolder
+                    ? await storageProvider.TryGetFolderFromPathAsync(uri)
+                    : await storageProvider.TryGetFileFromPathAsync(uri);
+                if (storageItem != null)
+                {
+                    storageItems.Add(storageItem);
+                }
+            }
+
+            if (storageItems.Count == 0)
+            {
+                return;
+            }
+
+            _mainVM.ClipboardIsCut = isCut;
+            await clipboard.SetFilesAsync(storageItems);
+            CanPaste = true;
+        }
+
+        public async Task UpdatePasteAvailability()
+        {
+            var (clipboard, _) = GetClipboardServices();
+            if (clipboard == null)
+            {
+                CanPaste = false;
+                return;
+            }
+
+            try
+            {
+                var formats = await clipboard.GetDataFormatsAsync();
+                CanPaste = formats.Contains(DataFormat.File);
+            }
+            catch
+            {
+                CanPaste = false;
+            }
+        }
+
+        public async Task Copy()
+        {
+            await CopyOrCutToClipboard(false);
+        }
+
+        public async Task Cut()
+        {
+            await CopyOrCutToClipboard(true);
+        }
+
+        public async Task Paste()
+        {
+            var (clipboard, _) = GetClipboardServices();
+            if (clipboard == null)
+            {
+                return;
+            }
+
+            var files = await clipboard.TryGetFilesAsync();
+            if (files == null || files.Length == 0)
+            {
+                return;
+            }
+
+            var sourcePaths = files
+                .Select(f => f.TryGetLocalPath())
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Select(p => p!)
+                .ToList();
+
+            if (sourcePaths.Count == 0)
+            {
+                return;
+            }
+
+            await _mainVM.PasteFiles(CurrentDirectory, sourcePaths);
         }
 
         public async Task ShowMoreOptions()

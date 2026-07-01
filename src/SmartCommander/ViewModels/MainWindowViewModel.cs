@@ -48,6 +48,10 @@ namespace SmartCommander.ViewModels
             F7Command = ReactiveCommand.Create(CreateNewFolder);
             F8Command = ReactiveCommand.Create(Delete);
 
+            CopyToClipboardCommand = ReactiveCommand.CreateFromTask(() => SelectedPane.Copy());
+            CutToClipboardCommand = ReactiveCommand.CreateFromTask(() => SelectedPane.Cut());
+            PasteFromClipboardCommand = ReactiveCommand.CreateFromTask(() => SelectedPane.Paste());
+
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
@@ -98,6 +102,11 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> F6Command { get; }
         public ReactiveCommand<Unit, Unit> F7Command { get; }
         public ReactiveCommand<Unit, Unit> F8Command { get; }
+
+        public ReactiveCommand<Unit, Unit> CopyToClipboardCommand { get; }
+        public ReactiveCommand<Unit, Unit> CutToClipboardCommand { get; }
+        public ReactiveCommand<Unit, Unit> PasteFromClipboardCommand { get; }
+
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; }
@@ -126,6 +135,11 @@ namespace SmartCommander.ViewModels
         }
 
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
+
+        public bool ClipboardIsCut { get; set; }
+
+        private List<string> _pasteSourcePaths = new();
+        private string _pasteDestDirectory = "";
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
         public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
@@ -616,6 +630,142 @@ namespace SmartCommander.ViewModels
             finally
             {
                 _progress?.Report(100);
+                SelectedPane.Update();
+                SecondPane.Update();
+            }
+        }
+
+        public async Task PasteFiles(string destDirectory, List<string> sourcePaths)
+        {
+            var items = sourcePaths
+                .Select(p => (FullName: p, IsFolder: _fs.DirectoryExists(p)))
+                .ToList();
+            if (items.Count == 0)
+            {
+                return;
+            }
+
+            if (ClipboardIsCut)
+            {
+                foreach (var (fullName, isFolder) in items)
+                {
+                    if (isFolder && IsDestinationInsideSource(fullName, destDirectory))
+                    {
+                        MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
+                        return;
+                    }
+                }
+            }
+
+            _pasteSourcePaths = items.Select(i => i.FullName).ToList();
+            _pasteDestDirectory = destDirectory;
+
+            var duplicates = await _fs.GetDuplicatesAsync(items, destDirectory);
+            if (duplicates != null && duplicates.Count > 0)
+            {
+                var text = duplicates.Count == 1 ? Path.GetFileName(duplicates[0]) :
+                    string.Format(Resources.ItemsNumber, duplicates.Count);
+                MessageBox_Show(PasteFileExists, string.Format(Resources.FileExistsRewrite, text),
+                    Resources.Alert, ButtonEnum.YesNoCancel);
+            }
+            else
+            {
+                PasteSelectedItems(false);
+            }
+        }
+
+        public void PasteFileExists(ButtonResult result, object? parameter)
+        {
+            if (result != ButtonResult.Cancel)
+            {
+                PasteSelectedItems(result == ButtonResult.Yes);
+            }
+        }
+
+        private async void PasteSelectedItems(bool overwrite)
+        {
+            bool isCut = ClipboardIsCut;
+            try
+            {
+                using (tokenSource = new SmartCancellationTokenSource())
+                {
+                    _progress?.Report(0);
+
+                    var allItems = _pasteSourcePaths.Select(p => (FullName: p, IsFolder: _fs.DirectoryExists(p))).ToList();
+                    long totalSize = await _fs.GetTotalSizeAsync(allItems);
+                    long processedSize = 0;
+
+                    foreach (var (fullName, isFolder) in allItems)
+                    {
+                        tokenSource.Token.ThrowIfCancellationRequested();
+                        if (isFolder)
+                        {
+                            try
+                            {
+                                string destFolder = Path.Combine(_pasteDestDirectory, Path.GetFileName(fullName));
+                                if (isCut)
+                                {
+                                    bool sameDrive = string.Equals(
+                                        _fs.GetPathRoot(fullName),
+                                        _fs.GetPathRoot(_pasteDestDirectory),
+                                        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+                                    if (sameDrive && !_fs.DirectoryExists(destFolder))
+                                    {
+                                        await _fs.MoveDirectoryAsync(fullName, destFolder);
+                                    }
+                                    else
+                                    {
+                                        processedSize = await _fs.CopyDirectoryAsync(
+                                            fullName, destFolder, true, overwrite,
+                                            _progress, processedSize, totalSize, tokenSource.Token);
+                                        await _fs.DeleteDirectoryAsync(fullName, tokenSource.Token);
+                                    }
+                                }
+                                else
+                                {
+                                    processedSize = await _fs.CopyDirectoryAsync(
+                                        fullName, destFolder, true, overwrite,
+                                        _progress, processedSize, totalSize, tokenSource.Token);
+                                }
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch
+                            {
+                                MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                string destFile = Path.Combine(_pasteDestDirectory, Path.GetFileName(fullName));
+                                processedSize = await _fs.CopyFileAsync(
+                                    fullName, destFile, isCut, overwrite,
+                                    _progress, processedSize, totalSize, tokenSource.Token);
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch
+                            {
+                                MessageBox_Show(null, Resources.CantCopyFileHere, Resources.Alert);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "PasteSelectedItems failed");
+            }
+            finally
+            {
+                _progress?.Report(100);
+                if (isCut)
+                {
+                    ClipboardIsCut = false;
+                }
                 SelectedPane.Update();
                 SecondPane.Update();
             }
