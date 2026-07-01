@@ -6,24 +6,29 @@ using ReactiveUI;
 using Serilog;
 using SmartCommander.Assets;
 using SmartCommander.Models;
+using SmartCommander.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application = Avalonia.Application;
-using File = System.IO.File;
 
 namespace SmartCommander.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public MainWindowViewModel()
+        private readonly IFileSystemService _fs;
+
+        public MainWindowViewModel(IFileSystemService fs)
         {
+            _fs = fs;
+
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
             ShowSearchDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
@@ -34,7 +39,7 @@ namespace SmartCommander.ViewModels
             SortSizeCommand = ReactiveCommand.Create(SortSize);
             SortDateCommand = ReactiveCommand.Create(SortDate);
             SearchFilesCommand = ReactiveCommand.CreateFromTask(SearchFilesDialog);
-            
+
             EnterCommand = ReactiveCommand.Create(Execute);
             F3Command = ReactiveCommand.Create(View);
             F4Command = ReactiveCommand.Create(Edit);
@@ -45,8 +50,8 @@ namespace SmartCommander.ViewModels
 
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
 
-            LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
-            RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged);
+            LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
+            RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
             SelectedPane = RightFileViewModel;
 
             if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
@@ -57,7 +62,7 @@ namespace SmartCommander.ViewModels
             {
                 RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
             }
-            SetLanguage(); 
+            SetLanguage();
             SetTheme();
             _progress = new FilteringProgress(Progress_Show);
         }
@@ -122,7 +127,7 @@ namespace SmartCommander.ViewModels
 
         public Interaction<CopyMoveViewModel, CopyMoveViewModel?> ShowCopyDialog { get; }
 
-        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }      
+        public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
         public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
@@ -160,12 +165,13 @@ namespace SmartCommander.ViewModels
             SelectedPane.Sorting = SortingBy.SortingByDate;
             SelectedPane.Ascending = true;
         }
+
         public async Task SearchFilesDialog()
         {
-            var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory);
+            var searchModel = new FileSearchViewModel(SelectedPane.CurrentDirectory, _fs);
             await ShowSearchDialog.Handle(searchModel);
             searchModel.CancelSearch();
-            
+
             if (searchModel.ResultFilename != string.Empty)
             {
                 SelectedPane.NavigateToFileItem(searchModel.ResultFilename);
@@ -191,7 +197,14 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel SelectedPane
         {
             get => _selectedPane;
-            set => this.RaiseAndSetIfChanged(ref _selectedPane, value);
+            set
+            {
+                if (ReferenceEquals(_selectedPane, value)) { return; }
+                var old = _selectedPane;
+                this.RaiseAndSetIfChanged(ref _selectedPane, value);
+                if (old != null) { old.IsSelected = false; }
+                if (value != null) { value.IsSelected = true; }
+            }
         }
 
         public void Execute()
@@ -207,7 +220,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
             _F3Busy = true;
-            _= SelectedPane.View(F3Finished);
+            _ = SelectedPane.View(F3Finished);
         }
 
         public void Edit()
@@ -220,7 +233,7 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit(F4Finished);
         }
 
-        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed; 
+        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed;
 
         public void Cancel()
         {
@@ -233,13 +246,18 @@ namespace SmartCommander.ViewModels
         public async void Zip()
         {
             if (SelectedPane.CurrentItems.Count < 1)
+            {
                 return;
+            }
 
             try
             {
+                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder, i.Name)).ToList();
+                string zipDir = SelectedPane.CurrentDirectory;
+                long totalSize = await _fs.GetTotalSizeAsync(items.Select(i => (i.FullName, i.IsFolder)).ToList());
                 using (tokenSource = new SmartCancellationTokenSource())
                 {
-                    await Task.Run(() => ZipCore(tokenSource.Token));
+                    await Task.Run(() => ZipCore(items, zipDir, totalSize, tokenSource.Token));
                     SelectedPane.Update();
                 }
             }
@@ -252,7 +270,9 @@ namespace SmartCommander.ViewModels
         public async void Unzip()
         {
             if (SelectedPane.CurrentItems.Count < 1)
+            {
                 return;
+            }
 
             try
             {
@@ -267,6 +287,7 @@ namespace SmartCommander.ViewModels
                 Log.Error(ex, "Unzip failed");
             }
         }
+
         private void UnzipCore(CancellationToken ct)
         {
             try
@@ -276,7 +297,9 @@ namespace SmartCommander.ViewModels
                     ct.ThrowIfCancellationRequested();
                 }
                 if (SelectedPane.CurrentItems.Count < 1)
+                {
                     return;
+                }
                 var destDir = Path.Combine(SelectedPane.CurrentDirectory, SelectedPane.CurrentItems[0].Name);
                 if (Directory.Exists(destDir))
                 {
@@ -286,40 +309,37 @@ namespace SmartCommander.ViewModels
                 _progress?.Report(0);
                 ZipFile.ExtractToDirectory(SelectedPane.CurrentItems[0].FullName, destDir);
                 _progress?.Report(100);
-
-            }             
+            }
             catch { }
         }
 
-        private void ZipCore(CancellationToken ct)
+        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipDir, long totalSize, CancellationToken ct)
         {
             try
             {
-                if (ct.IsCancellationRequested)
+                ct.ThrowIfCancellationRequested();
+                if (snapshot.Count < 1)
                 {
-                    ct.ThrowIfCancellationRequested();
-                }
-                if (SelectedPane.CurrentItems.Count < 1)
                     return;
+                }
 
-                var zipName = Path.Combine(SelectedPane.CurrentDirectory, SelectedPane.CurrentItems[0].Name + ".zip");
+                var zipName = Path.Combine(zipDir, snapshot[0].Name + ".zip");
                 if (File.Exists(zipName))
                 {
                     MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
                     return;
                 }
                 _progress?.Report(0);
-                long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
                 long processedSize = 0;
 
-                var items = SelectedPane.CurrentItems;
                 List<Tuple<string, string>> itemsToProcess = new();
-                foreach (var item in items)
+                foreach (var item in snapshot)
                 {
                     itemsToProcess.Add(Tuple.Create("", item.FullName));
-                }             
+                }
 
                 using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
+                {
                     while (itemsToProcess.Count > 0)
                     {
                         if (ct.IsCancellationRequested)
@@ -334,16 +354,16 @@ namespace SmartCommander.ViewModels
                             var newEntryPath = Path.Combine(entryPath, new DirectoryInfo(path).Name);
                             foreach (var folder in Directory.GetDirectories(path))
                             {
-                                itemsToProcess.Add(Tuple.Create(newEntryPath, folder));                               
+                                itemsToProcess.Add(Tuple.Create(newEntryPath, folder));
                             }
                             foreach (var file in Directory.GetFiles(path))
                             {
-                                itemsToProcess.Add(Tuple.Create(newEntryPath, file));                               
+                                itemsToProcess.Add(Tuple.Create(newEntryPath, file));
                             }
                         }
                         else if (File.Exists(path))
                         {
-                            processedSize += Utils.GetTotalSize(new List<FileViewModel> { new FileViewModel(path, false) });
+                            processedSize += new FileInfo(path).Length;
                             zip.CreateEntryFromFile(sourceFileName: path,
                                 entryName: Path.Combine(item.Item1, Path.GetFileName(path)),
                                 CompressionLevel.Optimal);
@@ -351,17 +371,21 @@ namespace SmartCommander.ViewModels
 
                         itemsToProcess.Remove(item);
 
-                        Utils.ReportProgress(_progress, processedSize, totalSize);                      
+                        _progress?.Report(totalSize == 0 ? 0 : (int)(processedSize * 100 / totalSize));
                     }
+                }
 
                 _progress?.Report(100);
             }
             catch { }
         }
+
         public async Task Copy()
-        {            
+        {
             if (SelectedPane.CurrentItems.Count < 1)
+            {
                 return;
+            }
             if (SelectedPane.CurrentDirectory == SecondPane.CurrentDirectory)
             {
                 MessageBox_Show(null, Resources.CantCopyFileToItself, Resources.Alert);
@@ -369,11 +393,12 @@ namespace SmartCommander.ViewModels
             }
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
              string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
-            var copy = new CopyMoveViewModel(true, text, SecondPane.CurrentDirectory);            
+            var copy = new CopyMoveViewModel(true, text, SecondPane.CurrentDirectory);
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null && result.IsConfirmed)
-            {    
-                var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
+            {
+                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+                var duplicates = await _fs.GetDuplicatesAsync(items, SecondPane.CurrentDirectory);
 
                 if (duplicates != null && duplicates.Count > 0)
                 {
@@ -401,6 +426,7 @@ namespace SmartCommander.ViewModels
         {
             _F3Busy = false;
         }
+
         public void F4Finished(ButtonResult result, object? parameter)
         {
             _F4Busy = false;
@@ -412,86 +438,68 @@ namespace SmartCommander.ViewModels
             {
                 using (tokenSource = new SmartCancellationTokenSource())
                 {
-                    await Task.Run(() => CopySelectedFilesCore(overwrite, tokenSource.Token));
-                    SelectedPane.Update();
-                    SecondPane.Update();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "CopySelectedFiles failed");
-            }
-        }
+                    _progress?.Report(0);
+                    var allItems = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+                    long totalSize = await _fs.GetTotalSizeAsync(allItems);
+                    long processedSize = 0;
 
-        private void CopySelectedFilesCore(bool overwrite, CancellationToken ct)
-        {
-            try
-            {
-                if (ct.IsCancellationRequested)
-                {
-                    ct.ThrowIfCancellationRequested();
-                }
-                _progress?.Report(0);
-
-                long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
-                long processedSize = 0;
-
-                foreach (var item in SelectedPane.CurrentItems)
-                {
-                    if (ct.IsCancellationRequested)
+                    foreach (var (fullName, isFolder) in allItems)
                     {
-                        ct.ThrowIfCancellationRequested();
-                    }
-                    if (item.IsFolder)
-                    {
-                        try
-                        {                          
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));                           
-                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct,
-                                _progress, ref processedSize, totalSize);                           
-                        }
-                        catch (OperationCanceledException)
+                        tokenSource.Token.ThrowIfCancellationRequested();
+                        if (isFolder)
                         {
-                            throw;
+                            try
+                            {
+                                string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
+                                processedSize = await _fs.CopyDirectoryAsync(
+                                    fullName, destFolder, true, overwrite,
+                                    _progress, processedSize, totalSize, tokenSource.Token);
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch
+                            {
+                                MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                                return;
+                            }
                         }
-                        catch
+                        else
                         {
-                            MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            Utils.CopyFile(item.FullName, destFile, false, overwrite, ct,
-                                    _progress, ref processedSize, totalSize);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            throw;
-                        }
-                        catch
-                        {
-                            MessageBox_Show(null, Resources.CantCopyFileHere, Resources.Alert);
-                            return;
+                            try
+                            {
+                                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
+                                processedSize = await _fs.CopyFileAsync(
+                                    fullName, destFile, false, overwrite,
+                                    _progress, processedSize, totalSize, tokenSource.Token);
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch
+                            {
+                                MessageBox_Show(null, Resources.CantCopyFileHere, Resources.Alert);
+                                return;
+                            }
                         }
                     }
                 }
             }
             catch (OperationCanceledException) { }
-            catch { }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "CopySelectedFiles failed");
+            }
             finally
             {
                 _progress?.Report(100);
+                SelectedPane.Update();
+                SecondPane.Update();
             }
         }
 
         public async Task Move()
         {
             if (SelectedPane.CurrentItems.Count < 1)
+            {
                 return;
+            }
             if (SelectedPane.CurrentDirectory == SecondPane.CurrentDirectory)
             {
                 MessageBox_Show(null, Resources.CantMoveFileToItself, Resources.Alert);
@@ -502,8 +510,9 @@ namespace SmartCommander.ViewModels
             var copy = new CopyMoveViewModel(false, text, SecondPane.CurrentDirectory);
             var result = await ShowCopyDialog.Handle(copy);
             if (result != null && result.IsConfirmed)
-            {        
-                var duplicates = Utils.GetDuplicates(SelectedPane.CurrentItems, SecondPane.CurrentDirectory);
+            {
+                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+                var duplicates = await _fs.GetDuplicatesAsync(items, SecondPane.CurrentDirectory);
 
                 if (duplicates != null && duplicates.Count > 0)
                 {
@@ -515,12 +524,12 @@ namespace SmartCommander.ViewModels
                 else
                 {
                     MoveSelectedItems(false);
-                }             
+                }
             }
         }
 
         public void MoveFileExists(ButtonResult result, object? parameter)
-        {           
+        {
             if (result != ButtonResult.Cancel)
             {
                 MoveSelectedItems(result == ButtonResult.Yes);
@@ -533,89 +542,82 @@ namespace SmartCommander.ViewModels
             {
                 using (tokenSource = new SmartCancellationTokenSource())
                 {
-                    await Task.Run(() => MoveSelectedItemsCore(overwrite, tokenSource.Token));
-                    SelectedPane.Update();
-                    SecondPane.Update();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "MoveSelectedItems failed");
-            }
-        }
+                    _progress?.Report(0);
 
-        private void MoveSelectedItemsCore(bool overwrite,CancellationToken ct)
-        {
-            try 
-            {
-                if (ct.IsCancellationRequested)
-                {
-                    ct.ThrowIfCancellationRequested();
-                }
-                _progress?.Report(0);
+                    var allItems = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
 
-                foreach (var preCheck in SelectedPane.CurrentItems)
-                {
-                    if (preCheck.IsFolder && IsDestinationInsideSource(preCheck.FullName, SecondPane.CurrentDirectory))
+                    foreach (var (fullName, isFolder) in allItems)
                     {
-                        MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
-                        return;
-                    }
-                }
-
-                long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
-                long processedSize = 0;
-                foreach (var item in SelectedPane.CurrentItems)
-                {
-                    if (ct.IsCancellationRequested)
-                    {
-                        ct.ThrowIfCancellationRequested();
-                    }
-                    if (item.IsFolder)
-                    {
-                        try
+                        if (isFolder && IsDestinationInsideSource(fullName, SecondPane.CurrentDirectory))
                         {
-                            string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            // TODO: in case of the same drive faster to move
-                            Utils.CopyDirectory(item.FullName, destFolder, recursive: true, overwrite, ct,
-                                _progress, ref processedSize, totalSize);
-                            Utils.DeleteDirectoryWithHiddenFiles(item.FullName);                            
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            throw;
-                        }
-                        catch
-                        {
-                            MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                            MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                             return;
                         }
                     }
-                    else
+
+                    long totalSize = await _fs.GetTotalSizeAsync(allItems);
+                    long processedSize = 0;
+
+                    foreach (var (fullName, isFolder) in allItems)
                     {
-                        try
+                        tokenSource.Token.ThrowIfCancellationRequested();
+                        if (isFolder)
                         {
-                            string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                            Utils.CopyFile(item.FullName, destFile, true, overwrite, ct,
-                                    _progress, ref processedSize, totalSize);
+                            try
+                            {
+                                string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
+                                bool sameDrive = string.Equals(
+                                    _fs.GetPathRoot(fullName),
+                                    _fs.GetPathRoot(SecondPane.CurrentDirectory),
+                                    OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+                                if (sameDrive && !_fs.DirectoryExists(destFolder))
+                                {
+                                    await _fs.MoveDirectoryAsync(fullName, destFolder);
+                                }
+                                else
+                                {
+                                    processedSize = await _fs.CopyDirectoryAsync(
+                                        fullName, destFolder, true, overwrite,
+                                        _progress, processedSize, totalSize, tokenSource.Token);
+                                    await _fs.DeleteDirectoryAsync(fullName, tokenSource.Token);
+                                }
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch
+                            {
+                                MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                                return;
+                            }
                         }
-                        catch (OperationCanceledException)
+                        else
                         {
-                            throw;
-                        }
-                        catch
-                        {
-                            MessageBox_Show(null, Resources.CantMoveFileHere, Resources.Alert);
-                            return;
+                            try
+                            {
+                                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
+                                processedSize = await _fs.CopyFileAsync(
+                                    fullName, destFile, true, overwrite,
+                                    _progress, processedSize, totalSize, tokenSource.Token);
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch
+                            {
+                                MessageBox_Show(null, Resources.CantMoveFileHere, Resources.Alert);
+                                return;
+                            }
                         }
                     }
                 }
             }
             catch (OperationCanceledException) { }
-            catch { }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "MoveSelectedItems failed");
+            }
             finally
             {
                 _progress?.Report(100);
+                SelectedPane.Update();
+                SecondPane.Update();
             }
         }
 
@@ -643,30 +645,43 @@ namespace SmartCommander.ViewModels
         }
 
         public void CreateNewFolder()
-        {  
+        {
             if (_F7Busy)
             {
                 return;
             }
             _F7Busy = true;
-            MessageBoxInput_Show(CreateNewFolderAnswer, Resources.CreateNewFolder);            
+            MessageBoxInput_Show(CreateNewFolderAnswer, Resources.CreateNewFolder);
         }
 
-        public void CreateNewFolderAnswer(string result)
+        public async void CreateNewFolderAnswer(string result)
         {
-            if (!string.IsNullOrEmpty(result))
+            try
             {
-                SelectedPane.CreateNewFolder(result);
-                SelectedPane.Update();
-                SecondPane.Update();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    await SelectedPane.CreateNewFolder(result);
+                    SelectedPane.Update();
+                    SecondPane.Update();
+                }
             }
-            _F7Busy = false;
+            catch (Exception ex)
+            {
+                Log.Error(ex, "CreateNewFolder failed");
+                MessageBox_Show(null, Resources.CantCreateFolder, Resources.Alert);
+            }
+            finally
+            {
+                _F7Busy = false;
+            }
         }
 
         public void Delete()
-        {   
+        {
             if (SelectedPane.CurrentItems.Count < 1)
+            {
                 return;
+            }
             if (_F8Busy)
             {
                 return;
@@ -675,18 +690,19 @@ namespace SmartCommander.ViewModels
             var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
                 string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
             MessageBox_Show(DeleteAnswer,
-                string.Format(Resources.DeleteConfirmation, text), 
+                string.Format(Resources.DeleteConfirmation, text),
                 Resources.Alert,
-                ButtonEnum.YesNo);            
+                ButtonEnum.YesNo);
         }
 
-        public void DeleteAnswer(ButtonResult result, object? parameter)
+        public async void DeleteAnswer(ButtonResult result, object? parameter)
         {
             if (result == ButtonResult.Yes)
             {
                 try
                 {
-                    var nonEmptyFolders = Utils.GetNonEmptyFolders(SelectedPane.CurrentItems);
+                    var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+                    var nonEmptyFolders = await _fs.GetNonEmptyFoldersAsync(items);
                     if (nonEmptyFolders != null && nonEmptyFolders.Count > 0)
                     {
                         var text = nonEmptyFolders.Count == 1 ? Path.GetFileName(nonEmptyFolders[0]) :
@@ -732,61 +748,47 @@ namespace SmartCommander.ViewModels
             {
                 using (tokenSource = new SmartCancellationTokenSource())
                 {
-                    await Task.Run(() => DeleteSelectedItemsCore(overwrite, nonEmptyFolders, tokenSource.Token));
-                    SelectedPane.Update();
-                    SecondPane.Update();
+                    _progress?.Report(0);
+
+                    var itemsToDelete = SelectedPane.CurrentItems
+                        .Where(item => item != null &&
+                                       (overwrite || nonEmptyFolders == null || !nonEmptyFolders.Contains(item.FullName)))
+                        .ToList();
+
+                    int total = itemsToDelete.Count;
+                    int done = 0;
+
+                    foreach (var item in itemsToDelete)
+                    {
+                        tokenSource.Token.ThrowIfCancellationRequested();
+                        if (item.IsFolder)
+                        {
+                            await _fs.DeleteDirectoryAsync(item.FullName, tokenSource.Token);
+                        }
+                        else
+                        {
+                            await _fs.DeleteFileAsync(item.FullName);
+                        }
+                        done++;
+                        _progress?.Report(total > 0 ? done * 100 / total : 100);
+                    }
                 }
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 Log.Error(ex, "DeleteSelectedItems failed");
             }
             finally
             {
+                _progress?.Report(100);
+                SelectedPane.Update();
+                SecondPane.Update();
                 _F8Busy = false;
             }
         }
 
-        private void DeleteSelectedItemsCore(bool overwrite, List<string>? nonEmptyFolders, CancellationToken ct)
-        {
-            try
-            {
-                if (ct.IsCancellationRequested)
-                {
-                    ct.ThrowIfCancellationRequested();
-                }
-                _progress?.Report(0);
-                long totalSize = Utils.GetTotalSize(SelectedPane.CurrentItems);
-                long processedSize = 0;
-                foreach (var item in SelectedPane.CurrentItems)
-                {
-                    if (ct.IsCancellationRequested)
-                    {
-                        ct.ThrowIfCancellationRequested();
-                    }
-                    if (item == null)
-                    {
-                        continue;
-                    }
-
-                    if (!overwrite && nonEmptyFolders != null && nonEmptyFolders.Contains(item.FullName))
-                    {
-                        continue;
-                    }
-                    processedSize += Utils.GetTotalSize(new List<FileViewModel>() { item });
-                    SelectedPane.Delete(item);
-
-                    Utils.ReportProgress(_progress, processedSize, totalSize);
-                }
-            }
-            catch { }
-            finally
-            {
-                _progress?.Report(100);
-            }
-        }
-
-        private static bool IsDestinationInsideSource(string sourceFolder, string destination)
+        internal static bool IsDestinationInsideSource(string sourceFolder, string destination)
         {
             var src = sourceFolder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             var dst = destination.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -808,6 +810,6 @@ namespace SmartCommander.ViewModels
                 _last = value;
                 Dispatcher.UIThread.Post(() => _callback(value));
             }
-        }     
+        }
     }
 }
