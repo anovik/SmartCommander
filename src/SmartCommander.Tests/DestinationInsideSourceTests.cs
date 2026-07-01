@@ -62,4 +62,43 @@ namespace SmartCommander.Tests
             Assert.True(Check($"C:{Sep}FOO{Sep}BAR", $"C:{Sep}foo{Sep}bar{Sep}sub"));
         }
     }
+
+    public class IsSameDirectoryTests
+    {
+        private static bool Check(string sourceFullName, string destDirectory) =>
+            MainWindowViewModel.IsSameDirectory(sourceFullName, destDirectory);
+
+        private static char Sep => Path.DirectorySeparatorChar;
+
+        [Fact]
+        public void PasteIntoOwnContainingDirectory_ReturnsTrue()
+        {
+            Assert.True(Check($"C:{Sep}foo{Sep}file.txt", $"C:{Sep}foo"));
+        }
+
+        [Fact]
+        public void PasteIntoOwnContainingDirectory_TrailingSlash_ReturnsTrue()
+        {
+            Assert.True(Check($"C:{Sep}foo{Sep}file.txt", $"C:{Sep}foo{Sep}"));
+        }
+
+        [Fact]
+        public void PasteIntoDifferentDirectory_ReturnsFalse()
+        {
+            Assert.False(Check($"C:{Sep}foo{Sep}file.txt", $"C:{Sep}bar"));
+        }
+
+        [Fact]
+        public void PasteFolderIntoOwnContainingDirectory_ReturnsTrue()
+        {
+            Assert.True(Check($"C:{Sep}foo{Sep}sub", $"C:{Sep}foo"));
+        }
+
+        [Fact]
+        public void OnWindows_CaseInsensitive()
+        {
+            if (!OperatingSystem.IsWindows()) { return; }
+            Assert.True(Check($"C:{Sep}FOO{Sep}file.txt", $"C:{Sep}foo"));
+        }
+    }
 }

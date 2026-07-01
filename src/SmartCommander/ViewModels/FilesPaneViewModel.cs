@@ -462,6 +462,10 @@ namespace SmartCommander.ViewModels
 
         public async Task Paste()
         {
+            // Captured up front so a pane navigation while the clipboard read below is in
+            // flight can't redirect the paste to a directory the user didn't intend.
+            var destDirectory = CurrentDirectory;
+
             var (clipboard, _) = GetClipboardServices();
             if (clipboard == null)
             {
@@ -492,7 +496,13 @@ namespace SmartCommander.ViewModels
             }
 
             bool isCut = dataTransfer.Contains(CutMarkerFormat);
-            await _mainVM.PasteFiles(CurrentDirectory, sourcePaths, isCut);
+            await _mainVM.PasteFiles(destDirectory, sourcePaths, isCut);
+            if (isCut)
+            {
+                // A cut is a one-time move: clear the clipboard so a stray repeat Ctrl+V
+                // doesn't retry the operation against the now-deleted source.
+                await clipboard.ClearAsync();
+            }
         }
 
         public async Task ShowMoreOptions()

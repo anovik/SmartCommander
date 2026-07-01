@@ -129,6 +129,12 @@
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Impossible de copier les fichiers dans le même dossier</value>
   </data>
+  <data name="CantCopyFolderHere" xml:space="preserve">
+    <value>Impossible de copier le dossier ici</value>
+  </data>
+  <data name="CantCopyFolderToItself" xml:space="preserve">
+    <value>Impossible de copier le dossier vers lui-même</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Impossible d'éditer le dossier</value>
   </data>

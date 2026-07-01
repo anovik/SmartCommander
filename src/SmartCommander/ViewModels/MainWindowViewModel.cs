@@ -477,9 +477,9 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
-            var items = sourcePaths
+            var items = await Task.Run(() => sourcePaths
                 .Select(p => (FullName: p, IsFolder: _fs.DirectoryExists(p)))
-                .ToList();
+                .ToList());
             if (items.Count == 0)
             {
                 return;
@@ -537,15 +537,17 @@ namespace SmartCommander.ViewModels
         private async Task CopyOrMoveItemsAsync(List<(string FullName, bool IsFolder)> items, string destDirectory,
             bool move, bool overwrite, CancellationToken ct)
         {
-            if (move)
+            foreach (var (fullName, isFolder) in items)
             {
-                foreach (var (fullName, isFolder) in items)
+                if (IsSameDirectory(fullName, destDirectory))
                 {
-                    if (isFolder && IsDestinationInsideSource(fullName, destDirectory))
-                    {
-                        MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
-                        return;
-                    }
+                    MessageBox_Show(null, move ? Resources.CantMoveFileToItself : Resources.CantCopyFileToItself, Resources.Alert);
+                    return;
+                }
+                if (isFolder && IsDestinationInsideSource(fullName, destDirectory))
+                {
+                    MessageBox_Show(null, move ? Resources.CantMoveFolderToItself : Resources.CantCopyFolderToItself, Resources.Alert);
+                    return;
                 }
             }
 
@@ -589,7 +591,7 @@ namespace SmartCommander.ViewModels
                     catch (OperationCanceledException) { throw; }
                     catch
                     {
-                        MessageBox_Show(null, Resources.CantMoveFolderHere, Resources.Alert);
+                        MessageBox_Show(null, move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, Resources.Alert);
                         return;
                     }
                 }
@@ -605,7 +607,7 @@ namespace SmartCommander.ViewModels
                     catch (OperationCanceledException) { throw; }
                     catch
                     {
-                        MessageBox_Show(null, Resources.CantCopyFileHere, Resources.Alert);
+                        MessageBox_Show(null, move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, Resources.Alert);
                         return;
                     }
                 }
@@ -792,6 +794,17 @@ namespace SmartCommander.ViewModels
                 : StringComparison.Ordinal;
             return string.Equals(src, dst, comparison) ||
                    dst.StartsWith(src + Path.DirectorySeparatorChar, comparison);
+        }
+
+        internal static bool IsSameDirectory(string sourceFullName, string destDirectory)
+        {
+            var sourceDir = Path.GetDirectoryName(sourceFullName)?
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) ?? string.Empty;
+            var dst = destDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var comparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            return string.Equals(sourceDir, dst, comparison);
         }
 
         private sealed class FilteringProgress : IProgress<int>

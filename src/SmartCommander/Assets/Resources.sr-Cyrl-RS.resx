@@ -129,6 +129,12 @@
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Не можете да копираjте датотеке у исту фасциклу</value>
   </data>
+  <data name="CantCopyFolderHere" xml:space="preserve">
+    <value>Овде не можете да копирате фасциклу</value>
+  </data>
+  <data name="CantCopyFolderToItself" xml:space="preserve">
+    <value>Не можете да копирате фасциклу овде</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Не можете да уређиваjте фасциклу</value>
   </data>

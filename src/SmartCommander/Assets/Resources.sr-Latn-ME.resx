@@ -129,6 +129,12 @@
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Ne možete da kopirajte datoteke u istu fasciklu</value>
   </data>
+  <data name="CantCopyFolderHere" xml:space="preserve">
+    <value>Ne možete da kopirate fasciklu ovdje</value>
+  </data>
+  <data name="CantCopyFolderToItself" xml:space="preserve">
+    <value>Ne možete da kopirate fasciklu ovdje</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Ne možete da uređivajte fasciklu</value>
   </data>

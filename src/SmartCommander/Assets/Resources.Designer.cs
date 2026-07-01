@@ -115,6 +115,24 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t copy folder here.
+        /// </summary>
+        public static string CantCopyFolderHere {
+            get {
+                return ResourceManager.GetString("CantCopyFolderHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t copy folder to itself.
+        /// </summary>
+        public static string CantCopyFolderToItself {
+            get {
+                return ResourceManager.GetString("CantCopyFolderToItself", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t create folder.
         /// </summary>
         public static string CantCreateFolder {

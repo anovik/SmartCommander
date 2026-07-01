@@ -132,6 +132,12 @@
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Can't copy files to the same directory</value>
   </data>
+  <data name="CantCopyFolderHere" xml:space="preserve">
+    <value>Can't copy folder here</value>
+  </data>
+  <data name="CantCopyFolderToItself" xml:space="preserve">
+    <value>Can't copy folder to itself</value>
+  </data>
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Can't create folder</value>
   </data>
