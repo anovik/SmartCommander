@@ -13,6 +13,7 @@ namespace SmartCommander.ViewModels
     public class FileViewModel : ViewModelBase
     {
         private string _name = "";
+        private string _diskFullName = "";
         public static readonly List<string> ImageExtensions = ["jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png"];
         public static readonly List<string> VideoExtensions = ["mp4", "mov", "avi", "wmv"];
         public static readonly List<string> ArchiveExtensions = ["zip", "rar", "7z"];
@@ -25,6 +26,7 @@ namespace SmartCommander.ViewModels
         public FileViewModel(string fullName, bool isFolder)
         {
             FullName = fullName;
+            _diskFullName = fullName;
             IsFolder = isFolder;
             if (isFolder)
             {
@@ -85,7 +87,7 @@ namespace SmartCommander.ViewModels
                 }
 
                 var oldName = _name;
-                var oldFullName = FullName;
+                var oldFullName = _diskFullName;
                 var destName = IsFolder ? value : (value + (!string.IsNullOrEmpty(Extension) ? "." + Extension : ""));
                 var destination = Path.Combine(Path.GetDirectoryName(oldFullName) ?? "", destName);
 
@@ -107,10 +109,12 @@ namespace SmartCommander.ViewModels
                         {
                             File.Move(oldFullName, destination);
                         }
+                        _diskFullName = destination;
                     }
                     catch (Exception ex)
                     {
                         Log.Error(ex, "Rename failed: {FullName}", oldFullName);
+                        _diskFullName = oldFullName;
                         await Dispatcher.UIThread.InvokeAsync(() =>
                         {
                             _name = oldName;
@@ -137,6 +141,7 @@ namespace SmartCommander.ViewModels
             var vm = new FileViewModel
             {
                 FullName = fullName,
+                _diskFullName = fullName,
                 IsFolder = isFolder,
             };
 
@@ -173,10 +178,10 @@ namespace SmartCommander.ViewModels
         internal static string SelectIconSource(string extension)
         {
             var ext = extension.ToLower();
-            if (ImageExtensions.Contains(ext)) return "Assets/image.png";
-            if (VideoExtensions.Contains(ext)) return "Assets/video.png";
-            if (ArchiveExtensions.Contains(ext)) return "Assets/archive.png";
-            if (DocumentExtensions.Contains(ext)) return "Assets/document.png";
+            if (ImageExtensions.Contains(ext)) { return "Assets/image.png"; }
+            if (VideoExtensions.Contains(ext)) { return "Assets/video.png"; }
+            if (ArchiveExtensions.Contains(ext)) { return "Assets/archive.png"; }
+            if (DocumentExtensions.Contains(ext)) { return "Assets/document.png"; }
             return "Assets/file.png";
         }
     }

@@ -61,15 +61,15 @@ namespace SmartCommander
                         trayIcon.IsVisible = true;
                     }
                 }
-                else
-                {                   
-                    mainWindow?.Show();
+                else if (mainWindow?.IsVisible == false)
+                {
+                    mainWindow.Show();
                     if (trayIcon != null)
                     {
                         trayIcon.IsVisible = false;
                     }
                 }
-            }         
+            }
         }
 
         private void RegisterTrayIcon()

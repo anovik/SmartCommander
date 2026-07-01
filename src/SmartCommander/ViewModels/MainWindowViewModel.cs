@@ -197,7 +197,14 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel SelectedPane
         {
             get => _selectedPane;
-            set => this.RaiseAndSetIfChanged(ref _selectedPane, value);
+            set
+            {
+                if (ReferenceEquals(_selectedPane, value)) { return; }
+                var old = _selectedPane;
+                this.RaiseAndSetIfChanged(ref _selectedPane, value);
+                if (old != null) { old.IsSelected = false; }
+                if (value != null) { value.IsSelected = true; }
+            }
         }
 
         public void Execute()
@@ -245,9 +252,11 @@ namespace SmartCommander.ViewModels
 
             try
             {
+                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+                long totalSize = await _fs.GetTotalSizeAsync(items);
                 using (tokenSource = new SmartCancellationTokenSource())
                 {
-                    await Task.Run(() => ZipCore(tokenSource.Token));
+                    await Task.Run(() => ZipCore(totalSize, tokenSource.Token));
                     SelectedPane.Update();
                 }
             }
@@ -303,7 +312,7 @@ namespace SmartCommander.ViewModels
             catch { }
         }
 
-        private void ZipCore(CancellationToken ct)
+        private void ZipCore(long totalSize, CancellationToken ct)
         {
             try
             {
@@ -323,7 +332,6 @@ namespace SmartCommander.ViewModels
                     return;
                 }
                 _progress?.Report(0);
-                long totalSize = GetItemsSize(SelectedPane.CurrentItems);
                 long processedSize = 0;
 
                 var items = SelectedPane.CurrentItems;
@@ -438,16 +446,16 @@ namespace SmartCommander.ViewModels
                     long totalSize = await _fs.GetTotalSizeAsync(allItems);
                     long processedSize = 0;
 
-                    foreach (var item in SelectedPane.CurrentItems)
+                    foreach (var (fullName, isFolder) in allItems)
                     {
                         tokenSource.Token.ThrowIfCancellationRequested();
-                        if (item.IsFolder)
+                        if (isFolder)
                         {
                             try
                             {
-                                string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                                string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
                                 processedSize = await _fs.CopyDirectoryAsync(
-                                    item.FullName, destFolder, true, overwrite,
+                                    fullName, destFolder, true, overwrite,
                                     _progress, processedSize, totalSize, tokenSource.Token);
                             }
                             catch (OperationCanceledException) { throw; }
@@ -461,9 +469,9 @@ namespace SmartCommander.ViewModels
                         {
                             try
                             {
-                                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
                                 processedSize = await _fs.CopyFileAsync(
-                                    item.FullName, destFile, false, overwrite,
+                                    fullName, destFile, false, overwrite,
                                     _progress, processedSize, totalSize, tokenSource.Token);
                             }
                             catch (OperationCanceledException) { throw; }
@@ -539,31 +547,43 @@ namespace SmartCommander.ViewModels
                 {
                     _progress?.Report(0);
 
-                    foreach (var preCheck in SelectedPane.CurrentItems)
+                    var allItems = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+
+                    foreach (var (fullName, isFolder) in allItems)
                     {
-                        if (preCheck.IsFolder && IsDestinationInsideSource(preCheck.FullName, SecondPane.CurrentDirectory))
+                        if (isFolder && IsDestinationInsideSource(fullName, SecondPane.CurrentDirectory))
                         {
                             MessageBox_Show(null, Resources.CantMoveFolderToItself, Resources.Alert);
                             return;
                         }
                     }
 
-                    var allItems = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
                     long totalSize = await _fs.GetTotalSizeAsync(allItems);
                     long processedSize = 0;
 
-                    foreach (var item in SelectedPane.CurrentItems)
+                    foreach (var (fullName, isFolder) in allItems)
                     {
                         tokenSource.Token.ThrowIfCancellationRequested();
-                        if (item.IsFolder)
+                        if (isFolder)
                         {
                             try
                             {
-                                string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
-                                processedSize = await _fs.CopyDirectoryAsync(
-                                    item.FullName, destFolder, true, overwrite,
-                                    _progress, processedSize, totalSize, tokenSource.Token);
-                                await _fs.DeleteDirectoryAsync(item.FullName);
+                                string destFolder = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
+                                bool sameDrive = string.Equals(
+                                    _fs.GetPathRoot(fullName),
+                                    _fs.GetPathRoot(SecondPane.CurrentDirectory),
+                                    OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+                                if (sameDrive && !_fs.DirectoryExists(destFolder))
+                                {
+                                    await _fs.MoveDirectoryAsync(fullName, destFolder);
+                                }
+                                else
+                                {
+                                    processedSize = await _fs.CopyDirectoryAsync(
+                                        fullName, destFolder, true, overwrite,
+                                        _progress, processedSize, totalSize, tokenSource.Token);
+                                    await _fs.DeleteDirectoryAsync(fullName, tokenSource.Token);
+                                }
                             }
                             catch (OperationCanceledException) { throw; }
                             catch
@@ -576,9 +596,9 @@ namespace SmartCommander.ViewModels
                         {
                             try
                             {
-                                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(item.FullName));
+                                string destFile = Path.Combine(SecondPane.CurrentDirectory, Path.GetFileName(fullName));
                                 processedSize = await _fs.CopyFileAsync(
-                                    item.FullName, destFile, true, overwrite,
+                                    fullName, destFile, true, overwrite,
                                     _progress, processedSize, totalSize, tokenSource.Token);
                             }
                             catch (OperationCanceledException) { throw; }
@@ -639,13 +659,24 @@ namespace SmartCommander.ViewModels
 
         public async void CreateNewFolderAnswer(string result)
         {
-            if (!string.IsNullOrEmpty(result))
+            try
             {
-                await SelectedPane.CreateNewFolder(result);
-                SelectedPane.Update();
-                SecondPane.Update();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    await SelectedPane.CreateNewFolder(result);
+                    SelectedPane.Update();
+                    SecondPane.Update();
+                }
             }
-            _F7Busy = false;
+            catch (Exception ex)
+            {
+                Log.Error(ex, "CreateNewFolder failed");
+                MessageBox_Show(null, Resources.CantCreateFolder, Resources.Alert);
+            }
+            finally
+            {
+                _F7Busy = false;
+            }
         }
 
         public void Delete()
@@ -735,7 +766,7 @@ namespace SmartCommander.ViewModels
                         tokenSource.Token.ThrowIfCancellationRequested();
                         if (item.IsFolder)
                         {
-                            await _fs.DeleteDirectoryAsync(item.FullName);
+                            await _fs.DeleteDirectoryAsync(item.FullName, tokenSource.Token);
                         }
                         else
                         {
@@ -758,28 +789,6 @@ namespace SmartCommander.ViewModels
                 SecondPane.Update();
                 _F8Busy = false;
             }
-        }
-
-        private static long GetItemsSize(IEnumerable<FileViewModel> items)
-        {
-            long total = 0;
-            foreach (var item in items)
-            {
-                total += item.IsFolder
-                    ? GetDirectorySizeSync(new DirectoryInfo(item.FullName))
-                    : new FileInfo(item.FullName).Length;
-            }
-            return total;
-        }
-
-        private static long GetDirectorySizeSync(DirectoryInfo d)
-        {
-            long size = d.GetFiles().Sum(f => f.Length);
-            foreach (var sub in d.GetDirectories())
-            {
-                size += GetDirectorySizeSync(sub);
-            }
-            return size;
         }
 
         internal static bool IsDestinationInsideSource(string sourceFolder, string destination)

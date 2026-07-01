@@ -27,7 +27,7 @@ namespace SmartCommander.Services
 
         public string? GetDirectoryParent(string path) => Directory.GetParent(path)?.FullName;
 
-        public string? GetPathRoot(string path) => Path.GetPathRoot(new FileInfo(path).FullName);
+        public string? GetPathRoot(string path) => Path.GetPathRoot(Path.GetFullPath(path));
 
         public Task<long> GetFileSizeAsync(string path) =>
             Task.FromResult(new FileInfo(path).Length);
@@ -50,8 +50,8 @@ namespace SmartCommander.Services
         public Task DeleteFileAsync(string path) =>
             Task.Run(() => File.Delete(path));
 
-        public Task DeleteDirectoryAsync(string path) =>
-            Task.Run(() => DeleteDirectoryWithHiddenFiles(path));
+        public Task DeleteDirectoryAsync(string path, CancellationToken ct = default) =>
+            Task.Run(() => { ct.ThrowIfCancellationRequested(); DeleteDirectoryWithHiddenFiles(path); }, ct);
 
         public Task<long> CopyFileAsync(string source, string dest, bool delete, bool overwrite,
                                         IProgress<int>? progress, long processedSize, long totalSize,
@@ -128,7 +128,7 @@ namespace SmartCommander.Services
             {
                 if (searchContent)
                 {
-                    foreach (var file in Directory.GetFiles(folderPath, "*", SearchOption.TopDirectoryOnly))
+                    foreach (var file in Directory.GetFiles(folderPath, pattern, SearchOption.TopDirectoryOnly))
                     {
                         ct.ThrowIfCancellationRequested();
                         try
@@ -288,16 +288,24 @@ namespace SmartCommander.Services
 
             if (size > limit)
             {
-                using var from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Write);
-                using var to = new FileStream(dest, FileMode.Create);
-                int readCount;
-                byte[] buffer = new byte[bufferSize];
-                while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
+                try
                 {
-                    ct.ThrowIfCancellationRequested();
-                    to.Write(buffer, 0, readCount);
-                    processedSize += readCount;
-                    ReportProgress(progress, processedSize, totalSize);
+                    using var from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Write);
+                    using var to = new FileStream(dest, FileMode.Create);
+                    int readCount;
+                    byte[] buffer = new byte[bufferSize];
+                    while ((readCount = from.Read(buffer, 0, bufferSize)) != 0)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        to.Write(buffer, 0, readCount);
+                        processedSize += readCount;
+                        ReportProgress(progress, processedSize, totalSize);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    try { File.Delete(dest); } catch { }
+                    throw;
                 }
             }
             else

@@ -217,15 +217,18 @@ namespace SmartCommander.Tests
             TempFile("report.txt");
             TempFile("image.png");
             var found = new System.Collections.Generic.List<string>();
-            var progress = new Progress<string>(r => found.Add(r));
+            IProgress<string> progress = new SyncProgress<string>(r => found.Add(r));
 
             await _fs.SearchAsync(_root, "*.txt", topOnly: true, searchContent: false,
                 contentText: "", results: progress, statusProgress: null, CancellationToken.None);
 
-            // Progress callbacks are async; wait briefly for them to flush
-            await Task.Delay(100);
             Assert.Contains(found, f => f.EndsWith("report.txt"));
             Assert.DoesNotContain(found, f => f.EndsWith("image.png"));
+        }
+
+        private sealed class SyncProgress<T>(Action<T> action) : IProgress<T>
+        {
+            public void Report(T value) => action(value);
         }
     }
 }

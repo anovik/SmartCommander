@@ -74,8 +74,8 @@ namespace SmartCommander.Views
                     var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                         .GetMessageBoxCustom(new MessageBoxCustomParams()
                         {
-                            ContentHeader = caption,
-                            ContentMessage = messageBoxText,
+                            ContentHeader = messageBoxText,
+                            ContentMessage = "",
                             MinWidth = 300,
                             InputParams = new InputParams() { },
                             ButtonDefinitions = new[] {

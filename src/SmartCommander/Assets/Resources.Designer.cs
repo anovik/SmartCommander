@@ -115,6 +115,15 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t create folder.
+        /// </summary>
+        public static string CantCreateFolder {
+            get {
+                return ResourceManager.GetString("CantCreateFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t edit the folder.
         /// </summary>
         public static string CantEditFolder {

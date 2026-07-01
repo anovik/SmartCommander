@@ -97,6 +97,9 @@ namespace SmartCommander.ViewModels
                 StatusFolder = "";
                 this.RaisePropertyChanged(nameof(StatusFolder));
                 IsSearching = false;
+                var cts = _cancellationTokenSource;
+                _cancellationTokenSource = null;
+                cts?.Dispose();
             }
         }
 

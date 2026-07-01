@@ -476,8 +476,11 @@ namespace SmartCommander.ViewModels
             IReadOnlyList<string> filePaths;
             try
             {
-                dirPaths = await _fs.GetDirectoriesAsync(dir, options, cts.Token);
-                filePaths = await _fs.GetFilesAsync(dir, options, cts.Token);
+                var dirsTask = _fs.GetDirectoriesAsync(dir, options, cts.Token);
+                var filesTask = _fs.GetFilesAsync(dir, options, cts.Token);
+                await Task.WhenAll(dirsTask, filesTask);
+                dirPaths = dirsTask.Result;
+                filePaths = filesTask.Result;
             }
             catch (OperationCanceledException)
             {
@@ -491,8 +494,6 @@ namespace SmartCommander.ViewModels
 
             if (cts != _loadCts)
             {
-                _pendingRestoreItemName = null;
-                _pendingScrollTargetFullName = null;
                 return;
             }
 
@@ -517,8 +518,6 @@ namespace SmartCommander.ViewModels
 
             if (cts != _loadCts)
             {
-                _pendingRestoreItemName = null;
-                _pendingScrollTargetFullName = null;
                 return;
             }
 

@@ -25,7 +25,7 @@ namespace SmartCommander.Services
         Task MoveDirectoryAsync(string source, string dest);
         Task CreateDirectoryAsync(string path);
         Task DeleteFileAsync(string path);
-        Task DeleteDirectoryAsync(string path);
+        Task DeleteDirectoryAsync(string path, CancellationToken ct = default);
 
         // Copy/move — returns updated processedSize for progress tracking across multiple items
         Task<long> CopyFileAsync(string source, string dest, bool delete, bool overwrite,
