@@ -126,6 +126,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Отмена</value>
   </data>
+  <data name="CantCopyFileHere" xml:space="preserve">
+    <value>Невозможно скопировать файл сюда</value>
+  </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Невозможно скопировать файлы в ту же директорию</value>
   </data>
@@ -135,8 +138,14 @@
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Невозможно скопировать папку в саму себя</value>
   </data>
+  <data name="CantCreateFolder" xml:space="preserve">
+    <value>Невозможно создать папку</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Невозможно редактировать папку</value>
+  </data>
+  <data name="CantMoveFileHere" xml:space="preserve">
+    <value>Невозможно переместить файл сюда</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Невозможно переместить файлы в ту же директорию</value>
@@ -302,6 +311,9 @@
   </data>
   <data name="Unzip" xml:space="preserve">
     <value>Разархивировать</value>
+  </data>
+  <data name="MoreOptions" xml:space="preserve">
+    <value>Дополнительные параметры</value>
   </data>
   <data name="DirectoryExists" xml:space="preserve">
     <value>Директория {0} уже существует.</value>

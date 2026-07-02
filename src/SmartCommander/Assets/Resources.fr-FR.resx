@@ -126,6 +126,9 @@
   <data name="Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
+  <data name="CantCopyFileHere" xml:space="preserve">
+    <value>Impossible de copier le fichier ici</value>
+  </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Impossible de copier les fichiers dans le même dossier</value>
   </data>
@@ -135,8 +138,14 @@
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Impossible de copier le dossier vers lui-même</value>
   </data>
+  <data name="CantCreateFolder" xml:space="preserve">
+    <value>Impossible de créer le dossier</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Impossible d'éditer le dossier</value>
+  </data>
+  <data name="CantMoveFileHere" xml:space="preserve">
+    <value>Impossible de déplacer le fichier ici</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Impossible de déplacer les fichiers dans le même dossier</value>
@@ -302,6 +311,9 @@
   </data>
   <data name="Unzip" xml:space="preserve">
     <value>Décompresser</value>
+  </data>
+  <data name="MoreOptions" xml:space="preserve">
+    <value>Plus d'options</value>
   </data>
   <data name="DirectoryExists" xml:space="preserve">
     <value>Le dossier {0} existe déjà.</value>

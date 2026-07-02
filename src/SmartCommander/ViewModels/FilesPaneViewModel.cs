@@ -405,7 +405,10 @@ namespace SmartCommander.ViewModels
             var dataTransfer = new DataTransfer();
             foreach (var item in items)
             {
-                var uri = new Uri(item.FullName);
+                // Uri's implicit file-path detection only recognizes Windows drive-letter/UNC
+                // forms; a plain absolute Unix path (e.g. "/home/user/file") has no scheme and
+                // throws UriFormatException, so the file:// URI is built explicitly instead.
+                var uri = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = "", Path = item.FullName }.Uri;
                 IStorageItem? storageItem = item.IsFolder
                     ? await storageProvider.TryGetFolderFromPathAsync(uri)
                     : await storageProvider.TryGetFileFromPathAsync(uri);
@@ -496,11 +499,13 @@ namespace SmartCommander.ViewModels
             }
 
             bool isCut = dataTransfer.Contains(CutMarkerFormat);
-            await _mainVM.PasteFiles(destDirectory, sourcePaths, isCut);
-            if (isCut)
+            bool proceeded = await _mainVM.PasteFiles(destDirectory, sourcePaths, isCut);
+            if (isCut && proceeded)
             {
                 // A cut is a one-time move: clear the clipboard so a stray repeat Ctrl+V
-                // doesn't retry the operation against the now-deleted source.
+                // doesn't retry the operation against the now-deleted source. Only clear once
+                // the move actually ran (not on a Cancel'd overwrite prompt), otherwise a
+                // cancelled paste would silently discard the cut.
                 await clipboard.ClearAsync();
             }
         }

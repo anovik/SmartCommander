@@ -470,11 +470,11 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public async Task PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut)
+        public async Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut)
         {
             if (IsBackgroundOperation)
             {
-                return;
+                return false;
             }
 
             var items = await Task.Run(() => sourcePaths
@@ -482,36 +482,41 @@ namespace SmartCommander.ViewModels
                 .ToList());
             if (items.Count == 0)
             {
-                return;
+                return false;
             }
 
-            await ConfirmOverwriteThenRun(items, destDirectory,
+            return await ConfirmOverwriteThenRun(items, destDirectory,
                 overwrite => RunFileOperation(items, destDirectory, isCut, overwrite, "PasteSelectedItems"));
         }
 
-        private async Task ConfirmOverwriteThenRun(List<(string FullName, bool IsFolder)> items, string destDirectory,
-            Action<bool> onConfirmed)
+        // Returns true only once the user has actually confirmed (or no confirmation was needed)
+        // and the file operation has run to completion, so callers can tell a genuine run apart
+        // from a Cancel answer instead of assuming the operation happened as soon as this returns.
+        private async Task<bool> ConfirmOverwriteThenRun(List<(string FullName, bool IsFolder)> items, string destDirectory,
+            Func<bool, Task> onConfirmed)
         {
             var duplicates = await _fs.GetDuplicatesAsync(items, destDirectory);
+            bool overwrite = false;
             if (duplicates != null && duplicates.Count > 0)
             {
                 var text = duplicates.Count == 1 ? Path.GetFileName(duplicates[0]) :
                     string.Format(Resources.ItemsNumber, duplicates.Count);
-                MessageBox_Show((result, _) =>
+                var tcs = new TaskCompletionSource<ButtonResult>();
+                MessageBox_Show((result, _) => tcs.TrySetResult(result),
+                    string.Format(Resources.FileExistsRewrite, text), Resources.Alert, ButtonEnum.YesNoCancel);
+                var result = await tcs.Task;
+                if (result == ButtonResult.Cancel)
                 {
-                    if (result != ButtonResult.Cancel)
-                    {
-                        onConfirmed(result == ButtonResult.Yes);
-                    }
-                }, string.Format(Resources.FileExistsRewrite, text), Resources.Alert, ButtonEnum.YesNoCancel);
+                    return false;
+                }
+                overwrite = result == ButtonResult.Yes;
             }
-            else
-            {
-                onConfirmed(false);
-            }
+
+            await onConfirmed(overwrite);
+            return true;
         }
 
-        private async void RunFileOperation(List<(string FullName, bool IsFolder)> items, string destDirectory,
+        private async Task RunFileOperation(List<(string FullName, bool IsFolder)> items, string destDirectory,
             bool move, bool overwrite, string logContext)
         {
             try

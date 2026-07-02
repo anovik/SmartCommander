@@ -2,14 +2,12 @@
 using Avalonia.Platform.Storage;
 using AvaloniaEdit.Utils;
 using ReactiveUI;
-using SmartCommander.Assets;
 using SmartCommander.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reactive;
-using System.Resources;
 using System.Threading.Tasks;
 
 namespace SmartCommander.ViewModels
@@ -30,26 +28,20 @@ namespace SmartCommander.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedPlugin, value);
         }
 
-        private static IEnumerable<CultureInfo> GetAvailableCultures()
+        // Explicit list of locales this app ships translations for (one CultureInfo per
+        // Assets/Resources*.resx file). Scanning CultureTypes.AllCultures and probing each of
+        // .NET's ~800 known cultures for a satellite resource assembly froze the UI on first open.
+        private static readonly string[] SupportedCultureNames =
         {
-            var result = new List<CultureInfo>();
-            var rm = new ResourceManager(typeof(Resources));
-            var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+            "en-US",
+            "fr-FR",
+            "ru-RU",
+            "sr-Cyrl-RS",
+            "sr-Latn-ME",
+        };
 
-            foreach (var culture in cultures)
-            {
-                if (culture.Equals(CultureInfo.InvariantCulture))
-                {
-                    result.Add(new CultureInfo("en-US"));
-                    continue;
-                }
-
-                ResourceSet? rs = rm?.GetResourceSet(culture, true, false);
-                if (rs != null)
-                    result.Add(culture);
-            }
-            return result;
-        }
+        private static IEnumerable<CultureInfo> GetAvailableCultures() =>
+            SupportedCultureNames.Select(name => new CultureInfo(name));
 
         public OptionsViewModel()
         {
