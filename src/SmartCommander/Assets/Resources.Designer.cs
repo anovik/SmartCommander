@@ -115,6 +115,24 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t copy folder here.
+        /// </summary>
+        public static string CantCopyFolderHere {
+            get {
+                return ResourceManager.GetString("CantCopyFolderHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t copy folder to itself.
+        /// </summary>
+        public static string CantCopyFolderToItself {
+            get {
+                return ResourceManager.GetString("CantCopyFolderToItself", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t create folder.
         /// </summary>
         public static string CantCreateFolder {
@@ -768,6 +786,33 @@ namespace SmartCommander.Assets {
         public static string Zip {
             get {
                 return ResourceManager.GetString("Zip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy.
+        /// </summary>
+        public static string Copy {
+            get {
+                return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cut.
+        /// </summary>
+        public static string Cut {
+            get {
+                return ResourceManager.GetString("Cut", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paste.
+        /// </summary>
+        public static string Paste {
+            get {
+                return ResourceManager.GetString("Paste", resourceCulture);
             }
         }
     }

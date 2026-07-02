@@ -126,11 +126,26 @@
   <data name="Cancel" xml:space="preserve">
     <value>Otkaži</value>
   </data>
+  <data name="CantCopyFileHere" xml:space="preserve">
+    <value>Ne možete da kopirate datoteku ovdje</value>
+  </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Ne možete da kopirajte datoteke u istu fasciklu</value>
   </data>
+  <data name="CantCopyFolderHere" xml:space="preserve">
+    <value>Ne možete da kopirate fasciklu ovdje</value>
+  </data>
+  <data name="CantCopyFolderToItself" xml:space="preserve">
+    <value>Ne možete da kopirate fasciklu u samu sebe</value>
+  </data>
+  <data name="CantCreateFolder" xml:space="preserve">
+    <value>Ne možete da napravite fasciklu</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Ne možete da uređivajte fasciklu</value>
+  </data>
+  <data name="CantMoveFileHere" xml:space="preserve">
+    <value>Ne možete da premjestite datoteku ovdje</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Ne možete da premjestite datoteke u istu fasciklu</value>
@@ -139,7 +154,7 @@
     <value>Ne možete da premjestite fasciklu ovdje</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
-    <value>Ne možete da premjestite fasciklu ovdje</value>
+    <value>Ne možete da premjestite fasciklu u samu sebe</value>
   </data>
   <data name="CantViewFolder" xml:space="preserve">
     <value>Ne možete da pregledajte fasciklu</value>
@@ -297,6 +312,9 @@
   <data name="Unzip" xml:space="preserve">
     <value>Raspakuj</value>
   </data>
+  <data name="MoreOptions" xml:space="preserve">
+    <value>Još opcija</value>
+  </data>
   <data name="DirectoryExists" xml:space="preserve">
     <value>Fascikla {0} već postoji.</value>
   </data>
@@ -341,5 +359,14 @@
   </data>
   <data name="Plugins" xml:space="preserve">
     <value>Dopune</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopiraj</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>Iseci</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>Nalepi</value>
   </data>
 </root>

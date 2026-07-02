@@ -126,11 +126,26 @@
   <data name="Cancel" xml:space="preserve">
     <value>Откажи</value>
   </data>
+  <data name="CantCopyFileHere" xml:space="preserve">
+    <value>Овде не можете да копирате датотеку</value>
+  </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Не можете да копираjте датотеке у исту фасциклу</value>
   </data>
+  <data name="CantCopyFolderHere" xml:space="preserve">
+    <value>Овде не можете да копирате фасциклу</value>
+  </data>
+  <data name="CantCopyFolderToItself" xml:space="preserve">
+    <value>Не можете да копирате фасциклу у саму себе</value>
+  </data>
+  <data name="CantCreateFolder" xml:space="preserve">
+    <value>Не можете да направите фасциклу</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Не можете да уређиваjте фасциклу</value>
+  </data>
+  <data name="CantMoveFileHere" xml:space="preserve">
+    <value>Овде не можете да преместите датотеку</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Не можете да преместите датотеке у исту фасциклу</value>
@@ -139,7 +154,7 @@
     <value>Овде не можете да преместите фасциклу</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
-    <value>Не можете да премјестите фасциклу овде</value>
+    <value>Не можете да премјестите фасциклу у саму себе</value>
   </data>
   <data name="CantViewFolder" xml:space="preserve">
     <value>Не можете да прегледаjте фасциклу</value>
@@ -297,6 +312,9 @@
   <data name="Unzip" xml:space="preserve">
     <value>Распакуj</value>
   </data>
+  <data name="MoreOptions" xml:space="preserve">
+    <value>Још опција</value>
+  </data>
   <data name="DirectoryExists" xml:space="preserve">
     <value>Фасцикла {0} већ постоји.</value>
   </data>
@@ -341,5 +359,14 @@
   </data>
   <data name="Plugins" xml:space="preserve">
     <value>Допуне</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Копирај</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>Исеци</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>Налепи</value>
   </data>
 </root>

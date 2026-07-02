@@ -24,6 +24,10 @@ namespace SmartCommander.Views
 
             InitializeComponent();
 
+            // Tunnel phase runs before the Grid/DataGrid's own ContextFlyout-opening handler marks the
+            // event handled during the bubble phase, so this always gets a chance to run first.
+            AddHandler(ContextRequestedEvent, OnContextRequested, RoutingStrategies.Tunnel);
+
             if (OperatingSystem.IsWindows())
             {
                 DataContextChanged += (s, e) =>
@@ -113,6 +117,14 @@ namespace SmartCommander.Views
         }
 
 
+
+        private void OnContextRequested(object? sender, ContextRequestedEventArgs e)
+        {
+            if (DataContext is FilesPaneViewModel viewModel)
+            {
+                _ = viewModel.UpdatePasteAvailability();
+            }
+        }
 
         public void dataGrid_PreviewKeyDown(object? sender, KeyEventArgs e)
         {
