@@ -7,13 +7,14 @@ using Serilog;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using System;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 
 namespace SmartCommander.Views
 {
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        ProgressWindow progressWindow;
+        OperationsWindow operationsWindow;
         public MainWindow() 
         {
             Opened += OnOpened;
@@ -35,7 +36,7 @@ namespace SmartCommander.Views
                 interaction => DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>(interaction)
             )));
 
-            progressWindow = new ProgressWindow();
+            operationsWindow = new OperationsWindow();
 
             Closing += async (s, e) =>
             {
@@ -57,7 +58,7 @@ namespace SmartCommander.Views
                 MainWindowViewModel? vm = DataContext as MainWindowViewModel;
                 if (vm != null)
                 {
-                    if (vm.IsBackgroundOperation)
+                    if (vm.ActiveOperations.Count > 0)
                     {
                         e.Cancel = true;
                         var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
@@ -68,7 +69,7 @@ namespace SmartCommander.Views
                         var result = await messageBoxWindow.ShowAsPopupAsync(this);
                         if (result == ButtonResult.Yes)
                         {
-                            vm.Cancel();
+                            vm.CancelAllOperations();
                             this.Close();
                         }
                         else
@@ -78,7 +79,8 @@ namespace SmartCommander.Views
                     }
                 }
 
-                progressWindow.Close();
+                // Programmatic close bypasses the OperationsWindow hide-intercept.
+                operationsWindow.Close();
             }
         }
 
@@ -118,7 +120,8 @@ namespace SmartCommander.Views
 
             if (vm != null)
             {
-                progressWindow.ViewModel = vm;
+                operationsWindow.DataContext = vm;
+                vm.ActiveOperations.CollectionChanged += OnActiveOperationsChanged;
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
 
@@ -129,22 +132,24 @@ namespace SmartCommander.Views
                 vm.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.LeftFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.RightFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
-
-                vm.ProgressRequest += View_ProgressRequest;
             }
         }
 
-        private void View_ProgressRequest(object? sender, int e)
-        {   
-            if (e == 0)
+        // Show/hide is driven by the ActiveOperations collection itself (the single source of
+        // truth the window binds to), not by a separate progress event. The collection is only
+        // mutated on the UI thread, so no marshaling is needed here.
+        private void OnActiveOperationsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                progressWindow.Show();
+                // Owned: stays above MainWindow without blocking it. Showing on every add also
+                // re-surfaces the window if the user hid it with X while operations were running.
+                operationsWindow.Show(this);
             }
-            if (e >= 100)
+            else if ((DataContext as MainWindowViewModel)?.ActiveOperations.Count == 0)
             {
-                progressWindow.Hide();
+                operationsWindow.Hide();
             }
-            progressWindow.SetProgress(e);
         }
 
         void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)

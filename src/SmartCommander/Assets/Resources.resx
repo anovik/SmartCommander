@@ -276,8 +276,26 @@
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="OperationCopyDescription" xml:space="preserve">
+    <value>Copy {0} → {1}</value>
+  </data>
+  <data name="OperationDeleteDescription" xml:space="preserve">
+    <value>Delete {0}</value>
+  </data>
   <data name="OperationInProgress" xml:space="preserve">
     <value>Operation in Progress:</value>
+  </data>
+  <data name="OperationMoveDescription" xml:space="preserve">
+    <value>Move {0} → {1}</value>
+  </data>
+  <data name="Operations" xml:space="preserve">
+    <value>Operations</value>
+  </data>
+  <data name="OperationUnzipDescription" xml:space="preserve">
+    <value>Unzip {0} → {1}</value>
+  </data>
+  <data name="OperationZipDescription" xml:space="preserve">
+    <value>Zip {0} → {1}</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>Options</value>

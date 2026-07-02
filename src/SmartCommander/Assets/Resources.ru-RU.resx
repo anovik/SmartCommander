@@ -276,8 +276,26 @@
   <data name="OK" xml:space="preserve">
     <value>ОК</value>
   </data>
+  <data name="OperationCopyDescription" xml:space="preserve">
+    <value>Копирование {0} → {1}</value>
+  </data>
+  <data name="OperationDeleteDescription" xml:space="preserve">
+    <value>Удаление {0}</value>
+  </data>
   <data name="OperationInProgress" xml:space="preserve">
     <value>Операция в процессе:</value>
+  </data>
+  <data name="OperationMoveDescription" xml:space="preserve">
+    <value>Перемещение {0} → {1}</value>
+  </data>
+  <data name="Operations" xml:space="preserve">
+    <value>Операции</value>
+  </data>
+  <data name="OperationUnzipDescription" xml:space="preserve">
+    <value>Распаковка {0} → {1}</value>
+  </data>
+  <data name="OperationZipDescription" xml:space="preserve">
+    <value>Архивация {0} → {1}</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>Опции</value>

@@ -139,8 +139,8 @@ namespace SmartCommander.ViewModels
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
-            ZipCommand = ReactiveCommand.Create(Zip);
-            UnzipCommand = ReactiveCommand.Create(Unzip);
+            ZipCommand = ReactiveCommand.CreateFromTask(Zip);
+            UnzipCommand = ReactiveCommand.CreateFromTask(Unzip);
             CopyCommand = ReactiveCommand.CreateFromTask(Copy);
             CutCommand = ReactiveCommand.CreateFromTask(Cut);
             PasteCommand = ReactiveCommand.CreateFromTask(Paste, this.WhenAnyValue(x => x.CanPaste));
@@ -363,14 +363,14 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public void Zip()
+        public Task Zip()
         {
-            _mainVM.Zip();
+            return _mainVM.Zip();
         }
 
-        public void Unzip()
+        public Task Unzip()
         {
-            _mainVM.Unzip();
+            return _mainVM.Unzip();
         }
 
         // Cut/copy intent travels with the clipboard payload itself (rather than app-local state)
@@ -504,8 +504,9 @@ namespace SmartCommander.ViewModels
             {
                 // A cut is a one-time move: clear the clipboard so a stray repeat Ctrl+V
                 // doesn't retry the operation against the now-deleted source. Only clear once
-                // the move actually ran (not on a Cancel'd overwrite prompt), otherwise a
-                // cancelled paste would silently discard the cut.
+                // the move was confirmed and launched (not on a Cancel'd overwrite prompt),
+                // otherwise a cancelled paste would silently discard the cut. The move itself
+                // completes in the background after this.
                 await clipboard.ClearAsync();
             }
         }

@@ -1,6 +1,5 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using Serilog;
@@ -9,6 +8,7 @@ using SmartCommander.Models;
 using SmartCommander.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -68,7 +68,6 @@ namespace SmartCommander.ViewModels
             }
             SetLanguage();
             SetTheme();
-            _progress = new FilteringProgress(Progress_Show);
         }
 
         private void SetLanguage()
@@ -114,10 +113,6 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel RightFileViewModel { get; }
 
         private string _commandText = "";
-
-        IProgress<int> _progress;
-
-        SmartCancellationTokenSource? tokenSource;
 
         volatile bool _F3Busy;
         volatile bool _F4Busy;
@@ -242,29 +237,52 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit(F4Finished);
         }
 
-        // Copy/Move/Zip/Unzip/Delete/PasteFiles all share this single tokenSource, and the progress
-        // window is non-modal, so a second operation started while one is running would reassign
-        // tokenSource out from under the first (see code_review.md). Checking IsBackgroundOperation
-        // at the top of each of those entry points below is a deliberate interim guard matching
-        // today's single-progress-window UI, not the long-term design: issue #77 (Multiple
-        // simultaneous copy/move operations) wants these to run concurrently with independent
-        // progress tracking. When #77 is implemented, remove these guards rather than reworking them.
-        public bool IsBackgroundOperation => tokenSource != null && !tokenSource.IsDisposed;
+        // Each long operation (Copy/Move/Paste/Delete/Zip/Unzip) runs as an independent
+        // FileOperationViewModel with its own cancellation token and progress reporter.
+        // This collection is mutated only on the UI thread: every operation is launched from
+        // a command handler or dialog continuation, and Avalonia's synchronization context
+        // resumes the awaits (including the finally in RunOperationAsync) on the UI thread.
+        // The OperationsWindow show/hide handler and its ItemsControl binding rely on that.
+        public ObservableCollection<FileOperationViewModel> ActiveOperations { get; } = new();
 
-        public void Cancel()
+        public void CancelAllOperations()
         {
-            if (tokenSource != null && !tokenSource.IsDisposed)
+            foreach (var operation in ActiveOperations.ToList())
             {
-                tokenSource.Cancel();
+                operation.Cancel();
             }
         }
 
-        public async void Zip()
+        // The single funnel every long operation goes through. Never throws, so entry points
+        // can launch it fire-and-forget after their dialog phase completes.
+        private async Task RunOperationAsync(string description, string logContext,
+            Func<IProgress<int>, CancellationToken, Task> work)
         {
-            if (IsBackgroundOperation)
+            var operation = new FileOperationViewModel(description);
+            ActiveOperations.Add(operation);
+            try
             {
-                return;
+                await work(operation.ProgressReporter, operation.Token);
             }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "{LogContext} failed", logContext);
+            }
+            finally
+            {
+                ActiveOperations.Remove(operation);
+                operation.Dispose();
+            }
+        }
+
+        private static string DescribeItems(int count, string firstItemName)
+        {
+            return count == 1 ? firstItemName : string.Format(Resources.ItemsNumber, count);
+        }
+
+        public async Task Zip()
+        {
             if (SelectedPane.CurrentItems.Count < 1)
             {
                 return;
@@ -272,13 +290,20 @@ namespace SmartCommander.ViewModels
 
             try
             {
-                var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder, i.Name)).ToList();
-                string zipDir = SelectedPane.CurrentDirectory;
+                var pane = SelectedPane;
+                var items = pane.CurrentItems.Select(i => (i.FullName, i.IsFolder, i.Name)).ToList();
+                string zipDir = pane.CurrentDirectory;
                 long totalSize = await _fs.GetTotalSizeAsync(items.Select(i => (i.FullName, i.IsFolder)).ToList());
-                using (tokenSource = new SmartCancellationTokenSource())
+                string description = string.Format(Resources.OperationZipDescription,
+                    DescribeItems(items.Count, items[0].Name),
+                    Path.Combine(zipDir, items[0].Name + ".zip"));
+                _ = RunZipAsync();
+
+                async Task RunZipAsync()
                 {
-                    await Task.Run(() => ZipCore(items, zipDir, totalSize, tokenSource.Token));
-                    SelectedPane.Update();
+                    await RunOperationAsync(description, "Zip",
+                        (progress, ct) => Task.Run(() => ZipCore(items, zipDir, totalSize, progress, ct), ct));
+                    pane.Update();
                 }
             }
             catch (Exception ex)
@@ -287,12 +312,8 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public async void Unzip()
+        public async Task Unzip()
         {
-            if (IsBackgroundOperation)
-            {
-                return;
-            }
             if (SelectedPane.CurrentItems.Count < 1)
             {
                 return;
@@ -300,10 +321,20 @@ namespace SmartCommander.ViewModels
 
             try
             {
-                using (tokenSource = new SmartCancellationTokenSource())
+                // Snapshot on the UI thread: the pane's selection and directory must not be
+                // read from the Task.Run thread, and may change while the operation runs.
+                var pane = SelectedPane;
+                var archiveFullName = pane.CurrentItems[0].FullName;
+                var archiveName = pane.CurrentItems[0].Name;
+                var destDir = Path.Combine(pane.CurrentDirectory, archiveName);
+                string description = string.Format(Resources.OperationUnzipDescription, archiveName, destDir);
+                _ = RunUnzipAsync();
+
+                async Task RunUnzipAsync()
                 {
-                    await Task.Run(() => UnzipCore(tokenSource.Token));
-                    SelectedPane.Update();
+                    await RunOperationAsync(description, "Unzip",
+                        (progress, ct) => Task.Run(() => UnzipCore(archiveFullName, destDir, progress, ct), ct));
+                    pane.Update();
                 }
             }
             catch (Exception ex)
@@ -312,7 +343,7 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private void UnzipCore(CancellationToken ct)
+        private void UnzipCore(string archiveFullName, string destDir, IProgress<int> progress, CancellationToken ct)
         {
             try
             {
@@ -320,24 +351,19 @@ namespace SmartCommander.ViewModels
                 {
                     ct.ThrowIfCancellationRequested();
                 }
-                if (SelectedPane.CurrentItems.Count < 1)
-                {
-                    return;
-                }
-                var destDir = Path.Combine(SelectedPane.CurrentDirectory, SelectedPane.CurrentItems[0].Name);
                 if (Directory.Exists(destDir))
                 {
                     MessageBox_Show(null, string.Format(Resources.DirectoryExists, destDir), Resources.Alert);
                     return;
                 }
-                _progress?.Report(0);
-                ZipFile.ExtractToDirectory(SelectedPane.CurrentItems[0].FullName, destDir);
-                _progress?.Report(100);
+                progress.Report(0);
+                ZipFile.ExtractToDirectory(archiveFullName, destDir);
+                progress.Report(100);
             }
             catch { }
         }
 
-        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipDir, long totalSize, CancellationToken ct)
+        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipDir, long totalSize, IProgress<int> progress, CancellationToken ct)
         {
             try
             {
@@ -353,7 +379,7 @@ namespace SmartCommander.ViewModels
                     MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
                     return;
                 }
-                _progress?.Report(0);
+                progress.Report(0);
                 long processedSize = 0;
 
                 List<Tuple<string, string>> itemsToProcess = new();
@@ -395,21 +421,17 @@ namespace SmartCommander.ViewModels
 
                         itemsToProcess.Remove(item);
 
-                        _progress?.Report(totalSize == 0 ? 0 : (int)(processedSize * 100 / totalSize));
+                        progress.Report(totalSize == 0 ? 0 : (int)(processedSize * 100 / totalSize));
                     }
                 }
 
-                _progress?.Report(100);
+                progress.Report(100);
             }
             catch { }
         }
 
         public async Task Copy()
         {
-            if (IsBackgroundOperation)
-            {
-                return;
-            }
             if (SelectedPane.CurrentItems.Count < 1)
             {
                 return;
@@ -444,10 +466,6 @@ namespace SmartCommander.ViewModels
 
         public async Task Move()
         {
-            if (IsBackgroundOperation)
-            {
-                return;
-            }
             if (SelectedPane.CurrentItems.Count < 1)
             {
                 return;
@@ -472,11 +490,6 @@ namespace SmartCommander.ViewModels
 
         public async Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut)
         {
-            if (IsBackgroundOperation)
-            {
-                return false;
-            }
-
             var items = await Task.Run(() => sourcePaths
                 .Select(p => (FullName: p, IsFolder: _fs.DirectoryExists(p)))
                 .ToList());
@@ -490,8 +503,9 @@ namespace SmartCommander.ViewModels
         }
 
         // Returns true only once the user has actually confirmed (or no confirmation was needed)
-        // and the file operation has run to completion, so callers can tell a genuine run apart
-        // from a Cancel answer instead of assuming the operation happened as soon as this returns.
+        // and the file operation has been launched, so callers can tell a genuine launch apart
+        // from a Cancel answer on the overwrite prompt. The operation itself completes in the
+        // background after this returns.
         private async Task<bool> ConfirmOverwriteThenRun(List<(string FullName, bool IsFolder)> items, string destDirectory,
             Func<bool, Task> onConfirmed)
         {
@@ -516,31 +530,29 @@ namespace SmartCommander.ViewModels
             return true;
         }
 
-        private async Task RunFileOperation(List<(string FullName, bool IsFolder)> items, string destDirectory,
+        private Task RunFileOperation(List<(string FullName, bool IsFolder)> items, string destDirectory,
             bool move, bool overwrite, string logContext)
         {
-            try
+            var sourcePane = SelectedPane;
+            var destPane = SecondPane;
+            string description = string.Format(
+                move ? Resources.OperationMoveDescription : Resources.OperationCopyDescription,
+                DescribeItems(items.Count, Path.GetFileName(items[0].FullName)),
+                destDirectory);
+            _ = RunAndRefreshAsync();
+            return Task.CompletedTask;
+
+            async Task RunAndRefreshAsync()
             {
-                using (tokenSource = new SmartCancellationTokenSource())
-                {
-                    await CopyOrMoveItemsAsync(items, destDirectory, move, overwrite, tokenSource.Token);
-                }
-            }
-            catch (OperationCanceledException) { }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "{LogContext} failed", logContext);
-            }
-            finally
-            {
-                _progress?.Report(100);
-                SelectedPane.Update();
-                SecondPane.Update();
+                await RunOperationAsync(description, logContext,
+                    (progress, ct) => CopyOrMoveItemsAsync(items, destDirectory, move, overwrite, progress, ct));
+                sourcePane.Update();
+                destPane.Update();
             }
         }
 
         private async Task CopyOrMoveItemsAsync(List<(string FullName, bool IsFolder)> items, string destDirectory,
-            bool move, bool overwrite, CancellationToken ct)
+            bool move, bool overwrite, IProgress<int> progress, CancellationToken ct)
         {
             foreach (var (fullName, isFolder) in items)
             {
@@ -556,7 +568,7 @@ namespace SmartCommander.ViewModels
                 }
             }
 
-            _progress?.Report(0);
+            progress.Report(0);
             long totalSize = await _fs.GetTotalSizeAsync(items);
             long processedSize = 0;
 
@@ -582,7 +594,7 @@ namespace SmartCommander.ViewModels
                             {
                                 processedSize = await _fs.CopyDirectoryAsync(
                                     fullName, destFolder, true, overwrite,
-                                    _progress, processedSize, totalSize, ct);
+                                    progress, processedSize, totalSize, ct);
                                 await _fs.DeleteDirectoryAsync(fullName, ct);
                             }
                         }
@@ -590,7 +602,7 @@ namespace SmartCommander.ViewModels
                         {
                             processedSize = await _fs.CopyDirectoryAsync(
                                 fullName, destFolder, true, overwrite,
-                                _progress, processedSize, totalSize, ct);
+                                progress, processedSize, totalSize, ct);
                         }
                     }
                     catch (OperationCanceledException) { throw; }
@@ -607,7 +619,7 @@ namespace SmartCommander.ViewModels
                         string destFile = Path.Combine(destDirectory, Path.GetFileName(fullName));
                         processedSize = await _fs.CopyFileAsync(
                             fullName, destFile, move, overwrite,
-                            _progress, processedSize, totalSize, ct);
+                            progress, processedSize, totalSize, ct);
                     }
                     catch (OperationCanceledException) { throw; }
                     catch
@@ -676,21 +688,18 @@ namespace SmartCommander.ViewModels
 
         public void Delete()
         {
-            if (IsBackgroundOperation)
-            {
-                return;
-            }
             if (SelectedPane.CurrentItems.Count < 1)
             {
                 return;
             }
+            // _F8Busy only guards the confirmation-dialog phase (no double dialogs on repeated
+            // F8); the delete itself runs as a background operation and may overlap with others.
             if (_F8Busy)
             {
                 return;
             }
             _F8Busy = true;
-            var text = SelectedPane.CurrentItems.Count == 1 ? SelectedPane.CurrentItems[0].Name :
-                string.Format(Resources.ItemsNumber, SelectedPane.CurrentItems.Count);
+            var text = DescribeItems(SelectedPane.CurrentItems.Count, SelectedPane.CurrentItems[0].Name);
             MessageBox_Show(DeleteAnswer,
                 string.Format(Resources.DeleteConfirmation, text),
                 Resources.Alert,
@@ -713,11 +722,11 @@ namespace SmartCommander.ViewModels
                             string.Format(Resources.DeleteConfirmationNonEmpty, text),
                             Resources.Alert,
                             ButtonEnum.YesNoCancel,
-                            parameter: nonEmptyFolders);
+                            parameter: (items, nonEmptyFolders));
                     }
                     else
                     {
-                        DeleteSelectedItems(true, nonEmptyFolders);
+                        DeleteSelectedItems(true, items, nonEmptyFolders);
                     }
                 }
                 catch (Exception ex)
@@ -736,7 +745,9 @@ namespace SmartCommander.ViewModels
         {
             if (result != ButtonResult.Cancel)
             {
-                DeleteSelectedItems(result == ButtonResult.Yes, parameter as List<string>);
+                var (items, nonEmptyFolders) =
+                    ((List<(string FullName, bool IsFolder)>, List<string>))parameter!;
+                DeleteSelectedItems(result == ButtonResult.Yes, items, nonEmptyFolders);
             }
             else
             {
@@ -744,49 +755,56 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        private async void DeleteSelectedItems(bool overwrite, List<string>? nonEmptyFolders)
+        private async void DeleteSelectedItems(bool overwrite,
+            List<(string FullName, bool IsFolder)> items, List<string>? nonEmptyFolders)
         {
+            // Dialog phase is over: allow the next F8 while this delete runs in the background.
+            _F8Busy = false;
             try
             {
-                using (tokenSource = new SmartCancellationTokenSource())
+                var pane = SelectedPane;
+                var secondPane = SecondPane;
+                var itemsToDelete = items
+                    .Where(item => overwrite || nonEmptyFolders == null || !nonEmptyFolders.Contains(item.FullName))
+                    .ToList();
+                if (itemsToDelete.Count == 0)
                 {
-                    _progress?.Report(0);
-
-                    var itemsToDelete = SelectedPane.CurrentItems
-                        .Where(item => item != null &&
-                                       (overwrite || nonEmptyFolders == null || !nonEmptyFolders.Contains(item.FullName)))
-                        .ToList();
-
-                    int total = itemsToDelete.Count;
-                    int done = 0;
-
-                    foreach (var item in itemsToDelete)
-                    {
-                        tokenSource.Token.ThrowIfCancellationRequested();
-                        if (item.IsFolder)
-                        {
-                            await _fs.DeleteDirectoryAsync(item.FullName, tokenSource.Token);
-                        }
-                        else
-                        {
-                            await _fs.DeleteFileAsync(item.FullName);
-                        }
-                        done++;
-                        _progress?.Report(total > 0 ? done * 100 / total : 100);
-                    }
+                    return;
                 }
+
+                string description = string.Format(Resources.OperationDeleteDescription,
+                    DescribeItems(itemsToDelete.Count, Path.GetFileName(itemsToDelete[0].FullName)));
+                await RunOperationAsync(description, "DeleteSelectedItems",
+                    (progress, ct) => DeleteItemsCoreAsync(itemsToDelete, progress, ct));
+                pane.Update();
+                secondPane.Update();
             }
-            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 Log.Error(ex, "DeleteSelectedItems failed");
             }
-            finally
+        }
+
+        private async Task DeleteItemsCoreAsync(List<(string FullName, bool IsFolder)> items,
+            IProgress<int> progress, CancellationToken ct)
+        {
+            progress.Report(0);
+            int total = items.Count;
+            int done = 0;
+
+            foreach (var (fullName, isFolder) in items)
             {
-                _progress?.Report(100);
-                SelectedPane.Update();
-                SecondPane.Update();
-                _F8Busy = false;
+                ct.ThrowIfCancellationRequested();
+                if (isFolder)
+                {
+                    await _fs.DeleteDirectoryAsync(fullName, ct);
+                }
+                else
+                {
+                    await _fs.DeleteFileAsync(fullName);
+                }
+                done++;
+                progress.Report(done * 100 / total);
             }
         }
 
@@ -812,17 +830,5 @@ namespace SmartCommander.ViewModels
             return string.Equals(sourceDir, dst, comparison);
         }
 
-        private sealed class FilteringProgress : IProgress<int>
-        {
-            private volatile int _last = -1;
-            private readonly Action<int> _callback;
-            internal FilteringProgress(Action<int> callback) => _callback = callback;
-            public void Report(int value)
-            {
-                if (value == _last) return;
-                _last = value;
-                Dispatcher.UIThread.Post(() => _callback(value));
-            }
-        }
     }
 }

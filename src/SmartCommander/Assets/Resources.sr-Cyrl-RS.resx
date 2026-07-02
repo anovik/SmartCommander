@@ -276,8 +276,26 @@
   <data name="OK" xml:space="preserve">
     <value>ОК</value>
   </data>
+  <data name="OperationCopyDescription" xml:space="preserve">
+    <value>Копирање {0} → {1}</value>
+  </data>
+  <data name="OperationDeleteDescription" xml:space="preserve">
+    <value>Брисање {0}</value>
+  </data>
   <data name="OperationInProgress" xml:space="preserve">
     <value>Операција у току:</value>
+  </data>
+  <data name="OperationMoveDescription" xml:space="preserve">
+    <value>Премјештање {0} → {1}</value>
+  </data>
+  <data name="Operations" xml:space="preserve">
+    <value>Операције</value>
+  </data>
+  <data name="OperationUnzipDescription" xml:space="preserve">
+    <value>Распакивање {0} → {1}</value>
+  </data>
+  <data name="OperationZipDescription" xml:space="preserve">
+    <value>Архивирање {0} → {1}</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>Опције</value>
