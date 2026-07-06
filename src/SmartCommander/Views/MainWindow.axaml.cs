@@ -66,7 +66,7 @@ namespace SmartCommander.Views
                             Assets.Resources.StopBackground + Environment.NewLine,
                             ButtonEnum.YesNo,
                             MsBox.Avalonia.Enums.Icon.Question);
-                        var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                        var result = await messageBoxWindow.ShowWindowDialogAsync(this);
                         if (result == ButtonResult.Yes)
                         {
                             vm.CancelAllOperations();
