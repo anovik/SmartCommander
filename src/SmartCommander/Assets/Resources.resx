@@ -138,11 +138,17 @@
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Can't copy folder to itself</value>
   </data>
+  <data name="CantCreateArchive" xml:space="preserve">
+    <value>Can't create archive {0}</value>
+  </data>
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Can't create folder</value>
   </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Can't edit the folder</value>
+  </data>
+  <data name="CantExtractArchive" xml:space="preserve">
+    <value>Can't extract archive {0}</value>
   </data>
   <data name="CantMoveFileHere" xml:space="preserve">
     <value>Can't move file here</value>
@@ -281,9 +287,6 @@
   </data>
   <data name="OperationDeleteDescription" xml:space="preserve">
     <value>Delete {0}</value>
-  </data>
-  <data name="OperationInProgress" xml:space="preserve">
-    <value>Operation in Progress:</value>
   </data>
   <data name="OperationMoveDescription" xml:space="preserve">
     <value>Move {0} → {1}</value>

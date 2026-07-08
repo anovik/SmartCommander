@@ -133,6 +133,15 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t create archive {0}.
+        /// </summary>
+        public static string CantCreateArchive {
+            get {
+                return ResourceManager.GetString("CantCreateArchive", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t create folder.
         /// </summary>
         public static string CantCreateFolder {
@@ -147,6 +156,15 @@ namespace SmartCommander.Assets {
         public static string CantEditFolder {
             get {
                 return ResourceManager.GetString("CantEditFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t extract archive {0}.
+        /// </summary>
+        public static string CantExtractArchive {
+            get {
+                return ResourceManager.GetString("CantExtractArchive", resourceCulture);
             }
         }
 
@@ -633,15 +651,6 @@ namespace SmartCommander.Assets {
         public static string OperationDeleteDescription {
             get {
                 return ResourceManager.GetString("OperationDeleteDescription", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Operation in Progress:.
-        /// </summary>
-        public static string OperationInProgress {
-            get {
-                return ResourceManager.GetString("OperationInProgress", resourceCulture);
             }
         }
 

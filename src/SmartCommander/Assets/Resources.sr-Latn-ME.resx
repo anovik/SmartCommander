@@ -138,11 +138,17 @@
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Ne možete da kopirate fasciklu u samu sebe</value>
   </data>
+  <data name="CantCreateArchive" xml:space="preserve">
+    <value>Ne možete da napravite arhivu {0}</value>
+  </data>
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Ne možete da napravite fasciklu</value>
   </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Ne možete da uređivajte fasciklu</value>
+  </data>
+  <data name="CantExtractArchive" xml:space="preserve">
+    <value>Ne možete da raspakujete arhivu {0}</value>
   </data>
   <data name="CantMoveFileHere" xml:space="preserve">
     <value>Ne možete da premjestite datoteku ovdje</value>
@@ -281,9 +287,6 @@
   </data>
   <data name="OperationDeleteDescription" xml:space="preserve">
     <value>Brisanje {0}</value>
-  </data>
-  <data name="OperationInProgress" xml:space="preserve">
-    <value>Operacija u toku:</value>
   </data>
   <data name="OperationMoveDescription" xml:space="preserve">
     <value>Premještanje {0} → {1}</value>

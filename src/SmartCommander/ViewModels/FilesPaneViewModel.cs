@@ -499,16 +499,13 @@ namespace SmartCommander.ViewModels
             }
 
             bool isCut = dataTransfer.Contains(CutMarkerFormat);
-            bool proceeded = await _mainVM.PasteFiles(destDirectory, sourcePaths, isCut);
-            if (isCut && proceeded)
-            {
-                // A cut is a one-time move: clear the clipboard so a stray repeat Ctrl+V
-                // doesn't retry the operation against the now-deleted source. Only clear once
-                // the move was confirmed and launched (not on a Cancel'd overwrite prompt),
-                // otherwise a cancelled paste would silently discard the cut. The move itself
-                // completes in the background after this.
-                await clipboard.ClearAsync();
-            }
+            // A cut is a one-time move: clear the clipboard so a stray repeat Ctrl+V doesn't
+            // retry the operation against the now-deleted source. Only clear once the move has
+            // actually completed successfully in the background - not merely been launched -
+            // otherwise a move that fails partway through would strand the user with an empty
+            // clipboard and no way to retry via Ctrl+V.
+            await _mainVM.PasteFiles(destDirectory, sourcePaths, isCut,
+                onMoveCompleted: isCut ? clipboard.ClearAsync : null);
         }
 
         public async Task ShowMoreOptions()

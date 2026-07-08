@@ -138,11 +138,17 @@
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Невозможно скопировать папку в саму себя</value>
   </data>
+  <data name="CantCreateArchive" xml:space="preserve">
+    <value>Невозможно создать архив {0}</value>
+  </data>
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Невозможно создать папку</value>
   </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Невозможно редактировать папку</value>
+  </data>
+  <data name="CantExtractArchive" xml:space="preserve">
+    <value>Невозможно распаковать архив {0}</value>
   </data>
   <data name="CantMoveFileHere" xml:space="preserve">
     <value>Невозможно переместить файл сюда</value>
@@ -281,9 +287,6 @@
   </data>
   <data name="OperationDeleteDescription" xml:space="preserve">
     <value>Удаление {0}</value>
-  </data>
-  <data name="OperationInProgress" xml:space="preserve">
-    <value>Операция в процессе:</value>
   </data>
   <data name="OperationMoveDescription" xml:space="preserve">
     <value>Перемещение {0} → {1}</value>

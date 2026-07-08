@@ -9,6 +9,7 @@ using SmartCommander.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -46,7 +47,7 @@ namespace SmartCommander.ViewModels
             F5Command = ReactiveCommand.CreateFromTask(Copy);
             F6Command = ReactiveCommand.CreateFromTask(Move);
             F7Command = ReactiveCommand.Create(CreateNewFolder);
-            F8Command = ReactiveCommand.Create(Delete);
+            F8Command = ReactiveCommand.CreateFromTask(Delete);
 
             CopyToClipboardCommand = ReactiveCommand.CreateFromTask(() => SelectedPane.Copy());
             CutToClipboardCommand = ReactiveCommand.CreateFromTask(() => SelectedPane.Cut());
@@ -117,7 +118,6 @@ namespace SmartCommander.ViewModels
         volatile bool _F3Busy;
         volatile bool _F4Busy;
         volatile bool _F7Busy;
-        volatile bool _F8Busy;
 
         public string CommandText
         {
@@ -245,17 +245,51 @@ namespace SmartCommander.ViewModels
         // The OperationsWindow show/hide handler and its ItemsControl binding rely on that.
         public ObservableCollection<FileOperationViewModel> ActiveOperations { get; } = new();
 
-        public void CancelAllOperations()
+        // Requests cancellation of every active operation and waits for each one's background
+        // cleanup (RunOperationAsync's finally, e.g. a cancelled copy deleting its partial
+        // destination file) to actually finish - not just for the cancellation request to be
+        // sent - so the app doesn't tear down mid-cleanup on close.
+        public Task CancelAllOperationsAndWaitAsync()
         {
+            if (ActiveOperations.Count == 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            var tcs = new TaskCompletionSource();
+            void OnActiveOperationsChanged(object? s, NotifyCollectionChangedEventArgs e)
+            {
+                if (ActiveOperations.Count == 0)
+                {
+                    tcs.TrySetResult();
+                }
+            }
+            ActiveOperations.CollectionChanged += OnActiveOperationsChanged;
+
             foreach (var operation in ActiveOperations.ToList())
             {
                 operation.Cancel();
             }
+
+            return WaitAndUnsubscribeAsync();
+
+            async Task WaitAndUnsubscribeAsync()
+            {
+                try
+                {
+                    await tcs.Task;
+                }
+                finally
+                {
+                    ActiveOperations.CollectionChanged -= OnActiveOperationsChanged;
+                }
+            }
         }
 
         // The single funnel every long operation goes through. Never throws, so entry points
-        // can launch it fire-and-forget after their dialog phase completes.
-        private async Task RunOperationAsync(string description, string logContext,
+        // can launch it fire-and-forget after their dialog phase completes. Returns whether the
+        // work completed without being cancelled or throwing.
+        private async Task<bool> RunOperationAsync(string description, string logContext,
             Func<IProgress<int>, CancellationToken, Task> work)
         {
             var operation = new FileOperationViewModel(description);
@@ -263,17 +297,43 @@ namespace SmartCommander.ViewModels
             try
             {
                 await work(operation.ProgressReporter, operation.Token);
+                return true;
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
             catch (Exception ex)
             {
                 Log.Error(ex, "{LogContext} failed", logContext);
+                return false;
             }
             finally
             {
                 ActiveOperations.Remove(operation);
                 operation.Dispose();
             }
+        }
+
+        // Wraps RunOperationAsync with the pane refresh that must follow every operation.
+        // The refresh itself is guarded so a failure there (e.g. a pane's directory disappeared)
+        // is logged instead of becoming an unobserved task exception.
+        private async Task<bool> RunOperationAndRefreshAsync(string description, string logContext,
+            Func<IProgress<int>, CancellationToken, Task> work, params FilesPaneViewModel[] panesToRefresh)
+        {
+            bool succeeded = await RunOperationAsync(description, logContext, work);
+            foreach (var pane in panesToRefresh)
+            {
+                try
+                {
+                    pane.Update();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "{LogContext} pane refresh failed", logContext);
+                }
+            }
+            return succeeded;
         }
 
         private static string DescribeItems(int count, string firstItemName)
@@ -293,17 +353,26 @@ namespace SmartCommander.ViewModels
                 var pane = SelectedPane;
                 var items = pane.CurrentItems.Select(i => (i.FullName, i.IsFolder, i.Name)).ToList();
                 string zipDir = pane.CurrentDirectory;
+                var zipName = Path.Combine(zipDir, items[0].Name + ".zip");
+                // Checked here, before RunOperationAsync ever adds anything to ActiveOperations,
+                // so an already-exists reject is silent and instant instead of flashing
+                // OperationsWindow open then immediately closed.
+                if (File.Exists(zipName))
+                {
+                    MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
+                    return;
+                }
+
                 long totalSize = await _fs.GetTotalSizeAsync(items.Select(i => (i.FullName, i.IsFolder)).ToList());
                 string description = string.Format(Resources.OperationZipDescription,
-                    DescribeItems(items.Count, items[0].Name),
-                    Path.Combine(zipDir, items[0].Name + ".zip"));
+                    DescribeItems(items.Count, items[0].Name), zipName);
                 _ = RunZipAsync();
 
                 async Task RunZipAsync()
                 {
-                    await RunOperationAsync(description, "Zip",
-                        (progress, ct) => Task.Run(() => ZipCore(items, zipDir, totalSize, progress, ct), ct));
-                    pane.Update();
+                    await RunOperationAndRefreshAsync(description, "Zip",
+                        (progress, ct) => Task.Run(() => ZipCore(items, zipName, totalSize, progress, ct), ct),
+                        pane);
                 }
             }
             catch (Exception ex)
@@ -327,14 +396,23 @@ namespace SmartCommander.ViewModels
                 var archiveFullName = pane.CurrentItems[0].FullName;
                 var archiveName = pane.CurrentItems[0].Name;
                 var destDir = Path.Combine(pane.CurrentDirectory, archiveName);
+                // Checked here, before RunOperationAsync ever adds anything to ActiveOperations,
+                // so an already-exists reject is silent and instant instead of flashing
+                // OperationsWindow open then immediately closed.
+                if (Directory.Exists(destDir))
+                {
+                    MessageBox_Show(null, string.Format(Resources.DirectoryExists, destDir), Resources.Alert);
+                    return;
+                }
+
                 string description = string.Format(Resources.OperationUnzipDescription, archiveName, destDir);
                 _ = RunUnzipAsync();
 
                 async Task RunUnzipAsync()
                 {
-                    await RunOperationAsync(description, "Unzip",
-                        (progress, ct) => Task.Run(() => UnzipCore(archiveFullName, destDir, progress, ct), ct));
-                    pane.Update();
+                    await RunOperationAndRefreshAsync(description, "Unzip",
+                        (progress, ct) => Task.Run(() => UnzipCore(archiveFullName, destDir, progress, ct), ct),
+                        pane);
                 }
             }
             catch (Exception ex)
@@ -343,42 +421,65 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        // Extracted entry-by-entry (instead of one ZipFile.ExtractToDirectory call) so
+        // cancellation actually takes effect between entries; ExtractToDirectory itself is not
+        // cancellable mid-call, which previously made app-close block until a large extraction
+        // finished on its own.
         private void UnzipCore(string archiveFullName, string destDir, IProgress<int> progress, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             try
             {
-                if (ct.IsCancellationRequested)
+                progress.Report(0);
+                Directory.CreateDirectory(destDir);
+                string destDirFull = Path.GetFullPath(destDir + Path.DirectorySeparatorChar);
+
+                using var archive = ZipFile.OpenRead(archiveFullName);
+                var entries = archive.Entries;
+                int total = entries.Count;
+                int done = 0;
+                foreach (var entry in entries)
                 {
                     ct.ThrowIfCancellationRequested();
+                    string destPath = Path.GetFullPath(Path.Combine(destDir, entry.FullName));
+                    if (!destPath.StartsWith(destDirFull, StringComparison.Ordinal))
+                    {
+                        throw new IOException($"Zip entry is outside the target directory: {entry.FullName}");
+                    }
+
+                    if (entry.Name.Length == 0)
+                    {
+                        Directory.CreateDirectory(destPath);
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
+                        entry.ExtractToFile(destPath, overwrite: true);
+                    }
+
+                    done++;
+                    progress.Report(total == 0 ? 100 : done * 100 / total);
                 }
-                if (Directory.Exists(destDir))
-                {
-                    MessageBox_Show(null, string.Format(Resources.DirectoryExists, destDir), Resources.Alert);
-                    return;
-                }
-                progress.Report(0);
-                ZipFile.ExtractToDirectory(archiveFullName, destDir);
-                progress.Report(100);
             }
-            catch { }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unzip failed: {ArchiveFullName}", archiveFullName);
+                MessageBox_Show(null, string.Format(Resources.CantExtractArchive, archiveFullName), Resources.Alert);
+            }
         }
 
-        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipDir, long totalSize, IProgress<int> progress, CancellationToken ct)
+        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipName, long totalSize, IProgress<int> progress, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+            if (snapshot.Count < 1)
+            {
+                return;
+            }
+
             try
             {
-                ct.ThrowIfCancellationRequested();
-                if (snapshot.Count < 1)
-                {
-                    return;
-                }
-
-                var zipName = Path.Combine(zipDir, snapshot[0].Name + ".zip");
-                if (File.Exists(zipName))
-                {
-                    MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
-                    return;
-                }
                 progress.Report(0);
                 long processedSize = 0;
 
@@ -392,10 +493,7 @@ namespace SmartCommander.ViewModels
                 {
                     while (itemsToProcess.Count > 0)
                     {
-                        if (ct.IsCancellationRequested)
-                        {
-                            ct.ThrowIfCancellationRequested();
-                        }
+                        ct.ThrowIfCancellationRequested();
                         var item = itemsToProcess[0];
                         var entryPath = item.Item1 as string;
                         var path = item.Item2 as string;
@@ -427,7 +525,12 @@ namespace SmartCommander.ViewModels
 
                 progress.Report(100);
             }
-            catch { }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Zip failed: {ZipName}", zipName);
+                MessageBox_Show(null, string.Format(Resources.CantCreateArchive, zipName), Resources.Alert);
+            }
         }
 
         public async Task Copy()
@@ -488,7 +591,11 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public async Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut)
+        // onMoveCompleted (if given) runs only once the background move has actually finished
+        // successfully - not merely been launched - so a cut-paste caller can safely clear its
+        // clipboard without losing the source on a failed move.
+        public async Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut,
+            Func<Task>? onMoveCompleted = null)
         {
             var items = await Task.Run(() => sourcePaths
                 .Select(p => (FullName: p, IsFolder: _fs.DirectoryExists(p)))
@@ -499,15 +606,23 @@ namespace SmartCommander.ViewModels
             }
 
             return await ConfirmOverwriteThenRun(items, destDirectory,
-                overwrite => RunFileOperation(items, destDirectory, isCut, overwrite, "PasteSelectedItems"));
+                overwrite => RunFileOperation(items, destDirectory, isCut, overwrite, "PasteSelectedItems",
+                    onCompleted: onMoveCompleted == null ? null : async succeeded =>
+                    {
+                        if (succeeded)
+                        {
+                            await onMoveCompleted();
+                        }
+                    }));
         }
 
         // Returns true only once the user has actually confirmed (or no confirmation was needed)
         // and the file operation has been launched, so callers can tell a genuine launch apart
-        // from a Cancel answer on the overwrite prompt. The operation itself completes in the
-        // background after this returns.
+        // from a Cancel answer on the overwrite prompt or a validation rejection inside
+        // `onConfirmed` (e.g. RunFileOperation's same-directory/folder-into-itself check). The
+        // operation itself completes in the background after this returns.
         private async Task<bool> ConfirmOverwriteThenRun(List<(string FullName, bool IsFolder)> items, string destDirectory,
-            Func<bool, Task> onConfirmed)
+            Func<bool, Task<bool>> onConfirmed)
         {
             var duplicates = await _fs.GetDuplicatesAsync(items, destDirectory);
             bool overwrite = false;
@@ -515,10 +630,8 @@ namespace SmartCommander.ViewModels
             {
                 var text = duplicates.Count == 1 ? Path.GetFileName(duplicates[0]) :
                     string.Format(Resources.ItemsNumber, duplicates.Count);
-                var tcs = new TaskCompletionSource<ButtonResult>();
-                MessageBox_Show((result, _) => tcs.TrySetResult(result),
-                    string.Format(Resources.FileExistsRewrite, text), Resources.Alert, ButtonEnum.YesNoCancel);
-                var result = await tcs.Task;
+                var result = await ShowMessageBoxAsync(
+                    string.Format(Resources.FileExistsRewrite, text), ButtonEnum.YesNoCancel);
                 if (result == ButtonResult.Cancel)
                 {
                     return false;
@@ -526,13 +639,48 @@ namespace SmartCommander.ViewModels
                 overwrite = result == ButtonResult.Yes;
             }
 
-            await onConfirmed(overwrite);
-            return true;
+            return await onConfirmed(overwrite);
         }
 
-        private Task RunFileOperation(List<(string FullName, bool IsFolder)> items, string destDirectory,
-            bool move, bool overwrite, string logContext)
+        // Wraps the callback-based MessageBox_Show in a Task so dialog continuations can be
+        // awaited inline instead of chained through separate named callback methods.
+        private Task<ButtonResult> ShowMessageBoxAsync(string text, ButtonEnum buttons)
         {
+            var tcs = new TaskCompletionSource<ButtonResult>();
+            MessageBox_Show((result, _) => tcs.TrySetResult(result), text, Resources.Alert, buttons);
+            return tcs.Task;
+        }
+
+        // Validated up front, before RunOperationAsync ever adds anything to ActiveOperations:
+        // a same-directory/folder-into-itself failure must never make OperationsWindow flash
+        // open then immediately closed for what should be a silent, instant no-op.
+        private static string? ValidateItemsForOperation(List<(string FullName, bool IsFolder)> items,
+            string destDirectory, bool move)
+        {
+            foreach (var (fullName, isFolder) in items)
+            {
+                if (IsSameDirectory(fullName, destDirectory))
+                {
+                    return move ? Resources.CantMoveFileToItself : Resources.CantCopyFileToItself;
+                }
+                if (isFolder && IsDestinationInsideSource(fullName, destDirectory))
+                {
+                    return move ? Resources.CantMoveFolderToItself : Resources.CantCopyFolderToItself;
+                }
+            }
+            return null;
+        }
+
+        private Task<bool> RunFileOperation(List<(string FullName, bool IsFolder)> items, string destDirectory,
+            bool move, bool overwrite, string logContext, Func<bool, Task>? onCompleted = null)
+        {
+            var validationError = ValidateItemsForOperation(items, destDirectory, move);
+            if (validationError != null)
+            {
+                MessageBox_Show(null, validationError, Resources.Alert);
+                return Task.FromResult(false);
+            }
+
             var sourcePane = SelectedPane;
             var destPane = SecondPane;
             string description = string.Format(
@@ -540,34 +688,30 @@ namespace SmartCommander.ViewModels
                 DescribeItems(items.Count, Path.GetFileName(items[0].FullName)),
                 destDirectory);
             _ = RunAndRefreshAsync();
-            return Task.CompletedTask;
+            return Task.FromResult(true);
 
             async Task RunAndRefreshAsync()
             {
-                await RunOperationAsync(description, logContext,
-                    (progress, ct) => CopyOrMoveItemsAsync(items, destDirectory, move, overwrite, progress, ct));
-                sourcePane.Update();
-                destPane.Update();
+                bool succeeded = await RunOperationAndRefreshAsync(description, logContext,
+                    (progress, ct) => CopyOrMoveItemsAsync(items, destDirectory, move, overwrite, progress, ct),
+                    sourcePane, destPane);
+                if (onCompleted != null)
+                {
+                    try
+                    {
+                        await onCompleted(succeeded);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "{LogContext} completion callback failed", logContext);
+                    }
+                }
             }
         }
 
         private async Task CopyOrMoveItemsAsync(List<(string FullName, bool IsFolder)> items, string destDirectory,
             bool move, bool overwrite, IProgress<int> progress, CancellationToken ct)
         {
-            foreach (var (fullName, isFolder) in items)
-            {
-                if (IsSameDirectory(fullName, destDirectory))
-                {
-                    MessageBox_Show(null, move ? Resources.CantMoveFileToItself : Resources.CantCopyFileToItself, Resources.Alert);
-                    return;
-                }
-                if (isFolder && IsDestinationInsideSource(fullName, destDirectory))
-                {
-                    MessageBox_Show(null, move ? Resources.CantMoveFolderToItself : Resources.CantCopyFolderToItself, Resources.Alert);
-                    return;
-                }
-            }
-
             progress.Report(0);
             long totalSize = await _fs.GetTotalSizeAsync(items);
             long processedSize = 0;
@@ -606,10 +750,10 @@ namespace SmartCommander.ViewModels
                         }
                     }
                     catch (OperationCanceledException) { throw; }
-                    catch
+                    catch (Exception ex)
                     {
                         MessageBox_Show(null, move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, Resources.Alert);
-                        return;
+                        throw new IOException($"Can't {(move ? "move" : "copy")} folder {fullName}", ex);
                     }
                 }
                 else
@@ -622,10 +766,10 @@ namespace SmartCommander.ViewModels
                             progress, processedSize, totalSize, ct);
                     }
                     catch (OperationCanceledException) { throw; }
-                    catch
+                    catch (Exception ex)
                     {
                         MessageBox_Show(null, move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, Resources.Alert);
-                        return;
+                        throw new IOException($"Can't {(move ? "move" : "copy")} file {fullName}", ex);
                     }
                 }
             }
@@ -686,80 +830,57 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        public void Delete()
+        // Mirrors the Copy/Move/Paste/Zip/Unzip shape: await only the confirmation-dialog phase
+        // here (so ReactiveCommand.CreateFromTask disables F8Command just for that), then launch
+        // the actual delete fire-and-forget so a second F8 on a different selection can run
+        // concurrently once this method returns.
+        public async Task Delete()
         {
             if (SelectedPane.CurrentItems.Count < 1)
             {
                 return;
             }
-            // _F8Busy only guards the confirmation-dialog phase (no double dialogs on repeated
-            // F8); the delete itself runs as a background operation and may overlap with others.
-            if (_F8Busy)
+
+            var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
+            var text = DescribeItems(items.Count, Path.GetFileName(items[0].FullName));
+            var confirmResult = await ShowMessageBoxAsync(
+                string.Format(Resources.DeleteConfirmation, text), ButtonEnum.YesNo);
+            if (confirmResult != ButtonResult.Yes)
             {
                 return;
             }
-            _F8Busy = true;
-            var text = DescribeItems(SelectedPane.CurrentItems.Count, SelectedPane.CurrentItems[0].Name);
-            MessageBox_Show(DeleteAnswer,
-                string.Format(Resources.DeleteConfirmation, text),
-                Resources.Alert,
-                ButtonEnum.YesNo);
-        }
 
-        public async void DeleteAnswer(ButtonResult result, object? parameter)
-        {
-            if (result == ButtonResult.Yes)
+            List<string>? nonEmptyFolders;
+            try
             {
-                try
+                nonEmptyFolders = await _fs.GetNonEmptyFoldersAsync(items);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Delete preparation failed");
+                return;
+            }
+
+            bool overwrite = true;
+            if (nonEmptyFolders != null && nonEmptyFolders.Count > 0)
+            {
+                var nonEmptyText = nonEmptyFolders.Count == 1 ? Path.GetFileName(nonEmptyFolders[0]) :
+                    string.Format(Resources.ItemsNumber, nonEmptyFolders.Count);
+                var nonEmptyResult = await ShowMessageBoxAsync(
+                    string.Format(Resources.DeleteConfirmationNonEmpty, nonEmptyText), ButtonEnum.YesNoCancel);
+                if (nonEmptyResult == ButtonResult.Cancel)
                 {
-                    var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
-                    var nonEmptyFolders = await _fs.GetNonEmptyFoldersAsync(items);
-                    if (nonEmptyFolders != null && nonEmptyFolders.Count > 0)
-                    {
-                        var text = nonEmptyFolders.Count == 1 ? Path.GetFileName(nonEmptyFolders[0]) :
-                          string.Format(Resources.ItemsNumber, nonEmptyFolders.Count);
-                        MessageBox_Show(DeleteAnswerNonEmptyFolder,
-                            string.Format(Resources.DeleteConfirmationNonEmpty, text),
-                            Resources.Alert,
-                            ButtonEnum.YesNoCancel,
-                            parameter: (items, nonEmptyFolders));
-                    }
-                    else
-                    {
-                        DeleteSelectedItems(true, items, nonEmptyFolders);
-                    }
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Delete preparation failed");
-                    _F8Busy = false;
-                }
+                overwrite = nonEmptyResult == ButtonResult.Yes;
             }
-            else
-            {
-                _F8Busy = false;
-            }
+
+            DeleteSelectedItems(overwrite, items, nonEmptyFolders);
         }
 
-        public void DeleteAnswerNonEmptyFolder(ButtonResult result, object? parameter)
-        {
-            if (result != ButtonResult.Cancel)
-            {
-                var (items, nonEmptyFolders) =
-                    ((List<(string FullName, bool IsFolder)>, List<string>))parameter!;
-                DeleteSelectedItems(result == ButtonResult.Yes, items, nonEmptyFolders);
-            }
-            else
-            {
-                _F8Busy = false;
-            }
-        }
-
-        private async void DeleteSelectedItems(bool overwrite,
+        private void DeleteSelectedItems(bool overwrite,
             List<(string FullName, bool IsFolder)> items, List<string>? nonEmptyFolders)
         {
-            // Dialog phase is over: allow the next F8 while this delete runs in the background.
-            _F8Busy = false;
             try
             {
                 var pane = SelectedPane;
@@ -774,10 +895,9 @@ namespace SmartCommander.ViewModels
 
                 string description = string.Format(Resources.OperationDeleteDescription,
                     DescribeItems(itemsToDelete.Count, Path.GetFileName(itemsToDelete[0].FullName)));
-                await RunOperationAsync(description, "DeleteSelectedItems",
-                    (progress, ct) => DeleteItemsCoreAsync(itemsToDelete, progress, ct));
-                pane.Update();
-                secondPane.Update();
+                _ = RunOperationAndRefreshAsync(description, "DeleteSelectedItems",
+                    (progress, ct) => DeleteItemsCoreAsync(itemsToDelete, progress, ct),
+                    pane, secondPane);
             }
             catch (Exception ex)
             {

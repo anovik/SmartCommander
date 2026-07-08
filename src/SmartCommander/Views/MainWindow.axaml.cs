@@ -15,7 +15,9 @@ namespace SmartCommander.Views
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
         OperationsWindow operationsWindow;
-        public MainWindow() 
+        private bool _closeConfirmedAndCancelling;
+        private bool _openedEventsWired;
+        public MainWindow()
         {
             Opened += OnOpened;
             InitializeComponent();
@@ -55,6 +57,14 @@ namespace SmartCommander.Views
         {
             if (!e.IsProgrammatic)
             {
+                // A close already confirmed is draining operations in the background; a second
+                // X-click racing that drain must not stack another confirmation dialog.
+                if (_closeConfirmedAndCancelling)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
                 MainWindowViewModel? vm = DataContext as MainWindowViewModel;
                 if (vm != null)
                 {
@@ -69,7 +79,8 @@ namespace SmartCommander.Views
                         var result = await messageBoxWindow.ShowWindowDialogAsync(this);
                         if (result == ButtonResult.Yes)
                         {
-                            vm.CancelAllOperations();
+                            _closeConfirmedAndCancelling = true;
+                            await vm.CancelAllOperationsAndWaitAsync();
                             this.Close();
                         }
                         else
@@ -116,10 +127,21 @@ namespace SmartCommander.Views
                 }
             }
 
+            // Opened fires again every time Show() follows a Hide() (e.g. tray minimize/restore,
+            // or a second-instance activation) - DataContext never changes across that cycle, so
+            // without this guard the handlers below would be subscribed again on each re-open,
+            // causing message boxes and the operations window to fire once per subscription.
+            if (_openedEventsWired)
+            {
+                return;
+            }
+
             MainWindowViewModel? vm = DataContext as MainWindowViewModel;
 
             if (vm != null)
             {
+                _openedEventsWired = true;
+
                 operationsWindow.DataContext = vm;
                 vm.ActiveOperations.CollectionChanged += OnActiveOperationsChanged;
                 LeftPane.DataContext = vm.LeftFileViewModel;

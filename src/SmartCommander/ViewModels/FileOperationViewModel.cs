@@ -70,7 +70,10 @@ namespace SmartCommander.ViewModels
             internal FilteringProgress(Action<int> callback) => _callback = callback;
             public void Report(int value)
             {
-                if (value == _last) return;
+                if (value == _last)
+                {
+                    return;
+                }
                 _last = value;
                 _callback(value);
             }
