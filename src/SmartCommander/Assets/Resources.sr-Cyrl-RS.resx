@@ -138,11 +138,17 @@
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Не можете да копирате фасциклу у саму себе</value>
   </data>
+  <data name="CantCreateArchive" xml:space="preserve">
+    <value>Не можете да направите архиву {0}</value>
+  </data>
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Не можете да направите фасциклу</value>
   </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Не можете да уређиваjте фасциклу</value>
+  </data>
+  <data name="CantExtractArchive" xml:space="preserve">
+    <value>Не можете да распакујете архиву {0}</value>
   </data>
   <data name="CantMoveFileHere" xml:space="preserve">
     <value>Овде не можете да преместите датотеку</value>
@@ -276,8 +282,23 @@
   <data name="OK" xml:space="preserve">
     <value>ОК</value>
   </data>
-  <data name="OperationInProgress" xml:space="preserve">
-    <value>Операција у току:</value>
+  <data name="OperationCopyDescription" xml:space="preserve">
+    <value>Копирање {0} → {1}</value>
+  </data>
+  <data name="OperationDeleteDescription" xml:space="preserve">
+    <value>Брисање {0}</value>
+  </data>
+  <data name="OperationMoveDescription" xml:space="preserve">
+    <value>Премјештање {0} → {1}</value>
+  </data>
+  <data name="Operations" xml:space="preserve">
+    <value>Операције</value>
+  </data>
+  <data name="OperationUnzipDescription" xml:space="preserve">
+    <value>Распакивање {0} → {1}</value>
+  </data>
+  <data name="OperationZipDescription" xml:space="preserve">
+    <value>Архивирање {0} → {1}</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>Опције</value>

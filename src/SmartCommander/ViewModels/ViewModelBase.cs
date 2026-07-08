@@ -12,7 +12,6 @@ namespace SmartCommander.ViewModels
     {
         public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxRequest;
         public event EventHandler<MvvmMessageBoxEventArgs>? MessageBoxInputRequest;
-        public event EventHandler<int>? ProgressRequest;
 
         protected static TopLevel? GetTopLevel()
         {
@@ -21,14 +20,6 @@ namespace SmartCommander.ViewModels
                 return TopLevel.GetTopLevel(desktopLifetime.MainWindow);
             }
             return null;
-        }
-
-        protected void Progress_Show(int value)
-        {
-            if (this.ProgressRequest != null)
-            {
-                this.ProgressRequest(this, value);
-            }
         }
 
         protected void MessageBox_Show(Action<ButtonResult, object?>? resultAction, string messageBoxText, string caption = "",

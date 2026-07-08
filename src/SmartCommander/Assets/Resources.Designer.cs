@@ -133,6 +133,15 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t create archive {0}.
+        /// </summary>
+        public static string CantCreateArchive {
+            get {
+                return ResourceManager.GetString("CantCreateArchive", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t create folder.
         /// </summary>
         public static string CantCreateFolder {
@@ -147,6 +156,15 @@ namespace SmartCommander.Assets {
         public static string CantEditFolder {
             get {
                 return ResourceManager.GetString("CantEditFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t extract archive {0}.
+        /// </summary>
+        public static string CantExtractArchive {
+            get {
+                return ResourceManager.GetString("CantExtractArchive", resourceCulture);
             }
         }
 
@@ -619,14 +637,59 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Operation in Progress:.
+        ///   Looks up a localized string similar to Copy {0} → {1}.
         /// </summary>
-        public static string OperationInProgress {
+        public static string OperationCopyDescription {
             get {
-                return ResourceManager.GetString("OperationInProgress", resourceCulture);
+                return ResourceManager.GetString("OperationCopyDescription", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete {0}.
+        /// </summary>
+        public static string OperationDeleteDescription {
+            get {
+                return ResourceManager.GetString("OperationDeleteDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Move {0} → {1}.
+        /// </summary>
+        public static string OperationMoveDescription {
+            get {
+                return ResourceManager.GetString("OperationMoveDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Operations.
+        /// </summary>
+        public static string Operations {
+            get {
+                return ResourceManager.GetString("Operations", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unzip {0} → {1}.
+        /// </summary>
+        public static string OperationUnzipDescription {
+            get {
+                return ResourceManager.GetString("OperationUnzipDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Zip {0} → {1}.
+        /// </summary>
+        public static string OperationZipDescription {
+            get {
+                return ResourceManager.GetString("OperationZipDescription", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Options.
         /// </summary>

@@ -7,14 +7,17 @@ using Serilog;
 using SmartCommander.Models;
 using SmartCommander.ViewModels;
 using System;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 
 namespace SmartCommander.Views
 {
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        ProgressWindow progressWindow;
-        public MainWindow() 
+        OperationsWindow operationsWindow;
+        private bool _closeConfirmedAndCancelling;
+        private bool _openedEventsWired;
+        public MainWindow()
         {
             Opened += OnOpened;
             InitializeComponent();
@@ -35,7 +38,7 @@ namespace SmartCommander.Views
                 interaction => DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>(interaction)
             )));
 
-            progressWindow = new ProgressWindow();
+            operationsWindow = new OperationsWindow();
 
             Closing += async (s, e) =>
             {
@@ -54,10 +57,18 @@ namespace SmartCommander.Views
         {
             if (!e.IsProgrammatic)
             {
+                // A close already confirmed is draining operations in the background; a second
+                // X-click racing that drain must not stack another confirmation dialog.
+                if (_closeConfirmedAndCancelling)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
                 MainWindowViewModel? vm = DataContext as MainWindowViewModel;
                 if (vm != null)
                 {
-                    if (vm.IsBackgroundOperation)
+                    if (vm.ActiveOperations.Count > 0)
                     {
                         e.Cancel = true;
                         var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
@@ -65,10 +76,11 @@ namespace SmartCommander.Views
                             Assets.Resources.StopBackground + Environment.NewLine,
                             ButtonEnum.YesNo,
                             MsBox.Avalonia.Enums.Icon.Question);
-                        var result = await messageBoxWindow.ShowAsPopupAsync(this);
+                        var result = await messageBoxWindow.ShowWindowDialogAsync(this);
                         if (result == ButtonResult.Yes)
                         {
-                            vm.Cancel();
+                            _closeConfirmedAndCancelling = true;
+                            await vm.CancelAllOperationsAndWaitAsync();
                             this.Close();
                         }
                         else
@@ -78,7 +90,8 @@ namespace SmartCommander.Views
                     }
                 }
 
-                progressWindow.Close();
+                // Programmatic close bypasses the OperationsWindow hide-intercept.
+                operationsWindow.Close();
             }
         }
 
@@ -114,11 +127,23 @@ namespace SmartCommander.Views
                 }
             }
 
+            // Opened fires again every time Show() follows a Hide() (e.g. tray minimize/restore,
+            // or a second-instance activation) - DataContext never changes across that cycle, so
+            // without this guard the handlers below would be subscribed again on each re-open,
+            // causing message boxes and the operations window to fire once per subscription.
+            if (_openedEventsWired)
+            {
+                return;
+            }
+
             MainWindowViewModel? vm = DataContext as MainWindowViewModel;
 
             if (vm != null)
             {
-                progressWindow.ViewModel = vm;
+                _openedEventsWired = true;
+
+                operationsWindow.DataContext = vm;
+                vm.ActiveOperations.CollectionChanged += OnActiveOperationsChanged;
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
 
@@ -129,22 +154,24 @@ namespace SmartCommander.Views
                 vm.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.LeftFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
                 vm.RightFileViewModel.MessageBoxInputRequest += View_MessageBoxInputRequest;
-
-                vm.ProgressRequest += View_ProgressRequest;
             }
         }
 
-        private void View_ProgressRequest(object? sender, int e)
-        {   
-            if (e == 0)
+        // Show/hide is driven by the ActiveOperations collection itself (the single source of
+        // truth the window binds to), not by a separate progress event. The collection is only
+        // mutated on the UI thread, so no marshaling is needed here.
+        private void OnActiveOperationsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                progressWindow.Show();
+                // Owned: stays above MainWindow without blocking it. Showing on every add also
+                // re-surfaces the window if the user hid it with X while operations were running.
+                operationsWindow.Show(this);
             }
-            if (e >= 100)
+            else if ((DataContext as MainWindowViewModel)?.ActiveOperations.Count == 0)
             {
-                progressWindow.Hide();
+                operationsWindow.Hide();
             }
-            progressWindow.SetProgress(e);
         }
 
         void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)
