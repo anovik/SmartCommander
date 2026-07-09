@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -15,15 +17,35 @@ namespace SmartCommander.Models
         {
             Directory.CreateDirectory(_settingsDir);
             if (File.Exists(_settingsPath))
-            { 
-                var options = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
-                if (options != null)
+            {
+                try
                 {
-                    Instance = options;
+                    var options = JsonConvert.DeserializeObject<OptionsModel>(File.ReadAllText(_settingsPath));
+                    if (options != null)
+                    {
+                        Instance = options;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to load {SettingsPath}; falling back to default settings", _settingsPath);
+                    try
+                    {
+                        File.Move(_settingsPath, _settingsPath + ".corrupt", overwrite: true);
+                    }
+                    catch (Exception moveEx)
+                    {
+                        Log.Error(moveEx, "Failed to move corrupt settings file {SettingsPath} aside", _settingsPath);
+                    }
                 }
             }
         }
-        public void Save() => File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(this, Formatting.Indented));
+        public void Save()
+        {
+            string tempPath = _settingsPath + ".tmp";
+            File.WriteAllText(tempPath, JsonConvert.SerializeObject(this, Formatting.Indented));
+            File.Move(tempPath, _settingsPath, overwrite: true);
+        }
 
 
         public bool IsCurrentDirectoryDisplayed { get; set; } = true;

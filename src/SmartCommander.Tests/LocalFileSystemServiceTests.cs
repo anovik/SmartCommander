@@ -181,11 +181,33 @@ namespace SmartCommander.Tests
 
             var destDir = Path.Combine(_root, "destDir");
 
-            await _fs.CopyDirectoryAsync(srcDir, destDir, recursive: true, overwrite: false,
+            await _fs.CopyDirectoryAsync(srcDir, destDir, recursive: true, delete: false, overwrite: false,
                 progress: null, processedSize: 0, totalSize: 0, CancellationToken.None);
 
             Assert.True(File.Exists(Path.Combine(destDir, "f1.txt")));
             Assert.True(File.Exists(Path.Combine(destDir, "sub", "f2.txt")));
+        }
+
+        [Fact]
+        public async Task CopyDirectoryAsync_MoveWithSkippedFile_KeepsUnoverwrittenSourceFile()
+        {
+            var srcDir = TempDir("srcMoveDir");
+            File.WriteAllText(Path.Combine(srcDir, "keep.txt"), "source-version");
+            File.WriteAllText(Path.Combine(srcDir, "move-me.txt"), "moved");
+
+            var destDir = Path.Combine(_root, "destMoveDir");
+            Directory.CreateDirectory(destDir);
+            File.WriteAllText(Path.Combine(destDir, "keep.txt"), "dest-version");
+
+            await _fs.CopyDirectoryAsync(srcDir, destDir, recursive: true, delete: true, overwrite: false,
+                progress: null, processedSize: 0, totalSize: 0, CancellationToken.None);
+
+            Assert.True(Directory.Exists(srcDir));
+            Assert.True(File.Exists(Path.Combine(srcDir, "keep.txt")));
+            Assert.Equal("source-version", File.ReadAllText(Path.Combine(srcDir, "keep.txt")));
+            Assert.False(File.Exists(Path.Combine(srcDir, "move-me.txt")));
+            Assert.Equal("dest-version", File.ReadAllText(Path.Combine(destDir, "keep.txt")));
+            Assert.True(File.Exists(Path.Combine(destDir, "move-me.txt")));
         }
 
         [Fact]

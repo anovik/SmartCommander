@@ -237,18 +237,12 @@ namespace SmartCommander.ViewModels
             SelectedPane.Edit(F4Finished);
         }
 
-        // Each long operation (Copy/Move/Paste/Delete/Zip/Unzip) runs as an independent
-        // FileOperationViewModel with its own cancellation token and progress reporter.
-        // This collection is mutated only on the UI thread: every operation is launched from
-        // a command handler or dialog continuation, and Avalonia's synchronization context
-        // resumes the awaits (including the finally in RunOperationAsync) on the UI thread.
-        // The OperationsWindow show/hide handler and its ItemsControl binding rely on that.
+        // One FileOperationViewModel per in-flight long operation (Copy/Move/Paste/Delete/Zip/Unzip).
+        // Mutated only on the UI thread; OperationsWindow's show/hide and its ItemsControl binding rely on that.
         public ObservableCollection<FileOperationViewModel> ActiveOperations { get; } = new();
 
-        // Requests cancellation of every active operation and waits for each one's background
-        // cleanup (RunOperationAsync's finally, e.g. a cancelled copy deleting its partial
-        // destination file) to actually finish - not just for the cancellation request to be
-        // sent - so the app doesn't tear down mid-cleanup on close.
+        // Waits for each cancelled operation's background cleanup (e.g. deleting a partial
+        // destination file) to finish, not just for the cancellation request to be sent.
         public Task CancelAllOperationsAndWaitAsync()
         {
             if (ActiveOperations.Count == 0)
@@ -422,9 +416,8 @@ namespace SmartCommander.ViewModels
         }
 
         // Extracted entry-by-entry (instead of one ZipFile.ExtractToDirectory call) so
-        // cancellation actually takes effect between entries; ExtractToDirectory itself is not
-        // cancellable mid-call, which previously made app-close block until a large extraction
-        // finished on its own.
+        // cancellation takes effect between entries; ExtractToDirectory itself is not
+        // cancellable mid-call.
         private void UnzipCore(string archiveFullName, string destDir, IProgress<int> progress, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
@@ -616,11 +609,8 @@ namespace SmartCommander.ViewModels
                     }));
         }
 
-        // Returns true only once the user has actually confirmed (or no confirmation was needed)
-        // and the file operation has been launched, so callers can tell a genuine launch apart
-        // from a Cancel answer on the overwrite prompt or a validation rejection inside
-        // `onConfirmed` (e.g. RunFileOperation's same-directory/folder-into-itself check). The
-        // operation itself completes in the background after this returns.
+        // Returns true only once the user has confirmed (or no confirmation was needed) and the
+        // operation has been launched - not completed; it keeps running in the background.
         private async Task<bool> ConfirmOverwriteThenRun(List<(string FullName, bool IsFolder)> items, string destDirectory,
             Func<bool, Task<bool>> onConfirmed)
         {
@@ -737,15 +727,14 @@ namespace SmartCommander.ViewModels
                             else
                             {
                                 processedSize = await _fs.CopyDirectoryAsync(
-                                    fullName, destFolder, true, overwrite,
+                                    fullName, destFolder, true, delete: true, overwrite,
                                     progress, processedSize, totalSize, ct);
-                                await _fs.DeleteDirectoryAsync(fullName, ct);
                             }
                         }
                         else
                         {
                             processedSize = await _fs.CopyDirectoryAsync(
-                                fullName, destFolder, true, overwrite,
+                                fullName, destFolder, true, delete: false, overwrite,
                                 progress, processedSize, totalSize, ct);
                         }
                     }
@@ -830,10 +819,8 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        // Mirrors the Copy/Move/Paste/Zip/Unzip shape: await only the confirmation-dialog phase
-        // here (so ReactiveCommand.CreateFromTask disables F8Command just for that), then launch
-        // the actual delete fire-and-forget so a second F8 on a different selection can run
-        // concurrently once this method returns.
+        // Mirrors Copy/Move/Paste/Zip/Unzip: await only the confirmation dialog, then launch
+        // the delete fire-and-forget so a second F8 on a different selection can run concurrently.
         public async Task Delete()
         {
             if (SelectedPane.CurrentItems.Count < 1)

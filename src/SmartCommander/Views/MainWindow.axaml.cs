@@ -127,10 +127,9 @@ namespace SmartCommander.Views
                 }
             }
 
-            // Opened fires again every time Show() follows a Hide() (e.g. tray minimize/restore,
-            // or a second-instance activation) - DataContext never changes across that cycle, so
-            // without this guard the handlers below would be subscribed again on each re-open,
-            // causing message boxes and the operations window to fire once per subscription.
+            // Opened fires again on every Show() following a Hide() (tray minimize/restore,
+            // second-instance activation) even though DataContext hasn't changed, so the
+            // handlers below must only be wired once per window lifetime.
             if (_openedEventsWired)
             {
                 return;

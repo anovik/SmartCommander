@@ -65,14 +65,14 @@ namespace SmartCommander.Services
             }, ct);
         }
 
-        public Task<long> CopyDirectoryAsync(string source, string dest, bool recursive, bool overwrite,
+        public Task<long> CopyDirectoryAsync(string source, string dest, bool recursive, bool delete, bool overwrite,
                                              IProgress<int>? progress, long processedSize, long totalSize,
                                              CancellationToken ct)
         {
             return Task.Run(() =>
             {
                 long size = processedSize;
-                CopyDirectorySync(source, dest, recursive, overwrite, ct, progress, ref size, totalSize);
+                CopyDirectorySync(source, dest, recursive, delete, overwrite, ct, progress, ref size, totalSize);
                 return size;
             }, ct);
         }
@@ -322,7 +322,7 @@ namespace SmartCommander.Services
         }
 
         private static void CopyDirectorySync(string sourceDir, string destinationDir, bool recursive,
-                                              bool overwrite, CancellationToken ct, IProgress<int>? progress,
+                                              bool delete, bool overwrite, CancellationToken ct, IProgress<int>? progress,
                                               ref long processedSize, long totalSize)
         {
             ct.ThrowIfCancellationRequested();
@@ -341,7 +341,7 @@ namespace SmartCommander.Services
                 {
                     SetNormalFileAttributes(targetFilePath);
                 }
-                CopyFileSync(file.FullName, targetFilePath, delete: false, overwrite, ct,
+                CopyFileSync(file.FullName, targetFilePath, delete, overwrite, ct,
                     progress, ref processedSize, totalSize);
             }
             if (recursive)
@@ -350,9 +350,15 @@ namespace SmartCommander.Services
                 {
                     ct.ThrowIfCancellationRequested();
                     string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-                    CopyDirectorySync(subDir.FullName, newDestinationDir, true, overwrite, ct,
+                    CopyDirectorySync(subDir.FullName, newDestinationDir, true, delete, overwrite, ct,
                         progress, ref processedSize, totalSize);
                 }
+            }
+            // Only remove the source folder once every file it contained has actually been moved;
+            // a file skipped above (overwrite=false, destination already exists) must survive the move.
+            if (delete && !dir.EnumerateFileSystemInfos().Any())
+            {
+                dir.Delete();
             }
         }
     }

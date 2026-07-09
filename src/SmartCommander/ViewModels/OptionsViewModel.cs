@@ -29,8 +29,7 @@ namespace SmartCommander.ViewModels
         }
 
         // Explicit list of locales this app ships translations for (one CultureInfo per
-        // Assets/Resources*.resx file). Scanning CultureTypes.AllCultures and probing each of
-        // .NET's ~800 known cultures for a satellite resource assembly froze the UI on first open.
+        // Assets/Resources*.resx file), rather than scanning all known .NET cultures.
         private static readonly string[] SupportedCultureNames =
         {
             "en-US",

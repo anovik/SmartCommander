@@ -871,6 +871,15 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Paste.
         /// </summary>
         public static string Paste {

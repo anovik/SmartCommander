@@ -31,7 +31,7 @@ namespace SmartCommander.Services
         Task<long> CopyFileAsync(string source, string dest, bool delete, bool overwrite,
                                  IProgress<int>? progress, long processedSize, long totalSize,
                                  CancellationToken ct);
-        Task<long> CopyDirectoryAsync(string source, string dest, bool recursive, bool overwrite,
+        Task<long> CopyDirectoryAsync(string source, string dest, bool recursive, bool delete, bool overwrite,
                                       IProgress<int>? progress, long processedSize, long totalSize,
                                       CancellationToken ct);
 

@@ -90,6 +90,7 @@
 					<MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Copy}" Command="{Binding CopyCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Cut}" Command="{Binding CutCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Delete}" Command="{Binding DeleteCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Zip}"
                               IsVisible="{Binding !IsUnzip, Mode=TwoWay}"
                               Command="{Binding ZipCommand}" />
