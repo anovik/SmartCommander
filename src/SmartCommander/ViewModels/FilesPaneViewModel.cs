@@ -143,6 +143,7 @@ namespace SmartCommander.ViewModels
             UnzipCommand = ReactiveCommand.CreateFromTask(Unzip);
             CopyCommand = ReactiveCommand.CreateFromTask(Copy);
             CutCommand = ReactiveCommand.CreateFromTask(Cut);
+            DeleteCommand = ReactiveCommand.CreateFromTask(Delete);
             PasteCommand = ReactiveCommand.CreateFromTask(Paste, this.WhenAnyValue(x => x.CanPaste));
             ShowMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowMoreOptions);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
@@ -164,6 +165,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
         public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
         public ReactiveCommand<Unit, Unit>? CutCommand { get; }
+        public ReactiveCommand<Unit, Unit>? DeleteCommand { get; }
         public ReactiveCommand<Unit, Unit>? PasteCommand { get; }
         public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
 
@@ -315,6 +317,7 @@ namespace SmartCommander.ViewModels
         {
             if (CurrentItem == null)
             {
+                resultAction?.Invoke(ButtonResult.Ok, null);
                 return;
             }
             if (!CurrentItem.IsFolder)
@@ -343,6 +346,7 @@ namespace SmartCommander.ViewModels
         {
             if (CurrentItem == null)
             {
+                resultAction?.Invoke(ButtonResult.Ok, null);
                 return;
             }
             if (!CurrentItem.IsFolder)
@@ -371,6 +375,11 @@ namespace SmartCommander.ViewModels
         public Task Unzip()
         {
             return _mainVM.Unzip();
+        }
+
+        public Task Delete()
+        {
+            return _mainVM.Delete();
         }
 
         // Cut/copy intent travels with the clipboard payload itself (rather than app-local state)
@@ -499,11 +508,9 @@ namespace SmartCommander.ViewModels
             }
 
             bool isCut = dataTransfer.Contains(CutMarkerFormat);
-            // A cut is a one-time move: clear the clipboard so a stray repeat Ctrl+V doesn't
-            // retry the operation against the now-deleted source. Only clear once the move has
-            // actually completed successfully in the background - not merely been launched -
-            // otherwise a move that fails partway through would strand the user with an empty
-            // clipboard and no way to retry via Ctrl+V.
+            // Clipboard is cleared only once the move actually completes, so a stray repeat
+            // Ctrl+V can't retry against the now-deleted source, and a failed move doesn't
+            // strand the user with an empty clipboard and no way to retry.
             await _mainVM.PasteFiles(destDirectory, sourcePaths, isCut,
                 onMoveCompleted: isCut ? clipboard.ClearAsync : null);
         }
@@ -537,7 +544,9 @@ namespace SmartCommander.ViewModels
         {
             var process = new Process();
             process.StartInfo.FileName = "x-terminal-emulator";
-            process.StartInfo.Arguments = $"-e {program} \"{argument}\"";
+            process.StartInfo.ArgumentList.Add("-e");
+            process.StartInfo.ArgumentList.Add(program);
+            process.StartInfo.ArgumentList.Add(argument);
             process.StartInfo.UseShellExecute = false;
             process.Start();
         }
