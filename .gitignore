@@ -181,6 +181,12 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
+# Inno Setup / AppImage build output
+installers/Output/
+installers/linux/AppDir/
+installers/linux/appimagetool.AppImage
+installers/linux/*.AppImage
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
