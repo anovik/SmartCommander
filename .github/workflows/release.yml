@@ -16,14 +16,16 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Restore
         run: dotnet restore src/SmartCommander/SmartCommander.csproj
-      - name: Build
-        run: dotnet build src/SmartCommander/SmartCommander.csproj --configuration Release --no-restore
+      - name: Publish (framework-dependent, win-x64)
+        run: >
+          dotnet publish src/SmartCommander/SmartCommander.csproj --configuration Release
+          -r win-x64 --self-contained false -o publish/win-x64
       - name: Build installer
         run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installers\SmartCommander_Windows.iss'
         shell: pwsh
@@ -35,8 +37,8 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Publish (framework-dependent, linux-x64)
