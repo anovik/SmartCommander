@@ -58,7 +58,8 @@ jobs:
     needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     # Manual (workflow_dispatch) runs only build the two artifacts for inspection/testing;
-    # only an actual tag push creates a public GitHub Release.
+    # only an actual tag push creates a GitHub Release, and it's created as a draft
+    # (empty notes) so the notes can be written by hand before publishing.
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/download-artifact@v4
@@ -67,7 +68,8 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          draft: true
+          generate_release_notes: false
           files: |
             artifacts/windows-installer/SmartCommander_setup.exe
             artifacts/linux-appimage/SmartCommander-x86_64.AppImage
