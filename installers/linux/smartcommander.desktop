@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SmartCommander
+Comment=Two-panel cross-platform file manager
+Exec=SmartCommander
+Icon=smartcommander
+Categories=Utility;FileManager;
+Terminal=false
