@@ -11,7 +11,8 @@
 		<FluentTheme />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
 		<StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml"/>
-		<Style Selector="Button:default">
+		<!-- :not(.FN) excludes the F3-F8 bar, whose buttons don't close on click like every other button in the app. -->
+		<Style Selector="Button:focus:not(.FN)">
 			<Setter Property="BorderThickness" Value="2"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
 		</Style>
