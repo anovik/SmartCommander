@@ -23,12 +23,12 @@ namespace SmartCommander.ViewModels
         }
 
         protected void MessageBox_Show(Action<ButtonResult, object?>? resultAction, string messageBoxText, string caption = "",
-            ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None, object? parameter = null)
+            ButtonEnum button = ButtonEnum.Ok, Icon icon = Icon.None, object? parameter = null, ButtonResult? defaultButton = null)
         {
             if (this.MessageBoxRequest != null)
             {
-                this.MessageBoxRequest(this, new MvvmMessageBoxEventArgs(resultAction, null, messageBoxText, caption, 
-                    button, icon, parameter));
+                this.MessageBoxRequest(this, new MvvmMessageBoxEventArgs(resultAction, null, messageBoxText, caption,
+                    button, icon, parameter, defaultButton));
             }
         }
 

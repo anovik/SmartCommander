@@ -621,7 +621,7 @@ namespace SmartCommander.ViewModels
                 var text = duplicates.Count == 1 ? Path.GetFileName(duplicates[0]) :
                     string.Format(Resources.ItemsNumber, duplicates.Count);
                 var result = await ShowMessageBoxAsync(
-                    string.Format(Resources.FileExistsRewrite, text), ButtonEnum.YesNoCancel);
+                    string.Format(Resources.FileExistsRewrite, text), ButtonEnum.YesNoCancel, ButtonResult.Cancel);
                 if (result == ButtonResult.Cancel)
                 {
                     return false;
@@ -634,10 +634,11 @@ namespace SmartCommander.ViewModels
 
         // Wraps the callback-based MessageBox_Show in a Task so dialog continuations can be
         // awaited inline instead of chained through separate named callback methods.
-        private Task<ButtonResult> ShowMessageBoxAsync(string text, ButtonEnum buttons)
+        // defaultButton lets callers make the safer option (Cancel/No) the one Enter triggers.
+        private Task<ButtonResult> ShowMessageBoxAsync(string text, ButtonEnum buttons, ButtonResult? defaultButton = null)
         {
             var tcs = new TaskCompletionSource<ButtonResult>();
-            MessageBox_Show((result, _) => tcs.TrySetResult(result), text, Resources.Alert, buttons);
+            MessageBox_Show((result, _) => tcs.TrySetResult(result), text, Resources.Alert, buttons, defaultButton: defaultButton);
             return tcs.Task;
         }
 
@@ -831,7 +832,7 @@ namespace SmartCommander.ViewModels
             var items = SelectedPane.CurrentItems.Select(i => (i.FullName, i.IsFolder)).ToList();
             var text = DescribeItems(items.Count, Path.GetFileName(items[0].FullName));
             var confirmResult = await ShowMessageBoxAsync(
-                string.Format(Resources.DeleteConfirmation, text), ButtonEnum.YesNo);
+                string.Format(Resources.DeleteConfirmation, text), ButtonEnum.YesNo, ButtonResult.No);
             if (confirmResult != ButtonResult.Yes)
             {
                 return;
@@ -854,7 +855,7 @@ namespace SmartCommander.ViewModels
                 var nonEmptyText = nonEmptyFolders.Count == 1 ? Path.GetFileName(nonEmptyFolders[0]) :
                     string.Format(Resources.ItemsNumber, nonEmptyFolders.Count);
                 var nonEmptyResult = await ShowMessageBoxAsync(
-                    string.Format(Resources.DeleteConfirmationNonEmpty, nonEmptyText), ButtonEnum.YesNoCancel);
+                    string.Format(Resources.DeleteConfirmationNonEmpty, nonEmptyText), ButtonEnum.YesNoCancel, ButtonResult.Cancel);
                 if (nonEmptyResult == ButtonResult.Cancel)
                 {
                     return;

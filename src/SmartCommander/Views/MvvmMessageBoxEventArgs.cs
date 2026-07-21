@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
@@ -6,6 +7,7 @@ using MsBox.Avalonia.Models;
 using Serilog;
 using SmartCommander.Assets;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SmartCommander.Views
@@ -13,11 +15,12 @@ namespace SmartCommander.Views
     public class MvvmMessageBoxEventArgs : EventArgs
     {        public MvvmMessageBoxEventArgs(Action<ButtonResult, object?>? resultAction,
                                             Action<string>? resultInputAction,
-                                            string messageBoxText, 
-                                            string caption = "", 
-                                            ButtonEnum button = ButtonEnum.Ok, 
+                                            string messageBoxText,
+                                            string caption = "",
+                                            ButtonEnum button = ButtonEnum.Ok,
                                             Icon icon = Icon.None,
-                                            object? parameter = null)
+                                            object? parameter = null,
+                                            ButtonResult? defaultButton = null)
         {
             this.resultAction = resultAction;
             this.resultInputAction = resultInputAction;
@@ -26,6 +29,7 @@ namespace SmartCommander.Views
             this.button = button;
             this.icon = icon;
             this.parameter = parameter;
+            this.defaultButton = defaultButton;
         }
 
         Action<ButtonResult, object?>? resultAction;
@@ -36,6 +40,7 @@ namespace SmartCommander.Views
         ButtonEnum button;
         Icon icon;
         object? parameter;
+        ButtonResult? defaultButton;
 
         public void Show(Window owner)
         {
@@ -44,9 +49,26 @@ namespace SmartCommander.Views
                 ButtonResult result;
                 try
                 {
-                    var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
-                        .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
-                    result = await messageBoxWindow.ShowWindowDialogAsync(owner);
+                    if (defaultButton.HasValue)
+                    {
+                        var customWindow = MsBox.Avalonia.MessageBoxManager
+                            .GetMessageBoxCustom(new MessageBoxCustomParams()
+                            {
+                                ContentTitle = caption,
+                                ContentMessage = messageBoxText + Environment.NewLine,
+                                Icon = icon,
+                                ButtonDefinitions = BuildButtonDefinitions(button, defaultButton.Value),
+                                WindowStartupLocation = WindowStartupLocation.CenterScreen
+                            });
+                        var clicked = await customWindow.ShowWindowDialogAsync(owner);
+                        result = Enum.Parse<ButtonResult>(clicked);
+                    }
+                    else
+                    {
+                        var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
+                            .GetMessageBoxStandard(caption, messageBoxText + Environment.NewLine, button, icon);
+                        result = await messageBoxWindow.ShowWindowDialogAsync(owner);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -62,6 +84,28 @@ namespace SmartCommander.Views
                     Log.Error(ex, "MessageBox callback failed");
                 }
             });
+        }
+
+        // Mirrors MsBoxStandardView.axaml's button set/order and IsCancel assignment per ButtonEnum.
+        private static ButtonDefinition[] BuildButtonDefinitions(ButtonEnum button, ButtonResult defaultButton)
+        {
+            var results = button switch
+            {
+                ButtonEnum.Ok => new[] { ButtonResult.Ok },
+                ButtonEnum.YesNo => new[] { ButtonResult.Yes, ButtonResult.No },
+                ButtonEnum.OkCancel => new[] { ButtonResult.Ok, ButtonResult.Cancel },
+                ButtonEnum.OkAbort => new[] { ButtonResult.Ok, ButtonResult.Abort },
+                ButtonEnum.YesNoCancel => new[] { ButtonResult.Yes, ButtonResult.No, ButtonResult.Cancel },
+                ButtonEnum.YesNoAbort => new[] { ButtonResult.Yes, ButtonResult.No, ButtonResult.Abort },
+                _ => throw new ArgumentOutOfRangeException(nameof(button), button, null)
+            };
+
+            return results.Select(r => new ButtonDefinition
+            {
+                Name = r.ToString(),
+                IsDefault = r == defaultButton,
+                IsCancel = r is ButtonResult.No or ButtonResult.Abort or ButtonResult.Cancel
+            }).ToArray();
         }
 
         public void ShowInput(Window owner)
@@ -84,7 +128,10 @@ namespace SmartCommander.Views
                             },
                             WindowStartupLocation = WindowStartupLocation.CenterOwner
                         });
-                    var result = await messageBoxWindow.ShowWindowDialogAsync(owner);
+                    var showTask = messageBoxWindow.ShowWindowDialogAsync(owner);
+                    // MsBoxCustomView focuses its IsDefault button on load; steal it back at a lower priority so ours wins.
+                    Dispatcher.UIThread.Post(() => FocusInputTextBox(owner), DispatcherPriority.Background);
+                    var result = await showTask;
                     callbackArg = result == Resources.OK ? messageBoxWindow.InputValue : "";
                 }
                 catch (Exception ex)
@@ -101,6 +148,17 @@ namespace SmartCommander.Views
                     Log.Error(ex, "MessageBox input callback failed");
                 }
             });
+        }
+
+        private static void FocusInputTextBox(Window owner)
+        {
+            if (owner.OwnedWindows.LastOrDefault()?.Content is not Control content)
+            {
+                return;
+            }
+
+            var inputTextBox = content.GetLogicalDescendants().OfType<TextBox>().FirstOrDefault(t => !t.IsReadOnly);
+            inputTextBox?.Focus();
         }
     }
 }

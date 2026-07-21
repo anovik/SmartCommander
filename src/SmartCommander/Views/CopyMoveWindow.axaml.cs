@@ -7,6 +7,8 @@ namespace SmartCommander.Views
         public CopyMoveWindow()
         {
             InitializeComponent();
-        }      
+            // Nothing else claims focus on open, so without this the default-button border wouldn't show until Tab.
+            Opened += (s, e) => OkButton.Focus();
+        }
     }
 }
