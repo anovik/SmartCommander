@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:CompileBindings="False"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="380" d:DesignHeight="260"
+        Width="380" Height="260"
+        x:Class="SmartCommander.Views.AboutWindow"
+        ShowInTaskbar="False"
+        Icon="/Assets/main.ico"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        xmlns:assets="clr-namespace:SmartCommander.Assets"
+        Title="{x:Static assets:Resources.About}">
+
+	<Grid Margin="15">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+			<Image Source="/Assets/main.ico" Width="48" Height="48" HorizontalAlignment="Center"/>
+			<TextBlock Text="SmartCommander" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+			<TextBlock HorizontalAlignment="Center">
+				<Run Text="{x:Static assets:Resources.Version}"/>
+				<Run Text="{Binding AppVersion}"/>
+			</TextBlock>
+			<TextBlock Text="{x:Static assets:Resources.License}" HorizontalAlignment="Center"/>
+			<HyperlinkButton Content="{Binding RepositoryUrl}" Command="{Binding OpenRepositoryCommand}"
+					HorizontalAlignment="Center"/>
+		</StackPanel>
+
+		<Button Grid.Row="1" Content="{x:Static assets:Resources.OK}" Command="{Binding CloseCommand}"
+				CommandParameter="{Binding $parent[Window]}" IsDefault="True" IsCancel="True"
+				HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="0,10,0,0" Width="80"/>
+	</Grid>
+</Window>

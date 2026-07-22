@@ -393,4 +393,19 @@
   <data name="Paste" xml:space="preserve">
     <value>Coller</value>
   </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>_Aide</value>
+  </data>
+  <data name="MenuAbout" xml:space="preserve">
+    <value>_À propos</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>À propos de SmartCommander</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>Licence : GNU General Public License v3.0</value>
+  </data>
 </root>

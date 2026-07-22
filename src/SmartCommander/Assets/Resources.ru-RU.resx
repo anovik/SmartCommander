@@ -393,4 +393,19 @@
   <data name="Paste" xml:space="preserve">
     <value>Вставить</value>
   </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>_Справка</value>
+  </data>
+  <data name="MenuAbout" xml:space="preserve">
+    <value>_О программе</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>О программе SmartCommander</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>Лицензия: GNU General Public License v3.0</value>
+  </data>
 </root>

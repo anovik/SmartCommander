@@ -33,6 +33,7 @@ namespace SmartCommander.ViewModels
             ShowCopyDialog = new Interaction<CopyMoveViewModel, CopyMoveViewModel?>();
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
             ShowSearchDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
+            ShowAboutDialog = new Interaction<AboutViewModel, AboutViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -54,6 +55,7 @@ namespace SmartCommander.ViewModels
             PasteFromClipboardCommand = ReactiveCommand.CreateFromTask(() => SelectedPane.Paste());
 
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
+            AboutCommand = ReactiveCommand.CreateFromTask(ShowAbout);
 
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
             RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
@@ -108,6 +110,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> PasteFromClipboardCommand { get; }
 
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
+        public ReactiveCommand<Unit, Unit> AboutCommand { get; }
 
         public FilesPaneViewModel LeftFileViewModel { get; }
 
@@ -133,6 +136,7 @@ namespace SmartCommander.ViewModels
 
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
         public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
+        public Interaction<AboutViewModel, AboutViewModel?> ShowAboutDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -777,6 +781,11 @@ namespace SmartCommander.ViewModels
                 SecondPane.RaisePropertyChanged(nameof(FilesPaneViewModel.IsCurrentDirectoryDisplayed));
                 SetTheme();
             }
+        }
+
+        public async Task ShowAbout()
+        {
+            await ShowAboutDialog.Handle(new AboutViewModel());
         }
 
         private void SetTheme()
