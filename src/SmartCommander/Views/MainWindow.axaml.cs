@@ -37,6 +37,9 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowSearchDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<FileSearchViewModel, FileSearchWindow>(interaction)
             )));
+            this.WhenActivated(d => d(ViewModel!.ShowAboutDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<AboutViewModel, AboutWindow>(interaction)
+            )));
 
             operationsWindow = new OperationsWindow();
 

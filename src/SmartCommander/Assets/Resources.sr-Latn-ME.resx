@@ -393,4 +393,19 @@
   <data name="Paste" xml:space="preserve">
     <value>Nalepi</value>
   </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>_Pomoć</value>
+  </data>
+  <data name="MenuAbout" xml:space="preserve">
+    <value>_O programu</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>O programu SmartCommander</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Verzija</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>Licenca: GNU General Public License v3.0</value>
+  </data>
 </root>

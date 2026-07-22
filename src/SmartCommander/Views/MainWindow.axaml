@@ -74,6 +74,10 @@
       <MenuItem Header="{x:Static assets:Resources.MenuConfiguration}" IsTabStop="False" >
 		  <MenuItem Header="{x:Static assets:Resources.MenuOptions}" Command="{Binding OptionsCommand}"></MenuItem>
       </MenuItem>
+
+      <MenuItem Header="{x:Static assets:Resources.MenuHelp}" IsTabStop="False" >
+		  <MenuItem Header="{x:Static assets:Resources.MenuAbout}" Command="{Binding AboutCommand}"></MenuItem>
+      </MenuItem>
     </Menu>
 
     <views:FilesPane Grid.Row="1"  Name="LeftPane" />
