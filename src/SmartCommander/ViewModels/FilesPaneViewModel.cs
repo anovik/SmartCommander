@@ -282,7 +282,7 @@ namespace SmartCommander.ViewModels
                 if (source != null &&
                     (source.TemplatedParent is DataGridCell || source.Parent is DataGridCell))
                 {
-                    ProcessCurrentItem();
+                    _ = ProcessCurrentItem();
                 }
             }
         }
@@ -554,7 +554,7 @@ namespace SmartCommander.ViewModels
         public async Task CreateNewFolder(string name)
         {
             string newFolder = Path.Combine(CurrentDirectory, name);
-            if (_fs.DirectoryExists(newFolder))
+            if (await _fs.DirectoryExistsAsync(newFolder))
             {
                 MessageBox_Show(null, Resources.FolderExists, Resources.Alert, ButtonEnum.Ok);
                 return;
@@ -562,7 +562,7 @@ namespace SmartCommander.ViewModels
             await _fs.CreateDirectoryAsync(newFolder);
         }
 
-        public void ProcessCurrentItem(bool goToParent = false)
+        public async Task ProcessCurrentItem(bool goToParent = false)
         {
             if (CurrentItem == null)
             {
@@ -571,7 +571,7 @@ namespace SmartCommander.ViewModels
 
             if (goToParent)
             {
-                var parentPath = _fs.GetDirectoryParent(CurrentDirectory);
+                var parentPath = await _fs.GetDirectoryParentAsync(CurrentDirectory);
                 if (parentPath == null)
                 {
                     return;
@@ -585,7 +585,7 @@ namespace SmartCommander.ViewModels
             {
                 if (CurrentItem.FullName == "..")
                 {
-                    var parentPath = _fs.GetDirectoryParent(CurrentDirectory);
+                    var parentPath = await _fs.GetDirectoryParentAsync(CurrentDirectory);
                     _pendingRestoreItemName = Path.GetFileName(CurrentDirectory);
                     CurrentDirectory = parentPath ?? CurrentDirectory;
                 }
@@ -596,13 +596,23 @@ namespace SmartCommander.ViewModels
             }
             else
             {
-                new Process
+                // Callers discard the returned task, so a launch failure (e.g. no
+                // application associated with the file) must be surfaced here.
+                try
                 {
-                    StartInfo = new ProcessStartInfo(CurrentItem.FullName)
+                    new Process
                     {
-                        UseShellExecute = true
-                    }
-                }.Start();
+                        StartInfo = new ProcessStartInfo(CurrentItem.FullName)
+                        {
+                            UseShellExecute = true
+                        }
+                    }.Start();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to open {FullName}", CurrentItem.FullName);
+                    MessageBox_Show(null, ex.Message, Resources.Alert, ButtonEnum.Ok);
+                }
             }
         }
 
@@ -615,28 +625,39 @@ namespace SmartCommander.ViewModels
             var sortingBy = Sorting;
             var ascending = Ascending;
 
-            if (!_fs.DirectoryExists(dir) || !Path.IsPathFullyQualified(dir))
+            bool isParent;
+            string? selectedDrive;
+            try
+            {
+                if (!await _fs.DirectoryExistsAsync(dir, cts.Token) || !Path.IsPathFullyQualified(dir))
+                {
+                    return;
+                }
+                // Re-checked before any further cts.Token read: a newer load may have
+                // cancelled and disposed this cts while the exists-check was in flight,
+                // and a disposed source throws from its Token property.
+                if (cts != _loadCts)
+                {
+                    return;
+                }
+                isParent = await _fs.GetDirectoryParentAsync(dir, cts.Token) != null;
+                selectedDrive = OperatingSystem.IsWindows() ? await _fs.GetPathRootAsync(dir, cts.Token) : null;
+            }
+            catch (OperationCanceledException)
             {
                 return;
             }
 
-            bool isParent = _fs.GetDirectoryParent(dir) != null;
-            string? selectedDrive = OperatingSystem.IsWindows() ? _fs.GetPathRoot(dir) : null;
-
-            var options = new EnumerationOptions
-            {
-                AttributesToSkip = OptionsModel.Instance.IsHiddenSystemFilesDisplayed
-                    ? 0 : FileAttributes.Hidden | FileAttributes.System,
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = false,
-            };
+            var filter = new DirectoryListingFilter(
+                IncludeHidden: OptionsModel.Instance.IsHiddenSystemFilesDisplayed,
+                Recursive: false);
 
             IReadOnlyList<string> dirPaths;
             IReadOnlyList<string> filePaths;
             try
             {
-                var dirsTask = _fs.GetDirectoriesAsync(dir, options, cts.Token);
-                var filesTask = _fs.GetFilesAsync(dir, options, cts.Token);
+                var dirsTask = _fs.GetDirectoriesAsync(dir, filter, cts.Token);
+                var filesTask = _fs.GetFilesAsync(dir, filter, cts.Token);
                 await Task.WhenAll(dirsTask, filesTask);
                 dirPaths = dirsTask.Result;
                 filePaths = filesTask.Result;
@@ -820,23 +841,37 @@ namespace SmartCommander.ViewModels
         string? SelectedDrive
         {
             get { return _selectedDrive; }
-            set
+            set { _ = SetSelectedDriveAsync(value); }
+        }
+
+        // Fire-and-forget from the setter (a TwoWay binding can only call a sync setter);
+        // starts on the UI thread and every await resumes there.
+        private async Task SetSelectedDriveAsync(string? value)
+        {
+            // If the pane navigated while the exists-check was in flight (slow network
+            // drive, out-of-order combo picks), this selection no longer reflects the
+            // user's latest intent — abandon it instead of navigating or alerting late.
+            var directoryAtStart = CurrentDirectory;
+
+            bool exists = value != null && await _fs.DirectoryExistsAsync(value);
+            if (CurrentDirectory != directoryAtStart)
             {
-                if (value == null || !_fs.DirectoryExists(value))
-                {
-                    MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok);
-                    return;
-                }
-
-                var driveFromDirectory = _fs.GetPathRoot(CurrentDirectory);
-
-                _selectedDrive = value;
-                if (_selectedDrive != driveFromDirectory)
-                {
-                    CurrentDirectory = _selectedDrive!;
-                }
-                this.RaisePropertyChanged(nameof(SelectedDrive));
+                return;
             }
+            if (!exists)
+            {
+                MessageBox_Show(null, Resources.DriveNotAvailable, Resources.Alert, ButtonEnum.Ok);
+                return;
+            }
+
+            var driveFromDirectory = await _fs.GetPathRootAsync(CurrentDirectory);
+
+            _selectedDrive = value;
+            if (_selectedDrive != driveFromDirectory)
+            {
+                CurrentDirectory = _selectedDrive!;
+            }
+            this.RaisePropertyChanged(nameof(SelectedDrive));
         }
     }
 }

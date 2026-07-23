@@ -594,9 +594,11 @@ namespace SmartCommander.ViewModels
         public async Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut,
             Func<Task>? onMoveCompleted = null)
         {
-            var items = await Task.Run(() => sourcePaths
-                .Select(p => (FullName: p, IsFolder: _fs.DirectoryExists(p)))
-                .ToList());
+            var items = new List<(string FullName, bool IsFolder)>();
+            foreach (var path in sourcePaths)
+            {
+                items.Add((path, await _fs.DirectoryExistsAsync(path)));
+            }
             if (items.Count == 0)
             {
                 return false;
@@ -722,10 +724,10 @@ namespace SmartCommander.ViewModels
                         if (move)
                         {
                             bool sameDrive = string.Equals(
-                                _fs.GetPathRoot(fullName),
-                                _fs.GetPathRoot(destDirectory),
+                                await _fs.GetPathRootAsync(fullName, ct),
+                                await _fs.GetPathRootAsync(destDirectory, ct),
                                 OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
-                            if (sameDrive && !_fs.DirectoryExists(destFolder))
+                            if (sameDrive && !await _fs.DirectoryExistsAsync(destFolder, ct))
                             {
                                 await _fs.MoveDirectoryAsync(fullName, destFolder);
                             }

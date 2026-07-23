@@ -133,12 +133,12 @@ namespace SmartCommander.Views
                 var viewModel = DataContext as FilesPaneViewModel;
                 if (e.Key == Key.Back)
                 {
-                    viewModel?.ProcessCurrentItem(true);
+                    _ = viewModel?.ProcessCurrentItem(true);
                 }
 
                 if (e.Key == Key.Enter)
                 {
-                    viewModel?.ProcessCurrentItem();
+                    _ = viewModel?.ProcessCurrentItem();
                 }
             }
         }

@@ -9,25 +9,38 @@ using System.Threading.Tasks;
 
 namespace SmartCommander.Services
 {
-    public class LocalFileSystemService : IFileSystemService
+    public class LocalFileSystemProvider : IFileSystemProvider
     {
-        public Task<IReadOnlyList<string>> GetDirectoriesAsync(string path, EnumerationOptions options, CancellationToken ct)
+        public Task<IReadOnlyList<string>> GetDirectoriesAsync(string path, DirectoryListingFilter filter, CancellationToken ct)
         {
             return Task.Run<IReadOnlyList<string>>(
-                () => Directory.EnumerateDirectories(path, "*", options).ToList(), ct);
+                () => Directory.EnumerateDirectories(path, "*", ToEnumerationOptions(filter)).ToList(), ct);
         }
 
-        public Task<IReadOnlyList<string>> GetFilesAsync(string path, EnumerationOptions options, CancellationToken ct)
+        public Task<IReadOnlyList<string>> GetFilesAsync(string path, DirectoryListingFilter filter, CancellationToken ct)
         {
             return Task.Run<IReadOnlyList<string>>(
-                () => Directory.EnumerateFiles(path, "*", options).ToList(), ct);
+                () => Directory.EnumerateFiles(path, "*", ToEnumerationOptions(filter)).ToList(), ct);
         }
 
-        public bool DirectoryExists(string path) => Directory.Exists(path);
+        private static EnumerationOptions ToEnumerationOptions(DirectoryListingFilter filter) => new()
+        {
+            AttributesToSkip = filter.IncludeHidden ? 0 : FileAttributes.Hidden | FileAttributes.System,
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = filter.Recursive,
+        };
 
-        public string? GetDirectoryParent(string path) => Directory.GetParent(path)?.FullName;
+        // Async despite being cheap locally: Directory.Exists can stall on an unreachable
+        // network share, and remote providers answer over a socket.
+        public Task<bool> DirectoryExistsAsync(string path, CancellationToken ct = default) =>
+            Task.Run(() => Directory.Exists(path), ct);
 
-        public string? GetPathRoot(string path) => Path.GetPathRoot(Path.GetFullPath(path));
+        // Pure path math, no disk I/O — completes synchronously.
+        public Task<string?> GetDirectoryParentAsync(string path, CancellationToken ct = default) =>
+            Task.FromResult(Directory.GetParent(path)?.FullName);
+
+        public Task<string?> GetPathRootAsync(string path, CancellationToken ct = default) =>
+            Task.FromResult(Path.GetPathRoot(Path.GetFullPath(path)));
 
         public Task<long> GetFileSizeAsync(string path) =>
             Task.FromResult(new FileInfo(path).Length);
@@ -43,6 +56,19 @@ namespace SmartCommander.Services
 
         public Task MoveDirectoryAsync(string source, string dest) =>
             Task.Run(() => Directory.Move(source, dest));
+
+        public Task RenameAsync(string oldPath, string newPath, bool isFolder) =>
+            Task.Run(() =>
+            {
+                if (isFolder)
+                {
+                    Directory.Move(oldPath, newPath);
+                }
+                else
+                {
+                    File.Move(oldPath, newPath);
+                }
+            });
 
         public Task CreateDirectoryAsync(string path) =>
             Task.Run(() => Directory.CreateDirectory(path));
