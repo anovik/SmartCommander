@@ -29,7 +29,7 @@ namespace SmartCommander
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                vm = new MainWindowViewModel(new LocalFileSystemService());
+                vm = new MainWindowViewModel(new FileSystemService(new LocalFileSystemProvider()));
                 mainWindow = new MainWindow
                 {
                     DataContext = vm,

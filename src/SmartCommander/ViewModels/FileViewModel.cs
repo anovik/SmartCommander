@@ -14,6 +14,9 @@ namespace SmartCommander.ViewModels
     {
         private string _name = "";
         private string _diskFullName = "";
+        // Set only by CreateAsync; null for the ".." entry and other sync-constructed
+        // instances, which the DataGrid never lets the user rename.
+        private IFileSystemService? _fs;
         public static readonly List<string> ImageExtensions = ["jpg", "jpeg", "jpe", "bmp", "tiff", "gif", "png"];
         public static readonly List<string> VideoExtensions = ["mp4", "mov", "avi", "wmv"];
         public static readonly List<string> ArchiveExtensions = ["zip", "rar", "7z"];
@@ -97,32 +100,27 @@ namespace SmartCommander.ViewModels
                 this.RaisePropertyChanged(nameof(Name));
                 this.RaisePropertyChanged(nameof(FullName));
 
-                _ = Task.Run(async () =>
+                _ = RenameOnDiskAsync(oldName, oldFullName, destination);
+            }
+        }
+
+        private async Task RenameOnDiskAsync(string oldName, string oldFullName, string destination)
+        {
+            try
+            {
+                await _fs!.RenameAsync(oldFullName, destination, IsFolder);
+                _diskFullName = destination;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Rename failed: {FullName}", oldFullName);
+                _diskFullName = oldFullName;
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    try
-                    {
-                        if (IsFolder)
-                        {
-                            Directory.Move(oldFullName, destination);
-                        }
-                        else
-                        {
-                            File.Move(oldFullName, destination);
-                        }
-                        _diskFullName = destination;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "Rename failed: {FullName}", oldFullName);
-                        _diskFullName = oldFullName;
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            _name = oldName;
-                            FullName = oldFullName;
-                            this.RaisePropertyChanged(nameof(Name));
-                            this.RaisePropertyChanged(nameof(FullName));
-                        });
-                    }
+                    _name = oldName;
+                    FullName = oldFullName;
+                    this.RaisePropertyChanged(nameof(Name));
+                    this.RaisePropertyChanged(nameof(FullName));
                 });
             }
         }
@@ -143,6 +141,7 @@ namespace SmartCommander.ViewModels
                 FullName = fullName,
                 _diskFullName = fullName,
                 IsFolder = isFolder,
+                _fs = fs,
             };
 
             if (isFolder)

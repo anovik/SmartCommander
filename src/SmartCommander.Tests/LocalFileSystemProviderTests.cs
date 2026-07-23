@@ -8,12 +8,12 @@ using Xunit;
 
 namespace SmartCommander.Tests
 {
-    public class LocalFileSystemServiceTests : IDisposable
+    public class LocalFileSystemProviderTests : IDisposable
     {
         private readonly string _root;
-        private readonly LocalFileSystemService _fs = new();
+        private readonly LocalFileSystemProvider _fs = new();
 
-        public LocalFileSystemServiceTests()
+        public LocalFileSystemProviderTests()
         {
             _root = Path.Combine(Path.GetTempPath(), "SCTests_" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(_root);
@@ -48,7 +48,7 @@ namespace SmartCommander.Tests
             TempDir("sub2");
             TempFile("file.txt");
 
-            var dirs = await _fs.GetDirectoriesAsync(_root, new EnumerationOptions(), CancellationToken.None);
+            var dirs = await _fs.GetDirectoriesAsync(_root, new DirectoryListingFilter(), CancellationToken.None);
 
             Assert.Equal(2, dirs.Count);
             Assert.Contains(dirs, d => d.EndsWith("sub1"));
@@ -62,11 +62,93 @@ namespace SmartCommander.Tests
             TempFile("b.txt");
             TempDir("adir");
 
-            var files = await _fs.GetFilesAsync(_root, new EnumerationOptions(), CancellationToken.None);
+            var files = await _fs.GetFilesAsync(_root, new DirectoryListingFilter(), CancellationToken.None);
 
             Assert.Equal(2, files.Count);
             Assert.Contains(files, f => f.EndsWith("a.txt"));
             Assert.Contains(files, f => f.EndsWith("b.txt"));
+        }
+
+        [Fact]
+        public async Task GetFilesAsync_HiddenFile_RespectsIncludeHiddenFilter()
+        {
+            TempFile("visible.txt");
+            var hidden = TempFile(".hidden.txt");
+            if (OperatingSystem.IsWindows())
+            {
+                File.SetAttributes(hidden, File.GetAttributes(hidden) | FileAttributes.Hidden);
+            }
+
+            var withoutHidden = await _fs.GetFilesAsync(_root, new DirectoryListingFilter(), CancellationToken.None);
+            var withHidden = await _fs.GetFilesAsync(_root, new DirectoryListingFilter(IncludeHidden: true), CancellationToken.None);
+
+            Assert.DoesNotContain(withoutHidden, f => f.EndsWith(".hidden.txt"));
+            Assert.Contains(withHidden, f => f.EndsWith(".hidden.txt"));
+            Assert.Contains(withoutHidden, f => f.EndsWith("visible.txt"));
+        }
+
+        [Fact]
+        public async Task DirectoryExistsAsync_ReflectsExistence()
+        {
+            var dir = TempDir("existing");
+
+            Assert.True(await _fs.DirectoryExistsAsync(dir));
+            Assert.False(await _fs.DirectoryExistsAsync(Path.Combine(_root, "missing")));
+        }
+
+        [Fact]
+        public async Task GetDirectoryParentAsync_ReturnsParentPath()
+        {
+            var dir = TempDir("child");
+
+            var parent = await _fs.GetDirectoryParentAsync(dir);
+
+            Assert.Equal(_root, parent);
+        }
+
+        [Fact]
+        public async Task GetPathRootAsync_ReturnsRoot()
+        {
+            var root = await _fs.GetPathRootAsync(_root);
+
+            Assert.Equal(Path.GetPathRoot(_root), root);
+        }
+
+        [Fact]
+        public async Task RenameAsync_RenamesFile()
+        {
+            var src = TempFile("old_name.txt", "data");
+            var dest = Path.Combine(_root, "new_name.txt");
+
+            await _fs.RenameAsync(src, dest, isFolder: false);
+
+            Assert.False(File.Exists(src));
+            Assert.Equal("data", File.ReadAllText(dest));
+        }
+
+        [Fact]
+        public async Task RenameAsync_RenamesFolderWithContents()
+        {
+            var src = TempDir("old_dir");
+            File.WriteAllText(Path.Combine(src, "inner.txt"), "x");
+            var dest = Path.Combine(_root, "new_dir");
+
+            await _fs.RenameAsync(src, dest, isFolder: true);
+
+            Assert.False(Directory.Exists(src));
+            Assert.True(File.Exists(Path.Combine(dest, "inner.txt")));
+        }
+
+        [Fact]
+        public async Task RenameAsync_TargetExists_Throws()
+        {
+            var src = TempFile("rename_src.txt", "src");
+            var dest = TempFile("rename_dest.txt", "dest");
+
+            await Assert.ThrowsAsync<IOException>(() => _fs.RenameAsync(src, dest, isFolder: false));
+
+            Assert.Equal("src", File.ReadAllText(src));
+            Assert.Equal("dest", File.ReadAllText(dest));
         }
 
         [Fact]
