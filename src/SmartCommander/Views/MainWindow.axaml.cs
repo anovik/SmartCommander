@@ -149,6 +149,9 @@ namespace SmartCommander.Views
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
 
+                LeftPane.TabPressed += (s, e) => RightPane.FocusGrid();
+                RightPane.TabPressed += (s, e) => LeftPane.FocusGrid();
+
                 vm.MessageBoxRequest += View_MessageBoxRequest;
                 vm.LeftFileViewModel.MessageBoxRequest += View_MessageBoxRequest;
                 vm.RightFileViewModel.MessageBoxRequest += View_MessageBoxRequest;
