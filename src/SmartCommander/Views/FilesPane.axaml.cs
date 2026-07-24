@@ -17,7 +17,12 @@ namespace SmartCommander.Views
     public partial class FilesPane : UserControl
     {
         private IFocusManager? focusManager { get; set; }
-        static private Key[] gridhotkeys = [Key.Enter, Key.Back];
+        private DataGrid? paneDataGrid;
+        private bool isEditingCell;
+        static private Key[] gridhotkeys = [Key.Enter, Key.Back, Key.Tab];
+
+        // Lets MainWindow focus the other pane's grid; the DataGrid otherwise consumes Tab internally for cell navigation.
+        public event EventHandler? TabPressed;
 
         public FilesPane()
         {
@@ -102,11 +107,15 @@ namespace SmartCommander.Views
             var PaneDataGrid = this.Get<DataGrid>("PaneDataGrid");
             if (PaneDataGrid != null)
             {
+                paneDataGrid = PaneDataGrid;
                 focusManager = TopLevel.GetTopLevel((Visual)PaneDataGrid)?.FocusManager;
                 PaneDataGrid.AddHandler(KeyDownEvent, dataGrid_PreviewKeyDown, RoutingStrategies.Tunnel);
+                // PreparingCellForEdit (not BeginningEdit) only fires once editing actually starts, so it can't race the ViewModel's cancellation.
+                PaneDataGrid.PreparingCellForEdit += (s, args) => isEditingCell = true;
+                PaneDataGrid.CellEditEnded += (s, args) => isEditingCell = false;
                 PaneDataGrid.ScrollIntoView(PaneDataGrid.SelectedItem, null);
                 PaneDataGrid.Focus();
-   
+
                 var viewModel = (FilesPaneViewModel?)DataContext;
                 viewModel!.ScrollToItemRequested += (item, column) =>
                 {
@@ -114,6 +123,11 @@ namespace SmartCommander.Views
                     PaneDataGrid.Focus();
                 };
             }
+        }
+
+        public void FocusGrid()
+        {
+            paneDataGrid?.Focus();
         }
 
 
@@ -128,6 +142,14 @@ namespace SmartCommander.Views
 
         public void dataGrid_PreviewKeyDown(object? sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Enter && isEditingCell)
+            {
+                // Focus is on the inline editor here, not the DataGrid, so commit explicitly and swallow Enter to skip the grid's default move-to-next-row.
+                (sender as DataGrid)?.CommitEdit();
+                e.Handled = true;
+                return;
+            }
+
             if (gridhotkeys.Contains(e.Key) && ((focusManager?.GetFocusedElement() is DataGrid)))
             {
                 var viewModel = DataContext as FilesPaneViewModel;
@@ -139,6 +161,13 @@ namespace SmartCommander.Views
                 if (e.Key == Key.Enter)
                 {
                     _ = viewModel?.ProcessCurrentItem();
+                    e.Handled = true;
+                }
+
+                if (e.Key == Key.Tab)
+                {
+                    TabPressed?.Invoke(this, EventArgs.Empty);
+                    e.Handled = true;
                 }
             }
         }
