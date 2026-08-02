@@ -16,8 +16,16 @@ namespace SmartCommander.Services
     // the composite FileSystemService, created on connect, disposed on disconnect) since only
     // one FTP connection is ever active app-wide. All paths passed into this provider are full
     // "ftp://" strings (see RemotePath); FluentFTP only ever sees the remote part.
+    //
+    // A single FTP control connection can only run one command at a time - unlike local disk
+    // access, two commands issued concurrently on the same AsyncFtpClient corrupt the connection
+    // (garbled command/response state, spurious timeouts). Every method that touches the client
+    // acquires _lock first, so calls queue instead of interleaving; callers that used to run two
+    // requests in parallel against the local provider (e.g. listing files and folders together)
+    // now run them one after another here.
     public class FtpFileSystemProvider : IFileSystemProvider, IAsyncDisposable
     {
+        private readonly SemaphoreSlim _lock = new(1, 1);
         private AsyncFtpClient? _client;
 
         public string? Host { get; private set; }
@@ -60,21 +68,44 @@ namespace SmartCommander.Services
         private AsyncFtpClient Client =>
             _client ?? throw new InvalidOperationException("Not connected to an FTP server.");
 
-        public async Task<IReadOnlyList<string>> GetDirectoriesAsync(string path, DirectoryListingFilter filter, CancellationToken ct)
+        private async Task<T> LockedAsync<T>(CancellationToken ct, Func<Task<T>> action)
         {
-            var listing = await Client.GetListing(RemotePath.GetRemotePart(path), ToFtpListOption(filter), ct);
-            return listing
-                .Where(i => i.Type == FtpObjectType.Directory)
-                .Where(i => filter.IncludeHidden || !IsDotfile(i))
-                .Select(i => RemotePath.Combine(i.FullName))
-                .ToList();
+            await _lock.WaitAsync(ct);
+            try
+            {
+                return await action();
+            }
+            finally
+            {
+                _lock.Release();
+            }
         }
 
-        public async Task<IReadOnlyList<string>> GetFilesAsync(string path, DirectoryListingFilter filter, CancellationToken ct)
+        private async Task LockedAsync(CancellationToken ct, Func<Task> action)
+        {
+            await _lock.WaitAsync(ct);
+            try
+            {
+                await action();
+            }
+            finally
+            {
+                _lock.Release();
+            }
+        }
+
+        public Task<IReadOnlyList<string>> GetDirectoriesAsync(string path, DirectoryListingFilter filter, CancellationToken ct) =>
+            LockedAsync(ct, () => ListEntriesAsync(path, filter, FtpObjectType.Directory, ct));
+
+        public Task<IReadOnlyList<string>> GetFilesAsync(string path, DirectoryListingFilter filter, CancellationToken ct) =>
+            LockedAsync(ct, () => ListEntriesAsync(path, filter, FtpObjectType.File, ct));
+
+        // Raw, unlocked - only call from within a method that already holds _lock.
+        private async Task<IReadOnlyList<string>> ListEntriesAsync(string path, DirectoryListingFilter filter, FtpObjectType type, CancellationToken ct)
         {
             var listing = await Client.GetListing(RemotePath.GetRemotePart(path), ToFtpListOption(filter), ct);
             return listing
-                .Where(i => i.Type == FtpObjectType.File)
+                .Where(i => i.Type == type)
                 .Where(i => filter.IncludeHidden || !IsDotfile(i))
                 .Select(i => RemotePath.Combine(i.FullName))
                 .ToList();
@@ -99,10 +130,14 @@ namespace SmartCommander.Services
         }
 
         public Task<bool> DirectoryExistsAsync(string path, CancellationToken ct = default) =>
+            LockedAsync(ct, () => DirectoryExistsRawAsync(path, ct));
+
+        // Raw, unlocked - only call from within a method that already holds _lock.
+        private Task<bool> DirectoryExistsRawAsync(string path, CancellationToken ct) =>
             Client.DirectoryExists(RemotePath.GetRemotePart(path), ct);
 
         public Task<bool> FileExistsAsync(string path, CancellationToken ct = default) =>
-            Client.FileExists(RemotePath.GetRemotePart(path), ct);
+            LockedAsync(ct, () => Client.FileExists(RemotePath.GetRemotePart(path), ct));
 
         // Pure path math against the ftp:// scheme — no network call needed.
         public Task<string?> GetDirectoryParentAsync(string path, CancellationToken ct = default)
@@ -122,25 +157,27 @@ namespace SmartCommander.Services
             Task.FromResult<string?>(RemotePath.Combine("/"));
 
         public Task<long> GetFileSizeAsync(string path) =>
-            Client.GetFileSize(RemotePath.GetRemotePart(path));
+            LockedAsync(CancellationToken.None, () => Client.GetFileSize(RemotePath.GetRemotePart(path)));
 
         // FTP (via MDTM) only exposes a modified time, not a creation time; used as the
         // closest available approximation for FileViewModel's metadata display.
         public Task<DateTime> GetCreationTimeAsync(string path) =>
-            Client.GetModifiedTime(RemotePath.GetRemotePart(path));
+            LockedAsync(CancellationToken.None, () => Client.GetModifiedTime(RemotePath.GetRemotePart(path)));
 
-        public async Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items)
-        {
-            long total = 0;
-            foreach (var (fullName, isFolder) in items)
+        public Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items) =>
+            LockedAsync(CancellationToken.None, async () =>
             {
-                total += isFolder
-                    ? await GetDirectorySizeAsync(fullName)
-                    : await Client.GetFileSize(RemotePath.GetRemotePart(fullName));
-            }
-            return total;
-        }
+                long total = 0;
+                foreach (var (fullName, isFolder) in items)
+                {
+                    total += isFolder
+                        ? await GetDirectorySizeAsync(fullName)
+                        : await Client.GetFileSize(RemotePath.GetRemotePart(fullName));
+                }
+                return total;
+            });
 
+        // Raw, unlocked - only call from within a method that already holds _lock.
         private async Task<long> GetDirectorySizeAsync(string path)
         {
             var listing = await Client.GetListing(RemotePath.GetRemotePart(path), FtpListOption.Recursive, CancellationToken.None);
@@ -148,22 +185,22 @@ namespace SmartCommander.Services
         }
 
         public Task MoveFileAsync(string source, string dest) =>
-            Client.MoveFile(RemotePath.GetRemotePart(source), RemotePath.GetRemotePart(dest));
+            LockedAsync(CancellationToken.None, () => Client.MoveFile(RemotePath.GetRemotePart(source), RemotePath.GetRemotePart(dest)));
 
         public Task MoveDirectoryAsync(string source, string dest) =>
-            Client.MoveDirectory(RemotePath.GetRemotePart(source), RemotePath.GetRemotePart(dest));
+            LockedAsync(CancellationToken.None, () => Client.MoveDirectory(RemotePath.GetRemotePart(source), RemotePath.GetRemotePart(dest)));
 
         public Task RenameAsync(string oldPath, string newPath, bool isFolder) =>
-            Client.Rename(RemotePath.GetRemotePart(oldPath), RemotePath.GetRemotePart(newPath));
+            LockedAsync(CancellationToken.None, () => Client.Rename(RemotePath.GetRemotePart(oldPath), RemotePath.GetRemotePart(newPath)));
 
         public Task CreateDirectoryAsync(string path) =>
-            Client.CreateDirectory(RemotePath.GetRemotePart(path));
+            LockedAsync(CancellationToken.None, () => Client.CreateDirectory(RemotePath.GetRemotePart(path)));
 
         public Task DeleteFileAsync(string path) =>
-            Client.DeleteFile(RemotePath.GetRemotePart(path));
+            LockedAsync(CancellationToken.None, () => Client.DeleteFile(RemotePath.GetRemotePart(path)));
 
         public Task DeleteDirectoryAsync(string path, CancellationToken ct = default) =>
-            Client.DeleteDirectory(RemotePath.GetRemotePart(path), ct);
+            LockedAsync(ct, () => Client.DeleteDirectory(RemotePath.GetRemotePart(path), ct));
 
         // Required by IFileSystemProvider, but unreachable via the composite's dispatch:
         // FTP-to-FTP never occurs since at most one pane is ever FTP. Local<->FTP transfers
@@ -179,101 +216,106 @@ namespace SmartCommander.Services
             throw new NotSupportedException("FTP-to-FTP transfers are not supported.");
 
         // Called by the composite for a local -> FTP file transfer.
-        public async Task<long> UploadFileAsync(string localSource, string ftpDest, bool delete, bool overwrite,
-                                                 IProgress<int>? progress, long processedSize, long totalSize,
-                                                 CancellationToken ct)
-        {
-            var fileSize = new FileInfo(localSource).Length;
-            var existsMode = overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip;
-            var adapter = new FtpProgressAdapter(progress, processedSize, totalSize);
-            var status = await Client.UploadFile(localSource, RemotePath.GetRemotePart(ftpDest), existsMode,
-                false, FtpVerify.None, adapter, ct);
-
-            long processed = processedSize + (status == FtpStatus.Skipped ? 0 : fileSize);
-            ReportProgress(progress, processed, totalSize);
-
-            if (status != FtpStatus.Skipped && delete)
+        public Task<long> UploadFileAsync(string localSource, string ftpDest, bool delete, bool overwrite,
+                                           IProgress<int>? progress, long processedSize, long totalSize,
+                                           CancellationToken ct) =>
+            LockedAsync(ct, async () =>
             {
-                File.Delete(localSource);
-            }
-            return processed;
-        }
+                var fileSize = new FileInfo(localSource).Length;
+                var existsMode = overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip;
+                var adapter = new FtpProgressAdapter(progress, processedSize, totalSize);
+                var status = await Client.UploadFile(localSource, RemotePath.GetRemotePart(ftpDest), existsMode,
+                    false, FtpVerify.None, adapter, ct);
+
+                long processed = processedSize + (status == FtpStatus.Skipped ? 0 : fileSize);
+                ReportProgress(progress, processed, totalSize);
+
+                if (status != FtpStatus.Skipped && delete)
+                {
+                    File.Delete(localSource);
+                }
+                return processed;
+            });
 
         // Called by the composite for an FTP -> local file transfer.
-        public async Task<long> DownloadFileAsync(string ftpSource, string localDest, bool delete, bool overwrite,
-                                                   IProgress<int>? progress, long processedSize, long totalSize,
-                                                   CancellationToken ct)
-        {
-            var remoteSource = RemotePath.GetRemotePart(ftpSource);
-            var fileSize = Math.Max(0, await Client.GetFileSize(remoteSource, -1, ct));
-
-            if (!overwrite && File.Exists(localDest))
+        public Task<long> DownloadFileAsync(string ftpSource, string localDest, bool delete, bool overwrite,
+                                             IProgress<int>? progress, long processedSize, long totalSize,
+                                             CancellationToken ct) =>
+            LockedAsync(ct, async () =>
             {
-                long skipped = processedSize + fileSize;
-                ReportProgress(progress, skipped, totalSize);
-                return skipped;
-            }
+                var remoteSource = RemotePath.GetRemotePart(ftpSource);
+                var fileSize = Math.Max(0, await Client.GetFileSize(remoteSource, -1, ct));
 
-            var adapter = new FtpProgressAdapter(progress, processedSize, totalSize);
-            var status = await Client.DownloadFile(localDest, remoteSource, FtpLocalExists.Overwrite,
-                FtpVerify.None, adapter, ct);
+                if (!overwrite && File.Exists(localDest))
+                {
+                    long skipped = processedSize + fileSize;
+                    ReportProgress(progress, skipped, totalSize);
+                    return skipped;
+                }
 
-            long processed = processedSize + fileSize;
-            ReportProgress(progress, processed, totalSize);
+                var adapter = new FtpProgressAdapter(progress, processedSize, totalSize);
+                var status = await Client.DownloadFile(localDest, remoteSource, FtpLocalExists.Overwrite,
+                    FtpVerify.None, adapter, ct);
 
-            if (status == FtpStatus.Success && delete)
-            {
-                await Client.DeleteFile(remoteSource, ct);
-            }
-            return processed;
-        }
+                long processed = processedSize + fileSize;
+                ReportProgress(progress, processed, totalSize);
+
+                if (status == FtpStatus.Success && delete)
+                {
+                    await Client.DeleteFile(remoteSource, ct);
+                }
+                return processed;
+            });
 
         // Called by the composite for a local -> FTP directory transfer.
-        public async Task<long> UploadDirectoryAsync(string localSource, string ftpDest, bool delete, bool overwrite,
-                                                      IProgress<int>? progress, long processedSize, long totalSize,
-                                                      CancellationToken ct)
-        {
-            var dirSize = GetLocalDirectorySize(localSource);
-            var adapter = new FtpProgressAdapter(progress, processedSize, totalSize, dirSize);
-            await Client.UploadDirectory(localSource, RemotePath.GetRemotePart(ftpDest), FtpFolderSyncMode.Update,
-                overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, FtpVerify.None, null, adapter, ct);
-
-            long processed = processedSize + dirSize;
-            ReportProgress(progress, processed, totalSize);
-
-            if (delete)
+        public Task<long> UploadDirectoryAsync(string localSource, string ftpDest, bool delete, bool overwrite,
+                                                IProgress<int>? progress, long processedSize, long totalSize,
+                                                CancellationToken ct) =>
+            LockedAsync(ct, async () =>
             {
-                Directory.Delete(localSource, true);
-            }
-            return processed;
-        }
+                var dirSize = GetLocalDirectorySize(localSource);
+                var adapter = new FtpProgressAdapter(progress, processedSize, totalSize, dirSize);
+                await Client.UploadDirectory(localSource, RemotePath.GetRemotePart(ftpDest), FtpFolderSyncMode.Update,
+                    overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, FtpVerify.None, null, adapter, ct);
+
+                long processed = processedSize + dirSize;
+                ReportProgress(progress, processed, totalSize);
+
+                if (delete)
+                {
+                    Directory.Delete(localSource, true);
+                }
+                return processed;
+            });
 
         // Called by the composite for an FTP -> local directory transfer.
-        public async Task<long> DownloadDirectoryAsync(string ftpSource, string localDest, bool delete, bool overwrite,
-                                                        IProgress<int>? progress, long processedSize, long totalSize,
-                                                        CancellationToken ct)
-        {
-            var remoteSource = RemotePath.GetRemotePart(ftpSource);
-            var dirSize = await GetDirectorySizeAsync(ftpSource);
-            var adapter = new FtpProgressAdapter(progress, processedSize, totalSize, dirSize);
-            await Client.DownloadDirectory(localDest, remoteSource, FtpFolderSyncMode.Update,
-                overwrite ? FtpLocalExists.Overwrite : FtpLocalExists.Skip, FtpVerify.None, null, adapter, ct);
-
-            long processed = processedSize + dirSize;
-            ReportProgress(progress, processed, totalSize);
-
-            if (delete)
+        public Task<long> DownloadDirectoryAsync(string ftpSource, string localDest, bool delete, bool overwrite,
+                                                  IProgress<int>? progress, long processedSize, long totalSize,
+                                                  CancellationToken ct) =>
+            LockedAsync(ct, async () =>
             {
-                await Client.DeleteDirectory(remoteSource, ct);
-            }
-            return processed;
-        }
+                var remoteSource = RemotePath.GetRemotePart(ftpSource);
+                var dirSize = await GetDirectorySizeAsync(ftpSource);
+                var adapter = new FtpProgressAdapter(progress, processedSize, totalSize, dirSize);
+                await Client.DownloadDirectory(localDest, remoteSource, FtpFolderSyncMode.Update,
+                    overwrite ? FtpLocalExists.Overwrite : FtpLocalExists.Skip, FtpVerify.None, null, adapter, ct);
+
+                long processed = processedSize + dirSize;
+                ReportProgress(progress, processed, totalSize);
+
+                if (delete)
+                {
+                    await Client.DeleteDirectory(remoteSource, ct);
+                }
+                return processed;
+            });
 
         public Task SearchAsync(string folder, string pattern, bool topOnly, bool searchContent,
                                 string contentText, IProgress<string> results,
                                 IProgress<string>? statusProgress, CancellationToken ct) =>
-            SearchCore(folder, pattern, topOnly, searchContent, contentText, results, statusProgress, ct);
+            LockedAsync(ct, () => SearchCore(folder, pattern, topOnly, searchContent, contentText, results, statusProgress, ct));
 
+        // Raw, unlocked - only call from within a method that already holds _lock.
         private async Task SearchCore(string folder, string pattern, bool topOnly, bool searchContent,
                                       string contentText, IProgress<string> results,
                                       IProgress<string>? statusProgress, CancellationToken ct)
@@ -352,34 +394,36 @@ namespace SmartCommander.Services
             new("^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$",
                 RegexOptions.IgnoreCase);
 
-        public async Task<List<string>> GetDuplicatesAsync(IReadOnlyList<(string FullName, bool IsFolder)> items, string destPath)
-        {
-            var duplicates = new List<string>();
-            var destRemote = RemotePath.GetRemotePart(destPath);
-            foreach (var (fullName, isFolder) in items)
+        public Task<List<string>> GetDuplicatesAsync(IReadOnlyList<(string FullName, bool IsFolder)> items, string destPath) =>
+            LockedAsync(CancellationToken.None, async () =>
             {
-                var targetRemote = CombineRemote(destRemote, Path.GetFileName(fullName));
-                if (isFolder)
+                var duplicates = new List<string>();
+                var destRemote = RemotePath.GetRemotePart(destPath);
+                foreach (var (fullName, isFolder) in items)
                 {
-                    await CollectDuplicatesInDirectoryAsync(fullName, RemotePath.Combine(targetRemote), duplicates);
+                    var targetRemote = CombineRemote(destRemote, Path.GetFileName(fullName));
+                    if (isFolder)
+                    {
+                        await CollectDuplicatesInDirectoryAsync(fullName, RemotePath.Combine(targetRemote), duplicates);
+                    }
+                    else if (await Client.FileExists(targetRemote))
+                    {
+                        duplicates.Add(fullName);
+                    }
                 }
-                else if (await Client.FileExists(targetRemote))
-                {
-                    duplicates.Add(fullName);
-                }
-            }
-            return duplicates;
-        }
+                return duplicates;
+            });
 
+        // Raw, unlocked - only call from within a method that already holds _lock.
         private async Task CollectDuplicatesInDirectoryAsync(string sourceDir, string destDir, List<string> duplicates)
         {
-            if (!await DirectoryExistsAsync(sourceDir))
+            if (!await DirectoryExistsRawAsync(sourceDir, CancellationToken.None))
             {
                 return;
             }
             var destRemote = RemotePath.GetRemotePart(destDir);
             var filter = new DirectoryListingFilter();
-            foreach (var file in await GetFilesAsync(sourceDir, filter, CancellationToken.None))
+            foreach (var file in await ListEntriesAsync(sourceDir, filter, FtpObjectType.File, CancellationToken.None))
             {
                 var targetRemote = CombineRemote(destRemote, Path.GetFileName(file));
                 if (await Client.FileExists(targetRemote))
@@ -387,7 +431,7 @@ namespace SmartCommander.Services
                     duplicates.Add(file);
                 }
             }
-            foreach (var dir in await GetDirectoriesAsync(sourceDir, filter, CancellationToken.None))
+            foreach (var dir in await ListEntriesAsync(sourceDir, filter, FtpObjectType.Directory, CancellationToken.None))
             {
                 var targetSub = RemotePath.Combine(CombineRemote(destRemote, Path.GetFileName(dir)));
                 await CollectDuplicatesInDirectoryAsync(dir, targetSub, duplicates);
@@ -396,27 +440,28 @@ namespace SmartCommander.Services
 
         private static string CombineRemote(string basePart, string name) => basePart.TrimEnd('/') + "/" + name;
 
-        public async Task<List<string>> GetNonEmptyFoldersAsync(IReadOnlyList<(string FullName, bool IsFolder)> items)
-        {
-            var result = new List<string>();
-            if (!OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty)
+        public Task<List<string>> GetNonEmptyFoldersAsync(IReadOnlyList<(string FullName, bool IsFolder)> items) =>
+            LockedAsync(CancellationToken.None, async () =>
             {
+                var result = new List<string>();
+                if (!OptionsModel.Instance.ConfirmationWhenDeleteNonEmpty)
+                {
+                    return result;
+                }
+                foreach (var (fullName, isFolder) in items)
+                {
+                    if (!isFolder)
+                    {
+                        continue;
+                    }
+                    var listing = await Client.GetListing(RemotePath.GetRemotePart(fullName), FtpListOption.Auto);
+                    if (listing.Length > 0)
+                    {
+                        result.Add(fullName);
+                    }
+                }
                 return result;
-            }
-            foreach (var (fullName, isFolder) in items)
-            {
-                if (!isFolder)
-                {
-                    continue;
-                }
-                var listing = await Client.GetListing(RemotePath.GetRemotePart(fullName), FtpListOption.Auto);
-                if (listing.Length > 0)
-                {
-                    result.Add(fullName);
-                }
-            }
-            return result;
-        }
+            });
 
         private static long GetLocalDirectorySize(string path)
         {

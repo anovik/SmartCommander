@@ -3,8 +3,8 @@
         x:CompileBindings="False"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="380" d:DesignHeight="340"
-        Width="380" Height="340"
+        mc:Ignorable="d" d:DesignWidth="460" d:DesignHeight="360"
+        Width="460" Height="360"
         x:Class="SmartCommander.Views.FtpConnectWindow"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
@@ -14,36 +14,54 @@
         Title="{x:Static assets:Resources.FtpConnectTitle}">
 	<Grid Margin="15">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="*"/>
 			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
-		<StackPanel Grid.Row="0" Spacing="6">
-			<TextBlock Text="{x:Static assets:Resources.FtpSavedConnections}"/>
-			<ComboBox ItemsSource="{Binding SavedConnections}" SelectedItem="{Binding SelectedConnection, Mode=TwoWay}"
-					  HorizontalAlignment="Stretch">
-				<ComboBox.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding Name}"/>
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
-			</ComboBox>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
 
-			<TextBlock Text="{x:Static assets:Resources.FtpHost}" Margin="0,8,0,0"/>
-			<TextBox Text="{Binding Host, Mode=TwoWay}" Name="HostTextBox"/>
+		<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+				   Text="{x:Static assets:Resources.FtpSavedConnections}"/>
+		<ComboBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" HorizontalAlignment="Stretch"
+				  ItemsSource="{Binding SavedConnections}" SelectedItem="{Binding SelectedConnection, Mode=TwoWay}">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Name}"/>
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
 
-			<TextBlock Text="{x:Static assets:Resources.FtpPort}"/>
-			<NumericUpDown Value="{Binding Port, Mode=TwoWay}" Minimum="1" Maximum="65535" FormatString="0"/>
+		<TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+				   Text="{x:Static assets:Resources.FtpHost}"/>
+		<TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Text="{Binding Host, Mode=TwoWay}" Name="HostTextBox"/>
 
-			<CheckBox IsChecked="{Binding Anonymous, Mode=TwoWay}" Content="{x:Static assets:Resources.FtpAnonymous}"/>
+		<TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+				   Text="{x:Static assets:Resources.FtpPort}"/>
+		<NumericUpDown Grid.Row="2" Grid.Column="1" Margin="0,0,0,10" HorizontalAlignment="Stretch"
+					   Value="{Binding Port, Mode=TwoWay}" Minimum="1" Maximum="65535" FormatString="0"/>
 
-			<TextBlock Text="{x:Static assets:Resources.FtpUsername}" IsEnabled="{Binding !Anonymous}"/>
-			<TextBox Text="{Binding Username, Mode=TwoWay}" IsEnabled="{Binding !Anonymous}"/>
+		<CheckBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"
+				  IsChecked="{Binding Anonymous, Mode=TwoWay}" Content="{x:Static assets:Resources.FtpAnonymous}"/>
 
-			<TextBlock Text="{x:Static assets:Resources.FtpPassword}" IsEnabled="{Binding !Anonymous}"/>
-			<TextBox Text="{Binding Password, Mode=TwoWay}" PasswordChar="●" IsEnabled="{Binding !Anonymous}"/>
-		</StackPanel>
+		<TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+				   IsEnabled="{Binding !Anonymous}" Text="{x:Static assets:Resources.FtpUsername}"/>
+		<TextBox Grid.Row="4" Grid.Column="1" Margin="0,0,0,10"
+				 Text="{Binding Username, Mode=TwoWay}" IsEnabled="{Binding !Anonymous}"/>
 
-		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+		<TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+				   IsEnabled="{Binding !Anonymous}" Text="{x:Static assets:Resources.FtpPassword}"/>
+		<TextBox Grid.Row="5" Grid.Column="1" Margin="0,0,0,10"
+				 Text="{Binding Password, Mode=TwoWay}" PasswordChar="●" IsEnabled="{Binding !Anonymous}"/>
+
+		<StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+					HorizontalAlignment="Right" VerticalAlignment="Bottom">
 			<Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}" IsDefault="True"
 					Content="{x:Static assets:Resources.FtpConnectButton}"/>
 			<Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}" IsCancel="True"
