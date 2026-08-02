@@ -408,4 +408,40 @@
   <data name="License" xml:space="preserve">
     <value>License: GNU General Public License v3.0</value>
   </data>
+  <data name="MenuFtp" xml:space="preserve">
+    <value>_FTP</value>
+  </data>
+  <data name="MenuFtpConnect" xml:space="preserve">
+    <value>_Connect...</value>
+  </data>
+  <data name="MenuFtpDisconnect" xml:space="preserve">
+    <value>_Disconnect</value>
+  </data>
+  <data name="FtpConnectTitle" xml:space="preserve">
+    <value>Connect to FTP Server</value>
+  </data>
+  <data name="FtpSavedConnections" xml:space="preserve">
+    <value>Saved connections:</value>
+  </data>
+  <data name="FtpHost" xml:space="preserve">
+    <value>Host:</value>
+  </data>
+  <data name="FtpPort" xml:space="preserve">
+    <value>Port:</value>
+  </data>
+  <data name="FtpUsername" xml:space="preserve">
+    <value>Username:</value>
+  </data>
+  <data name="FtpPassword" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="FtpAnonymous" xml:space="preserve">
+    <value>Anonymous login</value>
+  </data>
+  <data name="FtpConnectButton" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="FtpConnectionFailed" xml:space="preserve">
+    <value>Failed to connect to FTP server: {0}</value>
+  </data>
 </root>

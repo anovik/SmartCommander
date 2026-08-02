@@ -92,7 +92,7 @@ namespace SmartCommander.ViewModels
                 var oldName = _name;
                 var oldFullName = _diskFullName;
                 var destName = IsFolder ? value : (value + (!string.IsNullOrEmpty(Extension) ? "." + Extension : ""));
-                var destination = Path.Combine(Path.GetDirectoryName(oldFullName) ?? "", destName);
+                var destination = RemotePath.CombineChild(Path.GetDirectoryName(oldFullName) ?? "", destName);
 
                 // Optimistic update so the DataGrid reflects the new name immediately
                 _name = value;

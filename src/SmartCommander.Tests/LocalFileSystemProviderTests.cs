@@ -88,12 +88,36 @@ namespace SmartCommander.Tests
         }
 
         [Fact]
+        public async Task GetFilesAsync_Recursive_IncludesSubdirectoryFiles()
+        {
+            TempFile("top.txt");
+            var sub = TempDir("sub");
+            File.WriteAllText(Path.Combine(sub, "nested.txt"), "x");
+
+            var nonRecursive = await _fs.GetFilesAsync(_root, new DirectoryListingFilter(Recursive: false), CancellationToken.None);
+            var recursive = await _fs.GetFilesAsync(_root, new DirectoryListingFilter(Recursive: true), CancellationToken.None);
+
+            Assert.DoesNotContain(nonRecursive, f => f.EndsWith("nested.txt"));
+            Assert.Contains(recursive, f => f.EndsWith("nested.txt"));
+            Assert.Contains(recursive, f => f.EndsWith("top.txt"));
+        }
+
+        [Fact]
         public async Task DirectoryExistsAsync_ReflectsExistence()
         {
             var dir = TempDir("existing");
 
             Assert.True(await _fs.DirectoryExistsAsync(dir));
             Assert.False(await _fs.DirectoryExistsAsync(Path.Combine(_root, "missing")));
+        }
+
+        [Fact]
+        public async Task FileExistsAsync_ReflectsExistence()
+        {
+            var file = TempFile("existing.txt");
+
+            Assert.True(await _fs.FileExistsAsync(file));
+            Assert.False(await _fs.FileExistsAsync(Path.Combine(_root, "missing.txt")));
         }
 
         [Fact]
@@ -149,6 +173,19 @@ namespace SmartCommander.Tests
 
             Assert.Equal("src", File.ReadAllText(src));
             Assert.Equal("dest", File.ReadAllText(dest));
+        }
+
+        [Fact]
+        public async Task RenameAsync_FolderTargetExists_Throws()
+        {
+            var src = TempDir("rename_src_dir");
+            File.WriteAllText(Path.Combine(src, "inner.txt"), "x");
+            var dest = TempDir("rename_dest_dir");
+
+            await Assert.ThrowsAsync<IOException>(() => _fs.RenameAsync(src, dest, isFolder: true));
+
+            Assert.True(Directory.Exists(src));
+            Assert.True(File.Exists(Path.Combine(src, "inner.txt")));
         }
 
         [Fact]

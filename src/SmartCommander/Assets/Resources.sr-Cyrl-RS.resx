@@ -408,4 +408,40 @@
   <data name="License" xml:space="preserve">
     <value>Лиценца: GNU General Public License v3.0</value>
   </data>
+  <data name="MenuFtp" xml:space="preserve">
+    <value>_FTP</value>
+  </data>
+  <data name="MenuFtpConnect" xml:space="preserve">
+    <value>_Повежи се...</value>
+  </data>
+  <data name="MenuFtpDisconnect" xml:space="preserve">
+    <value>_Прекини везу</value>
+  </data>
+  <data name="FtpConnectTitle" xml:space="preserve">
+    <value>Повезивање на FTP сервер</value>
+  </data>
+  <data name="FtpSavedConnections" xml:space="preserve">
+    <value>Сачуване везе:</value>
+  </data>
+  <data name="FtpHost" xml:space="preserve">
+    <value>Хост:</value>
+  </data>
+  <data name="FtpPort" xml:space="preserve">
+    <value>Порт:</value>
+  </data>
+  <data name="FtpUsername" xml:space="preserve">
+    <value>Корисничко име:</value>
+  </data>
+  <data name="FtpPassword" xml:space="preserve">
+    <value>Лозинка:</value>
+  </data>
+  <data name="FtpAnonymous" xml:space="preserve">
+    <value>Анонимна пријава</value>
+  </data>
+  <data name="FtpConnectButton" xml:space="preserve">
+    <value>Повежи се</value>
+  </data>
+  <data name="FtpConnectionFailed" xml:space="preserve">
+    <value>Повезивање на FTP сервер није успело: {0}</value>
+  </data>
 </root>

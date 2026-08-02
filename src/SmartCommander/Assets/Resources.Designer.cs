@@ -932,5 +932,113 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("License", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _FTP.
+        /// </summary>
+        public static string MenuFtp {
+            get {
+                return ResourceManager.GetString("MenuFtp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Connect....
+        /// </summary>
+        public static string MenuFtpConnect {
+            get {
+                return ResourceManager.GetString("MenuFtpConnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Disconnect.
+        /// </summary>
+        public static string MenuFtpDisconnect {
+            get {
+                return ResourceManager.GetString("MenuFtpDisconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect to FTP Server.
+        /// </summary>
+        public static string FtpConnectTitle {
+            get {
+                return ResourceManager.GetString("FtpConnectTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved connections:.
+        /// </summary>
+        public static string FtpSavedConnections {
+            get {
+                return ResourceManager.GetString("FtpSavedConnections", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Host:.
+        /// </summary>
+        public static string FtpHost {
+            get {
+                return ResourceManager.GetString("FtpHost", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Port:.
+        /// </summary>
+        public static string FtpPort {
+            get {
+                return ResourceManager.GetString("FtpPort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Username:.
+        /// </summary>
+        public static string FtpUsername {
+            get {
+                return ResourceManager.GetString("FtpUsername", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password:.
+        /// </summary>
+        public static string FtpPassword {
+            get {
+                return ResourceManager.GetString("FtpPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Anonymous login.
+        /// </summary>
+        public static string FtpAnonymous {
+            get {
+                return ResourceManager.GetString("FtpAnonymous", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect.
+        /// </summary>
+        public static string FtpConnectButton {
+            get {
+                return ResourceManager.GetString("FtpConnectButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to connect to FTP server: {0}.
+        /// </summary>
+        public static string FtpConnectionFailed {
+            get {
+                return ResourceManager.GetString("FtpConnectionFailed", resourceCulture);
+            }
+        }
     }
 }

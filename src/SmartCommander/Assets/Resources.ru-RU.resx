@@ -408,4 +408,40 @@
   <data name="License" xml:space="preserve">
     <value>Лицензия: GNU General Public License v3.0</value>
   </data>
+  <data name="MenuFtp" xml:space="preserve">
+    <value>_FTP</value>
+  </data>
+  <data name="MenuFtpConnect" xml:space="preserve">
+    <value>_Подключиться...</value>
+  </data>
+  <data name="MenuFtpDisconnect" xml:space="preserve">
+    <value>_Отключиться</value>
+  </data>
+  <data name="FtpConnectTitle" xml:space="preserve">
+    <value>Подключение к FTP-серверу</value>
+  </data>
+  <data name="FtpSavedConnections" xml:space="preserve">
+    <value>Сохранённые подключения:</value>
+  </data>
+  <data name="FtpHost" xml:space="preserve">
+    <value>Хост:</value>
+  </data>
+  <data name="FtpPort" xml:space="preserve">
+    <value>Порт:</value>
+  </data>
+  <data name="FtpUsername" xml:space="preserve">
+    <value>Имя пользователя:</value>
+  </data>
+  <data name="FtpPassword" xml:space="preserve">
+    <value>Пароль:</value>
+  </data>
+  <data name="FtpAnonymous" xml:space="preserve">
+    <value>Анонимный вход</value>
+  </data>
+  <data name="FtpConnectButton" xml:space="preserve">
+    <value>Подключиться</value>
+  </data>
+  <data name="FtpConnectionFailed" xml:space="preserve">
+    <value>Не удалось подключиться к FTP-серверу: {0}</value>
+  </data>
 </root>

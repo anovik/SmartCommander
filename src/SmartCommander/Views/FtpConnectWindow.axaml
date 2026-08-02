@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:CompileBindings="False"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="380" d:DesignHeight="340"
+        Width="380" Height="340"
+        x:Class="SmartCommander.Views.FtpConnectWindow"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        xmlns:assets="clr-namespace:SmartCommander.Assets"
+        Icon="/Assets/main.ico"
+        CanResize="False"
+        Title="{x:Static assets:Resources.FtpConnectTitle}">
+	<Grid Margin="15">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<StackPanel Grid.Row="0" Spacing="6">
+			<TextBlock Text="{x:Static assets:Resources.FtpSavedConnections}"/>
+			<ComboBox ItemsSource="{Binding SavedConnections}" SelectedItem="{Binding SelectedConnection, Mode=TwoWay}"
+					  HorizontalAlignment="Stretch">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Name}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<TextBlock Text="{x:Static assets:Resources.FtpHost}" Margin="0,8,0,0"/>
+			<TextBox Text="{Binding Host, Mode=TwoWay}" Name="HostTextBox"/>
+
+			<TextBlock Text="{x:Static assets:Resources.FtpPort}"/>
+			<NumericUpDown Value="{Binding Port, Mode=TwoWay}" Minimum="1" Maximum="65535" FormatString="0"/>
+
+			<CheckBox IsChecked="{Binding Anonymous, Mode=TwoWay}" Content="{x:Static assets:Resources.FtpAnonymous}"/>
+
+			<TextBlock Text="{x:Static assets:Resources.FtpUsername}" IsEnabled="{Binding !Anonymous}"/>
+			<TextBox Text="{Binding Username, Mode=TwoWay}" IsEnabled="{Binding !Anonymous}"/>
+
+			<TextBlock Text="{x:Static assets:Resources.FtpPassword}" IsEnabled="{Binding !Anonymous}"/>
+			<TextBox Text="{Binding Password, Mode=TwoWay}" PasswordChar="●" IsEnabled="{Binding !Anonymous}"/>
+		</StackPanel>
+
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+			<Button Margin="5" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}" IsDefault="True"
+					Content="{x:Static assets:Resources.FtpConnectButton}"/>
+			<Button Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}" IsCancel="True"
+					Content="{x:Static assets:Resources.Cancel}"/>
+		</StackPanel>
+	</Grid>
+</Window>

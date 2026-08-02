@@ -553,7 +553,7 @@ namespace SmartCommander.ViewModels
 
         public async Task CreateNewFolder(string name)
         {
-            string newFolder = Path.Combine(CurrentDirectory, name);
+            string newFolder = RemotePath.CombineChild(CurrentDirectory, name);
             if (await _fs.DirectoryExistsAsync(newFolder))
             {
                 MessageBox_Show(null, Resources.FolderExists, Resources.Alert, ButtonEnum.Ok);
@@ -629,7 +629,8 @@ namespace SmartCommander.ViewModels
             string? selectedDrive;
             try
             {
-                if (!await _fs.DirectoryExistsAsync(dir, cts.Token) || !Path.IsPathFullyQualified(dir))
+                if (!await _fs.DirectoryExistsAsync(dir, cts.Token) ||
+                    (!RemotePath.IsFtp(dir) && !Path.IsPathFullyQualified(dir)))
                 {
                     return;
                 }
@@ -749,7 +750,9 @@ namespace SmartCommander.ViewModels
                 _pendingScrollTargetFullName = null;
             }
 
-            if (OperatingSystem.IsWindows())
+            // The drive combo is local-drives-only (menu-only FTP connect, no per-pane FTP UI);
+            // an ftp:// path has no drive to select there.
+            if (OperatingSystem.IsWindows() && !RemotePath.IsFtp(dir))
             {
                 SelectedDrive = selectedDrive;
             }
