@@ -39,7 +39,7 @@
 				<MenuItem Header="{x:Static assets:Resources.Paste}"
 						  Command="{Binding PasteCommand}" />
 				<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
-						  IsVisible="{Binding IsWindows}"
+						  IsVisible="{Binding CanShowMoreOptions}"
 						  Command="{Binding ShowMoreOptionsCommand}" />
 			</MenuFlyout>
 		</Grid.ContextFlyout>
@@ -50,12 +50,13 @@
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 
-			<TextBox IsTabStop="False" Text="{Binding CurrentDirectory}" />
+			<TextBox IsTabStop="False" Text="{Binding CurrentDirectory}" IsEnabled="{Binding !IsFtp}" />
 			<ComboBox Grid.Column="1"
                       IsVisible="{Binding IsWindows}"
                       Name="driveCombo"
                       SelectedItem="{Binding SelectedDrive, Mode=TwoWay}"
-                      IsTabStop="False"/>
+                      IsTabStop="False"
+                      IsEnabled="{Binding !IsFtp}"/>
 		</Grid>
 
 		<DataGrid Name="PaneDataGrid"
@@ -88,17 +89,30 @@
 				<MenuFlyout>
 					<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}" />
-					<MenuItem Header="{x:Static assets:Resources.Copy}" Command="{Binding CopyCommand}" />
-					<MenuItem Header="{x:Static assets:Resources.Cut}" Command="{Binding CutCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Copy}"
+                              IsVisible="{Binding ShowLocalCopyCut}"
+                              Command="{Binding CopyCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Cut}"
+                              IsVisible="{Binding ShowLocalCopyCut}"
+                              Command="{Binding CutCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Download}"
+                              IsVisible="{Binding ShowDownload}"
+                              Command="{Binding TransferCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Upload}"
+                              IsVisible="{Binding ShowUpload}"
+                              Command="{Binding TransferCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Move}"
+                              IsVisible="{Binding !ShowLocalCopyCut}"
+                              Command="{Binding FtpMoveCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Delete}" Command="{Binding DeleteCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Zip}"
-                              IsVisible="{Binding !IsUnzip, Mode=TwoWay}"
+                              IsVisible="{Binding ShowZip, Mode=TwoWay}"
                               Command="{Binding ZipCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Unzip}"
-                              IsVisible="{Binding IsUnzip, Mode=TwoWay}"
+                              IsVisible="{Binding ShowUnzip, Mode=TwoWay}"
                               Command="{Binding UnzipCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
-                              IsVisible="{Binding IsWindows}"
+                              IsVisible="{Binding CanShowMoreOptions}"
                               Command="{Binding ShowMoreOptionsCommand}" />
 				</MenuFlyout>
 			</DataGrid.ContextFlyout>

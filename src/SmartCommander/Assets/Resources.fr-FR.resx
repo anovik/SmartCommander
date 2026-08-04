@@ -127,13 +127,13 @@
     <value>Annuler</value>
   </data>
   <data name="CantCopyFileHere" xml:space="preserve">
-    <value>Impossible de copier le fichier ici</value>
+    <value>Impossible de copier le fichier ici : {0}</value>
   </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Impossible de copier les fichiers dans le même dossier</value>
   </data>
   <data name="CantCopyFolderHere" xml:space="preserve">
-    <value>Impossible de copier le dossier ici</value>
+    <value>Impossible de copier le dossier ici : {0}</value>
   </data>
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Impossible de copier le dossier vers lui-même</value>
@@ -144,20 +144,29 @@
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Impossible de créer le dossier</value>
   </data>
+  <data name="CantDeleteFileHere" xml:space="preserve">
+    <value>Impossible de supprimer le fichier ici : {0}</value>
+  </data>
+  <data name="CantDeleteFolderHere" xml:space="preserve">
+    <value>Impossible de supprimer le dossier ici : {0}</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Impossible d'éditer le dossier</value>
   </data>
   <data name="CantExtractArchive" xml:space="preserve">
     <value>Impossible d'extraire l'archive {0}</value>
   </data>
+  <data name="CantLoadDirectory" xml:space="preserve">
+    <value>Impossible de charger le dossier : {0}</value>
+  </data>
   <data name="CantMoveFileHere" xml:space="preserve">
-    <value>Impossible de déplacer le fichier ici</value>
+    <value>Impossible de déplacer le fichier ici : {0}</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Impossible de déplacer les fichiers dans le même dossier</value>
   </data>
   <data name="CantMoveFolderHere" xml:space="preserve">
-    <value>Impossible de déplacer le dossier ici</value>
+    <value>Impossible de déplacer le dossier ici : {0}</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
     <value>Impossible de déplacer le dossier vers lui-même</value>
@@ -443,5 +452,20 @@
   </data>
   <data name="FtpConnectionFailed" xml:space="preserve">
     <value>Échec de la connexion au serveur FTP : {0}</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Télécharger</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Move" xml:space="preserve">
+    <value>Déplacer</value>
+  </data>
+  <data name="CantViewFtpFile" xml:space="preserve">
+    <value>L'affichage des fichiers FTP n'est pas encore pris en charge</value>
+  </data>
+  <data name="CantEditFtpFile" xml:space="preserve">
+    <value>L'édition des fichiers FTP n'est pas encore prise en charge</value>
   </data>
 </root>

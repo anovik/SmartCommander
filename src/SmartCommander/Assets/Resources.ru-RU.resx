@@ -127,13 +127,13 @@
     <value>Отмена</value>
   </data>
   <data name="CantCopyFileHere" xml:space="preserve">
-    <value>Невозможно скопировать файл сюда</value>
+    <value>Невозможно скопировать файл сюда: {0}</value>
   </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Невозможно скопировать файлы в ту же директорию</value>
   </data>
   <data name="CantCopyFolderHere" xml:space="preserve">
-    <value>Невозможно скопировать папку сюда</value>
+    <value>Невозможно скопировать папку сюда: {0}</value>
   </data>
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Невозможно скопировать папку в саму себя</value>
@@ -144,20 +144,29 @@
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Невозможно создать папку</value>
   </data>
+  <data name="CantDeleteFileHere" xml:space="preserve">
+    <value>Невозможно удалить файл: {0}</value>
+  </data>
+  <data name="CantDeleteFolderHere" xml:space="preserve">
+    <value>Невозможно удалить папку: {0}</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Невозможно редактировать папку</value>
   </data>
   <data name="CantExtractArchive" xml:space="preserve">
     <value>Невозможно распаковать архив {0}</value>
   </data>
+  <data name="CantLoadDirectory" xml:space="preserve">
+    <value>Невозможно загрузить папку: {0}</value>
+  </data>
   <data name="CantMoveFileHere" xml:space="preserve">
-    <value>Невозможно переместить файл сюда</value>
+    <value>Невозможно переместить файл сюда: {0}</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Невозможно переместить файлы в ту же директорию</value>
   </data>
   <data name="CantMoveFolderHere" xml:space="preserve">
-    <value>Невозможно переместить папку сюда</value>
+    <value>Невозможно переместить папку сюда: {0}</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
     <value>Невозможно переместить папку в саму себя</value>
@@ -443,5 +452,20 @@
   </data>
   <data name="FtpConnectionFailed" xml:space="preserve">
     <value>Не удалось подключиться к FTP-серверу: {0}</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Скачать</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Загрузить</value>
+  </data>
+  <data name="Move" xml:space="preserve">
+    <value>Переместить</value>
+  </data>
+  <data name="CantViewFtpFile" xml:space="preserve">
+    <value>Просмотр файлов по FTP пока не поддерживается</value>
+  </data>
+  <data name="CantEditFtpFile" xml:space="preserve">
+    <value>Редактирование файлов по FTP пока не поддерживается</value>
   </data>
 </root>

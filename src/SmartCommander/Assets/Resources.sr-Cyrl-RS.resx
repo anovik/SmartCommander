@@ -127,13 +127,13 @@
     <value>Откажи</value>
   </data>
   <data name="CantCopyFileHere" xml:space="preserve">
-    <value>Овде не можете да копирате датотеку</value>
+    <value>Овде не можете да копирате датотеку: {0}</value>
   </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Не можете да копираjте датотеке у исту фасциклу</value>
   </data>
   <data name="CantCopyFolderHere" xml:space="preserve">
-    <value>Овде не можете да копирате фасциклу</value>
+    <value>Овде не можете да копирате фасциклу: {0}</value>
   </data>
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Не можете да копирате фасциклу у саму себе</value>
@@ -144,20 +144,29 @@
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Не можете да направите фасциклу</value>
   </data>
+  <data name="CantDeleteFileHere" xml:space="preserve">
+    <value>Овде не можете да обришете датотеку: {0}</value>
+  </data>
+  <data name="CantDeleteFolderHere" xml:space="preserve">
+    <value>Овде не можете да обришете фасциклу: {0}</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Не можете да уређиваjте фасциклу</value>
   </data>
   <data name="CantExtractArchive" xml:space="preserve">
     <value>Не можете да распакујете архиву {0}</value>
   </data>
+  <data name="CantLoadDirectory" xml:space="preserve">
+    <value>Не можете да учитате директоријум: {0}</value>
+  </data>
   <data name="CantMoveFileHere" xml:space="preserve">
-    <value>Овде не можете да преместите датотеку</value>
+    <value>Овде не можете да преместите датотеку: {0}</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Не можете да преместите датотеке у исту фасциклу</value>
   </data>
   <data name="CantMoveFolderHere" xml:space="preserve">
-    <value>Овде не можете да преместите фасциклу</value>
+    <value>Овде не можете да преместите фасциклу: {0}</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
     <value>Не можете да премјестите фасциклу у саму себе</value>
@@ -443,5 +452,20 @@
   </data>
   <data name="FtpConnectionFailed" xml:space="preserve">
     <value>Повезивање на FTP сервер није успело: {0}</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Преузми</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Отпреми</value>
+  </data>
+  <data name="Move" xml:space="preserve">
+    <value>Премјести</value>
+  </data>
+  <data name="CantViewFtpFile" xml:space="preserve">
+    <value>Преглед FTP фајлова још није подржан</value>
+  </data>
+  <data name="CantEditFtpFile" xml:space="preserve">
+    <value>Уређивање FTP фајлова још није подржано</value>
   </data>
 </root>

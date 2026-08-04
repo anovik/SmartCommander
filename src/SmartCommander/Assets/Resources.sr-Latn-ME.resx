@@ -127,13 +127,13 @@
     <value>Otkaži</value>
   </data>
   <data name="CantCopyFileHere" xml:space="preserve">
-    <value>Ne možete da kopirate datoteku ovdje</value>
+    <value>Ne možete da kopirate datoteku ovdje: {0}</value>
   </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Ne možete da kopirajte datoteke u istu fasciklu</value>
   </data>
   <data name="CantCopyFolderHere" xml:space="preserve">
-    <value>Ne možete da kopirate fasciklu ovdje</value>
+    <value>Ne možete da kopirate fasciklu ovdje: {0}</value>
   </data>
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Ne možete da kopirate fasciklu u samu sebe</value>
@@ -144,20 +144,29 @@
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Ne možete da napravite fasciklu</value>
   </data>
+  <data name="CantDeleteFileHere" xml:space="preserve">
+    <value>Ne možete da obrišete datoteku ovdje: {0}</value>
+  </data>
+  <data name="CantDeleteFolderHere" xml:space="preserve">
+    <value>Ne možete da obrišete fasciklu ovdje: {0}</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Ne možete da uređivajte fasciklu</value>
   </data>
   <data name="CantExtractArchive" xml:space="preserve">
     <value>Ne možete da raspakujete arhivu {0}</value>
   </data>
+  <data name="CantLoadDirectory" xml:space="preserve">
+    <value>Ne možete da učitate direktorijum: {0}</value>
+  </data>
   <data name="CantMoveFileHere" xml:space="preserve">
-    <value>Ne možete da premjestite datoteku ovdje</value>
+    <value>Ne možete da premjestite datoteku ovdje: {0}</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Ne možete da premjestite datoteke u istu fasciklu</value>
   </data>
   <data name="CantMoveFolderHere" xml:space="preserve">
-    <value>Ne možete da premjestite fasciklu ovdje</value>
+    <value>Ne možete da premjestite fasciklu ovdje: {0}</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
     <value>Ne možete da premjestite fasciklu u samu sebe</value>
@@ -443,5 +452,20 @@
   </data>
   <data name="FtpConnectionFailed" xml:space="preserve">
     <value>Povezivanje na FTP server nije uspelo: {0}</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Preuzmi</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Otpremi</value>
+  </data>
+  <data name="Move" xml:space="preserve">
+    <value>Premjesti</value>
+  </data>
+  <data name="CantViewFtpFile" xml:space="preserve">
+    <value>Pregled FTP fajlova još nije podržan</value>
+  </data>
+  <data name="CantEditFtpFile" xml:space="preserve">
+    <value>Uređivanje FTP fajlova još nije podržano</value>
   </data>
 </root>

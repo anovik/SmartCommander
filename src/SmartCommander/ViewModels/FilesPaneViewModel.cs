@@ -55,6 +55,7 @@ namespace SmartCommander.ViewModels
             {
                 _currentDirectory = value;
                 this.RaisePropertyChanged(nameof(CurrentDirectory));
+                this.RaisePropertyChanged(nameof(IsFtp));
                 _ = LoadDirectoryAsync(value);
             }
         }
@@ -73,6 +74,19 @@ namespace SmartCommander.ViewModels
         public List<FileViewModel> CurrentItems { get; set; } = new List<FileViewModel>();
 
         public bool IsUnzip => CurrentItems.Count > 0 && CurrentItems[0].Extension == "zip";
+
+        public bool IsFtp => RemotePath.IsFtp(CurrentDirectory);
+
+        private MainWindowViewModel.FtpTransferMenuMode TransferMenuMode =>
+            MainWindowViewModel.DetermineFtpTransferMenuMode(IsFtp, RemotePath.IsFtp(_mainVM.OtherPane(this).CurrentDirectory));
+
+        public bool ShowLocalCopyCut => TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.LocalClipboard;
+        public bool ShowDownload => TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.Download;
+        public bool ShowUpload => TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.Upload;
+
+        public bool ShowZip => !IsFtp && !IsUnzip;
+        public bool ShowUnzip => !IsFtp && IsUnzip;
+        public bool CanShowMoreOptions => !IsFtp && IsWindows;
 
         private bool _canPaste;
         public bool CanPaste
@@ -136,6 +150,7 @@ namespace SmartCommander.ViewModels
         public FilesPaneViewModel(MainWindowViewModel mainVM, EventHandler focusHandler, IFileSystemService fs)
         {
             _fs = fs;
+            _mainVM = mainVM;
             CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
@@ -143,12 +158,13 @@ namespace SmartCommander.ViewModels
             UnzipCommand = ReactiveCommand.CreateFromTask(Unzip);
             CopyCommand = ReactiveCommand.CreateFromTask(Copy);
             CutCommand = ReactiveCommand.CreateFromTask(Cut);
+            TransferCommand = ReactiveCommand.CreateFromTask(() => _mainVM.Copy());
+            FtpMoveCommand = ReactiveCommand.CreateFromTask(() => _mainVM.Move());
             DeleteCommand = ReactiveCommand.CreateFromTask(Delete);
             PasteCommand = ReactiveCommand.CreateFromTask(Paste, this.WhenAnyValue(x => x.CanPaste));
             ShowMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowMoreOptions);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
             ShowWindowsContextMenuInteraction = new Interaction<string[], Unit>();
-            _mainVM = mainVM;
             FocusChanged += focusHandler;
         }
 
@@ -165,6 +181,8 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
         public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
         public ReactiveCommand<Unit, Unit>? CutCommand { get; }
+        public ReactiveCommand<Unit, Unit>? TransferCommand { get; }
+        public ReactiveCommand<Unit, Unit>? FtpMoveCommand { get; }
         public ReactiveCommand<Unit, Unit>? DeleteCommand { get; }
         public ReactiveCommand<Unit, Unit>? PasteCommand { get; }
         public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
@@ -320,6 +338,11 @@ namespace SmartCommander.ViewModels
                 resultAction?.Invoke(ButtonResult.Ok, null);
                 return;
             }
+            if (IsFtp)
+            {
+                MessageBox_Show(resultAction, Resources.CantViewFtpFile, Resources.Alert, ButtonEnum.Ok);
+                return;
+            }
             if (!CurrentItem.IsFolder)
             {
                 if (ulong.TryParse(CurrentItem.Size, out var fileSize) && fileSize > 128 * 1024 * 1024)
@@ -347,6 +370,11 @@ namespace SmartCommander.ViewModels
             if (CurrentItem == null)
             {
                 resultAction?.Invoke(ButtonResult.Ok, null);
+                return;
+            }
+            if (IsFtp)
+            {
+                MessageBox_Show(resultAction, Resources.CantEditFtpFile, Resources.Alert, ButtonEnum.Ok);
                 return;
             }
             if (!CurrentItem.IsFolder)
@@ -648,6 +676,12 @@ namespace SmartCommander.ViewModels
             {
                 return;
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to load directory {Dir}", dir);
+                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, ex.Message), Resources.Alert);
+                return;
+            }
 
             var filter = new DirectoryListingFilter(
                 IncludeHidden: OptionsModel.Instance.IsHiddenSystemFilesDisplayed,
@@ -670,6 +704,7 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to load directory {Dir}", dir);
+                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, ex.Message), Resources.Alert);
                 return;
             }
 
@@ -694,6 +729,7 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to build entries for {Dir}", dir);
+                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, ex.Message), Resources.Alert);
                 return;
             }
 

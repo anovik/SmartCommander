@@ -58,7 +58,7 @@ namespace SmartCommander.ViewModels
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
             AboutCommand = ReactiveCommand.CreateFromTask(ShowAbout);
 
-            ConnectFtpCommand = ReactiveCommand.CreateFromTask(ConnectFtp);
+            ConnectFtpCommand = ReactiveCommand.CreateFromTask(ConnectFtp, this.WhenAnyValue(x => x.IsFtpConnected).Select(c => !c));
             DisconnectFtpCommand = ReactiveCommand.CreateFromTask(DisconnectFtp, this.WhenAnyValue(x => x.IsFtpConnected));
 
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
@@ -213,6 +213,9 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
+
+        internal FilesPaneViewModel OtherPane(FilesPaneViewModel pane) =>
+            pane == LeftFileViewModel ? RightFileViewModel : LeftFileViewModel;
 
         private FilesPaneViewModel _selectedPane = null!;
         public FilesPaneViewModel SelectedPane
@@ -761,7 +764,8 @@ namespace SmartCommander.ViewModels
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex)
                     {
-                        MessageBox_Show(null, move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, Resources.Alert);
+                        MessageBox_Show(null, string.Format(
+                            move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, ex.Message), Resources.Alert);
                         throw new IOException($"Can't {(move ? "move" : "copy")} folder {fullName}", ex);
                     }
                 }
@@ -777,7 +781,8 @@ namespace SmartCommander.ViewModels
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex)
                     {
-                        MessageBox_Show(null, move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, Resources.Alert);
+                        MessageBox_Show(null, string.Format(
+                            move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, ex.Message), Resources.Alert);
                         throw new IOException($"Can't {(move ? "move" : "copy")} file {fullName}", ex);
                     }
                 }
@@ -814,7 +819,7 @@ namespace SmartCommander.ViewModels
             // At most one FTP connection is ever active app-wide; if the other pane currently
             // shows it, navigate it back to local first so it isn't left pointing at a
             // connection that's about to be replaced.
-            var otherPane = SelectedPane == LeftFileViewModel ? RightFileViewModel : LeftFileViewModel;
+            var otherPane = OtherPane(SelectedPane);
             if (RemotePath.IsFtp(otherPane.CurrentDirectory))
             {
                 otherPane.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
@@ -822,7 +827,11 @@ namespace SmartCommander.ViewModels
 
             try
             {
-                await _fs.ConnectFtpAsync(result.Host, result.Port, result.Username, result.Password, result.Anonymous, CancellationToken.None);
+                // A hung/unresponsive server (or a firewall silently dropping the connection
+                // attempt) would otherwise block the connect dialog forever with no feedback
+                // and no way to cancel - bound it instead of passing CancellationToken.None.
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                await _fs.ConnectFtpAsync(result.Host, result.Port, result.Username, result.Password, result.Anonymous, cts.Token);
             }
             catch (Exception ex)
             {
@@ -974,17 +983,44 @@ namespace SmartCommander.ViewModels
             foreach (var (fullName, isFolder) in items)
             {
                 ct.ThrowIfCancellationRequested();
-                if (isFolder)
+                try
                 {
-                    await _fs.DeleteDirectoryAsync(fullName, ct);
+                    if (isFolder)
+                    {
+                        await _fs.DeleteDirectoryAsync(fullName, ct);
+                    }
+                    else
+                    {
+                        await _fs.DeleteFileAsync(fullName);
+                    }
                 }
-                else
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex)
                 {
-                    await _fs.DeleteFileAsync(fullName);
+                    MessageBox_Show(null, string.Format(
+                        isFolder ? Resources.CantDeleteFolderHere : Resources.CantDeleteFileHere, ex.Message), Resources.Alert);
+                    throw new IOException($"Can't delete {(isFolder ? "folder" : "file")} {fullName}", ex);
                 }
                 done++;
                 progress.Report(done * 100 / total);
             }
+        }
+
+        internal enum FtpTransferMenuMode { LocalClipboard, Download, Upload }
+
+        // At most one FTP connection is ever active app-wide, so a pane is never both
+        // "the FTP pane" and "the other pane while FTP is active" at once.
+        internal static FtpTransferMenuMode DetermineFtpTransferMenuMode(bool paneIsFtp, bool otherPaneIsFtp)
+        {
+            if (paneIsFtp)
+            {
+                return FtpTransferMenuMode.Download;
+            }
+            if (otherPaneIsFtp)
+            {
+                return FtpTransferMenuMode.Upload;
+            }
+            return FtpTransferMenuMode.LocalClipboard;
         }
 
         internal static bool IsDestinationInsideSource(string sourceFolder, string destination)

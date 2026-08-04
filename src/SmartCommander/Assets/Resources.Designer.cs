@@ -97,7 +97,7 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t copy file here.
+        ///   Looks up a localized string similar to Can&apos;t copy file here: {0}.
         /// </summary>
         public static string CantCopyFileHere {
             get {
@@ -115,7 +115,7 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t copy folder here.
+        ///   Looks up a localized string similar to Can&apos;t copy folder here: {0}.
         /// </summary>
         public static string CantCopyFolderHere {
             get {
@@ -151,6 +151,24 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t delete file here: {0}.
+        /// </summary>
+        public static string CantDeleteFileHere {
+            get {
+                return ResourceManager.GetString("CantDeleteFileHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t delete folder here: {0}.
+        /// </summary>
+        public static string CantDeleteFolderHere {
+            get {
+                return ResourceManager.GetString("CantDeleteFolderHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t edit the folder.
         /// </summary>
         public static string CantEditFolder {
@@ -169,7 +187,16 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t move file here.
+        ///   Looks up a localized string similar to Can&apos;t load directory: {0}.
+        /// </summary>
+        public static string CantLoadDirectory {
+            get {
+                return ResourceManager.GetString("CantLoadDirectory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t move file here: {0}.
         /// </summary>
         public static string CantMoveFileHere {
             get {
@@ -187,7 +214,7 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t move folder here.
+        ///   Looks up a localized string similar to Can&apos;t move folder here: {0}.
         /// </summary>
         public static string CantMoveFolderHere {
             get {
@@ -1038,6 +1065,51 @@ namespace SmartCommander.Assets {
         public static string FtpConnectionFailed {
             get {
                 return ResourceManager.GetString("FtpConnectionFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        public static string Download {
+            get {
+                return ResourceManager.GetString("Download", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upload.
+        /// </summary>
+        public static string Upload {
+            get {
+                return ResourceManager.GetString("Upload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Move.
+        /// </summary>
+        public static string Move {
+            get {
+                return ResourceManager.GetString("Move", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Viewing FTP files isn't supported yet.
+        /// </summary>
+        public static string CantViewFtpFile {
+            get {
+                return ResourceManager.GetString("CantViewFtpFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Editing FTP files isn't supported yet.
+        /// </summary>
+        public static string CantEditFtpFile {
+            get {
+                return ResourceManager.GetString("CantEditFtpFile", resourceCulture);
             }
         }
     }
