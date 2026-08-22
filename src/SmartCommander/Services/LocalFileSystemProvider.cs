@@ -35,6 +35,9 @@ namespace SmartCommander.Services
         public Task<bool> DirectoryExistsAsync(string path, CancellationToken ct = default) =>
             Task.Run(() => Directory.Exists(path), ct);
 
+        public Task<bool> FileExistsAsync(string path, CancellationToken ct = default) =>
+            Task.Run(() => File.Exists(path), ct);
+
         // Pure path math, no disk I/O — completes synchronously.
         public Task<string?> GetDirectoryParentAsync(string path, CancellationToken ct = default) =>
             Task.FromResult(Directory.GetParent(path)?.FullName);

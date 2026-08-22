@@ -97,7 +97,7 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t copy file here.
+        ///   Looks up a localized string similar to Can&apos;t copy file here: {0}.
         /// </summary>
         public static string CantCopyFileHere {
             get {
@@ -115,7 +115,7 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t copy folder here.
+        ///   Looks up a localized string similar to Can&apos;t copy folder here: {0}.
         /// </summary>
         public static string CantCopyFolderHere {
             get {
@@ -151,6 +151,24 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t delete file here: {0}.
+        /// </summary>
+        public static string CantDeleteFileHere {
+            get {
+                return ResourceManager.GetString("CantDeleteFileHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t delete folder here: {0}.
+        /// </summary>
+        public static string CantDeleteFolderHere {
+            get {
+                return ResourceManager.GetString("CantDeleteFolderHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t edit the folder.
         /// </summary>
         public static string CantEditFolder {
@@ -169,7 +187,16 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t move file here.
+        ///   Looks up a localized string similar to Can&apos;t load directory: {0}.
+        /// </summary>
+        public static string CantLoadDirectory {
+            get {
+                return ResourceManager.GetString("CantLoadDirectory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t move file here: {0}.
         /// </summary>
         public static string CantMoveFileHere {
             get {
@@ -187,7 +214,7 @@ namespace SmartCommander.Assets {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t move folder here.
+        ///   Looks up a localized string similar to Can&apos;t move folder here: {0}.
         /// </summary>
         public static string CantMoveFolderHere {
             get {
@@ -930,6 +957,168 @@ namespace SmartCommander.Assets {
         public static string License {
             get {
                 return ResourceManager.GetString("License", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _FTP.
+        /// </summary>
+        public static string MenuFtp {
+            get {
+                return ResourceManager.GetString("MenuFtp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Connect....
+        /// </summary>
+        public static string MenuFtpConnect {
+            get {
+                return ResourceManager.GetString("MenuFtpConnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Disconnect.
+        /// </summary>
+        public static string MenuFtpDisconnect {
+            get {
+                return ResourceManager.GetString("MenuFtpDisconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect to FTP Server.
+        /// </summary>
+        public static string FtpConnectTitle {
+            get {
+                return ResourceManager.GetString("FtpConnectTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved connections:.
+        /// </summary>
+        public static string FtpSavedConnections {
+            get {
+                return ResourceManager.GetString("FtpSavedConnections", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Host:.
+        /// </summary>
+        public static string FtpHost {
+            get {
+                return ResourceManager.GetString("FtpHost", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Port:.
+        /// </summary>
+        public static string FtpPort {
+            get {
+                return ResourceManager.GetString("FtpPort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Username:.
+        /// </summary>
+        public static string FtpUsername {
+            get {
+                return ResourceManager.GetString("FtpUsername", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password:.
+        /// </summary>
+        public static string FtpPassword {
+            get {
+                return ResourceManager.GetString("FtpPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Anonymous login.
+        /// </summary>
+        public static string FtpAnonymous {
+            get {
+                return ResourceManager.GetString("FtpAnonymous", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect.
+        /// </summary>
+        public static string FtpConnectButton {
+            get {
+                return ResourceManager.GetString("FtpConnectButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to connect to FTP server: {0}.
+        /// </summary>
+        public static string FtpConnectionFailed {
+            get {
+                return ResourceManager.GetString("FtpConnectionFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        public static string Download {
+            get {
+                return ResourceManager.GetString("Download", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upload.
+        /// </summary>
+        public static string Upload {
+            get {
+                return ResourceManager.GetString("Upload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Move.
+        /// </summary>
+        public static string Move {
+            get {
+                return ResourceManager.GetString("Move", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Viewing FTP files isn't supported yet.
+        /// </summary>
+        public static string CantViewFtpFile {
+            get {
+                return ResourceManager.GetString("CantViewFtpFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Editing FTP files isn't supported yet.
+        /// </summary>
+        public static string CantEditFtpFile {
+            get {
+                return ResourceManager.GetString("CantEditFtpFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opening FTP files isn't supported yet.
+        /// </summary>
+        public static string CantOpenFtpFile {
+            get {
+                return ResourceManager.GetString("CantOpenFtpFile", resourceCulture);
             }
         }
     }

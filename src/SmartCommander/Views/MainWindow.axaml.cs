@@ -40,6 +40,9 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowAboutDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<AboutViewModel, AboutWindow>(interaction)
             )));
+            this.WhenActivated(d => d(ViewModel!.ShowFtpConnectDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<FtpConnectViewModel, FtpConnectWindow>(interaction)
+            )));
 
             operationsWindow = new OperationsWindow();
 

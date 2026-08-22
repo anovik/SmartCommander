@@ -14,6 +14,7 @@ namespace SmartCommander.Services
         Task<IReadOnlyList<string>> GetDirectoriesAsync(string path, DirectoryListingFilter filter, CancellationToken ct);
         Task<IReadOnlyList<string>> GetFilesAsync(string path, DirectoryListingFilter filter, CancellationToken ct);
         Task<bool> DirectoryExistsAsync(string path, CancellationToken ct = default);
+        Task<bool> FileExistsAsync(string path, CancellationToken ct = default);
         Task<string?> GetDirectoryParentAsync(string path, CancellationToken ct = default);
         Task<string?> GetPathRootAsync(string path, CancellationToken ct = default);
 

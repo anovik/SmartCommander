@@ -34,6 +34,7 @@ namespace SmartCommander.ViewModels
             ShowOptionsDialog = new Interaction<OptionsViewModel, OptionsViewModel?>();
             ShowSearchDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
             ShowAboutDialog = new Interaction<AboutViewModel, AboutViewModel?>();
+            ShowFtpConnectDialog = new Interaction<FtpConnectViewModel, FtpConnectViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -57,15 +58,21 @@ namespace SmartCommander.ViewModels
             OptionsCommand = ReactiveCommand.CreateFromTask(ShowOptions);
             AboutCommand = ReactiveCommand.CreateFromTask(ShowAbout);
 
+            ConnectFtpCommand = ReactiveCommand.CreateFromTask(ConnectFtp, this.WhenAnyValue(x => x.IsFtpConnected).Select(c => !c));
+            DisconnectFtpCommand = ReactiveCommand.CreateFromTask(DisconnectFtp, this.WhenAnyValue(x => x.IsFtpConnected));
+
             LeftFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
             RightFileViewModel = new FilesPaneViewModel(this, OnFocusChanged, _fs);
             SelectedPane = RightFileViewModel;
 
-            if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath))
+            // A saved ftp:// path has no live connection behind it on startup - FTP sessions
+            // aren't persisted across restart - so skip it and fall through to the pane's own
+            // default directory instead of silently trying to reconnect with no credentials.
+            if (!string.IsNullOrEmpty(OptionsModel.Instance.LeftPanePath) && !RemotePath.IsFtp(OptionsModel.Instance.LeftPanePath))
             {
                 LeftFileViewModel.CurrentDirectory = OptionsModel.Instance.LeftPanePath;
             }
-            if (!string.IsNullOrEmpty(OptionsModel.Instance.RightPanePath))
+            if (!string.IsNullOrEmpty(OptionsModel.Instance.RightPanePath) && !RemotePath.IsFtp(OptionsModel.Instance.RightPanePath))
             {
                 RightFileViewModel.CurrentDirectory = OptionsModel.Instance.RightPanePath;
             }
@@ -112,6 +119,11 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit> OptionsCommand { get; }
         public ReactiveCommand<Unit, Unit> AboutCommand { get; }
 
+        public ReactiveCommand<Unit, Unit> ConnectFtpCommand { get; }
+        public ReactiveCommand<Unit, Unit> DisconnectFtpCommand { get; }
+
+        public bool IsFtpConnected => _fs.IsFtpConnected;
+
         public FilesPaneViewModel LeftFileViewModel { get; }
 
         public FilesPaneViewModel RightFileViewModel { get; }
@@ -137,6 +149,7 @@ namespace SmartCommander.ViewModels
         public Interaction<OptionsViewModel, OptionsViewModel?> ShowOptionsDialog { get; }
         public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
         public Interaction<AboutViewModel, AboutViewModel?> ShowAboutDialog { get; }
+        public Interaction<FtpConnectViewModel, FtpConnectViewModel?> ShowFtpConnectDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -200,6 +213,9 @@ namespace SmartCommander.ViewModels
                 }
             }
         }
+
+        internal FilesPaneViewModel OtherPane(FilesPaneViewModel pane) =>
+            pane == LeftFileViewModel ? RightFileViewModel : LeftFileViewModel;
 
         private FilesPaneViewModel _selectedPane = null!;
         public FilesPaneViewModel SelectedPane
@@ -720,7 +736,7 @@ namespace SmartCommander.ViewModels
                 {
                     try
                     {
-                        string destFolder = Path.Combine(destDirectory, Path.GetFileName(fullName));
+                        string destFolder = RemotePath.CombineChild(destDirectory, Path.GetFileName(fullName));
                         if (move)
                         {
                             bool sameDrive = string.Equals(
@@ -748,7 +764,8 @@ namespace SmartCommander.ViewModels
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex)
                     {
-                        MessageBox_Show(null, move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, Resources.Alert);
+                        MessageBox_Show(null, string.Format(
+                            move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, DescribeException(ex)), Resources.Alert);
                         throw new IOException($"Can't {(move ? "move" : "copy")} folder {fullName}", ex);
                     }
                 }
@@ -756,7 +773,7 @@ namespace SmartCommander.ViewModels
                 {
                     try
                     {
-                        string destFile = Path.Combine(destDirectory, Path.GetFileName(fullName));
+                        string destFile = RemotePath.CombineChild(destDirectory, Path.GetFileName(fullName));
                         processedSize = await _fs.CopyFileAsync(
                             fullName, destFile, move, overwrite,
                             progress, processedSize, totalSize, ct);
@@ -764,7 +781,8 @@ namespace SmartCommander.ViewModels
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex)
                     {
-                        MessageBox_Show(null, move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, Resources.Alert);
+                        MessageBox_Show(null, string.Format(
+                            move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, DescribeException(ex)), Resources.Alert);
                         throw new IOException($"Can't {(move ? "move" : "copy")} file {fullName}", ex);
                     }
                 }
@@ -788,6 +806,68 @@ namespace SmartCommander.ViewModels
         public async Task ShowAbout()
         {
             await ShowAboutDialog.Handle(new AboutViewModel());
+        }
+
+        public async Task ConnectFtp()
+        {
+            var result = await ShowFtpConnectDialog.Handle(new FtpConnectViewModel());
+            if (result == null || !result.IsConfirmed)
+            {
+                return;
+            }
+
+            // At most one FTP connection is ever active app-wide; if the other pane currently
+            // shows it, navigate it back to local first so it isn't left pointing at a
+            // connection that's about to be replaced.
+            var otherPane = OtherPane(SelectedPane);
+            if (RemotePath.IsFtp(otherPane.CurrentDirectory))
+            {
+                otherPane.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            }
+
+            try
+            {
+                // A hung/unresponsive server (or a firewall silently dropping the connection
+                // attempt) would otherwise block the connect dialog forever with no feedback
+                // and no way to cancel - bound it instead of passing CancellationToken.None.
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                await _fs.ConnectFtpAsync(result.Host, result.Port, result.Username, result.Password, result.Anonymous, cts.Token);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "FTP connect failed for {Host}", result.Host);
+                MessageBox_Show(null, string.Format(Resources.FtpConnectionFailed, DescribeException(ex)), Resources.Alert, ButtonEnum.Ok);
+                return;
+            }
+
+            // Bumped here rather than on dialog OK-click, so a mistyped password or unreachable
+            // host doesn't move that profile to the top of the MRU dropdown ahead of profiles
+            // that have actually connected successfully.
+            var profile = FtpConnectionsModel.Instance.Connections.FirstOrDefault(c =>
+                c.Host == result.Host && c.Port == result.Port && c.Username == result.Username && c.Anonymous == result.Anonymous);
+            if (profile != null)
+            {
+                profile.LastUsed = DateTime.Now;
+                FtpConnectionsModel.Instance.Save();
+            }
+
+            this.RaisePropertyChanged(nameof(IsFtpConnected));
+            SelectedPane.CurrentDirectory = RemotePath.Combine("/");
+        }
+
+        public async Task DisconnectFtp()
+        {
+            var localHome = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            if (RemotePath.IsFtp(LeftFileViewModel.CurrentDirectory))
+            {
+                LeftFileViewModel.CurrentDirectory = localHome;
+            }
+            if (RemotePath.IsFtp(RightFileViewModel.CurrentDirectory))
+            {
+                RightFileViewModel.CurrentDirectory = localHome;
+            }
+            await _fs.DisconnectFtpAsync();
+            this.RaisePropertyChanged(nameof(IsFtpConnected));
         }
 
         private void SetTheme()
@@ -914,17 +994,44 @@ namespace SmartCommander.ViewModels
             foreach (var (fullName, isFolder) in items)
             {
                 ct.ThrowIfCancellationRequested();
-                if (isFolder)
+                try
                 {
-                    await _fs.DeleteDirectoryAsync(fullName, ct);
+                    if (isFolder)
+                    {
+                        await _fs.DeleteDirectoryAsync(fullName, ct);
+                    }
+                    else
+                    {
+                        await _fs.DeleteFileAsync(fullName);
+                    }
                 }
-                else
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex)
                 {
-                    await _fs.DeleteFileAsync(fullName);
+                    MessageBox_Show(null, string.Format(
+                        isFolder ? Resources.CantDeleteFolderHere : Resources.CantDeleteFileHere, DescribeException(ex)), Resources.Alert);
+                    throw new IOException($"Can't delete {(isFolder ? "folder" : "file")} {fullName}", ex);
                 }
                 done++;
                 progress.Report(done * 100 / total);
             }
+        }
+
+        internal enum FtpTransferMenuMode { LocalClipboard, Download, Upload }
+
+        // At most one FTP connection is ever active app-wide, so a pane is never both
+        // "the FTP pane" and "the other pane while FTP is active" at once.
+        internal static FtpTransferMenuMode DetermineFtpTransferMenuMode(bool paneIsFtp, bool otherPaneIsFtp)
+        {
+            if (paneIsFtp)
+            {
+                return FtpTransferMenuMode.Download;
+            }
+            if (otherPaneIsFtp)
+            {
+                return FtpTransferMenuMode.Upload;
+            }
+            return FtpTransferMenuMode.LocalClipboard;
         }
 
         internal static bool IsDestinationInsideSource(string sourceFolder, string destination)

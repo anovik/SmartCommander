@@ -127,13 +127,13 @@
     <value>Cancel</value>
   </data>
   <data name="CantCopyFileHere" xml:space="preserve">
-    <value>Can't copy file here</value>
+    <value>Can't copy file here: {0}</value>
   </data>
   <data name="CantCopyFileToItself" xml:space="preserve">
     <value>Can't copy files to the same directory</value>
   </data>
   <data name="CantCopyFolderHere" xml:space="preserve">
-    <value>Can't copy folder here</value>
+    <value>Can't copy folder here: {0}</value>
   </data>
   <data name="CantCopyFolderToItself" xml:space="preserve">
     <value>Can't copy folder to itself</value>
@@ -144,20 +144,29 @@
   <data name="CantCreateFolder" xml:space="preserve">
     <value>Can't create folder</value>
   </data>
+  <data name="CantDeleteFileHere" xml:space="preserve">
+    <value>Can't delete file here: {0}</value>
+  </data>
+  <data name="CantDeleteFolderHere" xml:space="preserve">
+    <value>Can't delete folder here: {0}</value>
+  </data>
   <data name="CantEditFolder" xml:space="preserve">
     <value>Can't edit the folder</value>
   </data>
   <data name="CantExtractArchive" xml:space="preserve">
     <value>Can't extract archive {0}</value>
   </data>
+  <data name="CantLoadDirectory" xml:space="preserve">
+    <value>Can't load directory: {0}</value>
+  </data>
   <data name="CantMoveFileHere" xml:space="preserve">
-    <value>Can't move file here</value>
+    <value>Can't move file here: {0}</value>
   </data>
   <data name="CantMoveFileToItself" xml:space="preserve">
     <value>Can't move files to the same directory</value>
   </data>
   <data name="CantMoveFolderHere" xml:space="preserve">
-    <value>Can't move folder here</value>
+    <value>Can't move folder here: {0}</value>
   </data>
   <data name="CantMoveFolderToItself" xml:space="preserve">
     <value>Can't move folder to itself</value>
@@ -407,5 +416,59 @@
   </data>
   <data name="License" xml:space="preserve">
     <value>License: GNU General Public License v3.0</value>
+  </data>
+  <data name="MenuFtp" xml:space="preserve">
+    <value>_FTP</value>
+  </data>
+  <data name="MenuFtpConnect" xml:space="preserve">
+    <value>_Connect...</value>
+  </data>
+  <data name="MenuFtpDisconnect" xml:space="preserve">
+    <value>_Disconnect</value>
+  </data>
+  <data name="FtpConnectTitle" xml:space="preserve">
+    <value>Connect to FTP Server</value>
+  </data>
+  <data name="FtpSavedConnections" xml:space="preserve">
+    <value>Saved connections:</value>
+  </data>
+  <data name="FtpHost" xml:space="preserve">
+    <value>Host:</value>
+  </data>
+  <data name="FtpPort" xml:space="preserve">
+    <value>Port:</value>
+  </data>
+  <data name="FtpUsername" xml:space="preserve">
+    <value>Username:</value>
+  </data>
+  <data name="FtpPassword" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="FtpAnonymous" xml:space="preserve">
+    <value>Anonymous login</value>
+  </data>
+  <data name="FtpConnectButton" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="FtpConnectionFailed" xml:space="preserve">
+    <value>Failed to connect to FTP server: {0}</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="Move" xml:space="preserve">
+    <value>Move</value>
+  </data>
+  <data name="CantViewFtpFile" xml:space="preserve">
+    <value>Viewing FTP files isn't supported yet</value>
+  </data>
+  <data name="CantEditFtpFile" xml:space="preserve">
+    <value>Editing FTP files isn't supported yet</value>
+  </data>
+  <data name="CantOpenFtpFile" xml:space="preserve">
+    <value>Opening FTP files isn't supported yet</value>
   </data>
 </root>
