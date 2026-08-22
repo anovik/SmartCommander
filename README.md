@@ -28,6 +28,8 @@ dotnet build src --configuration Release
   
 - All main operations with files/folders are supported(view, edit, copy, move, create new folder, delete, etc.)
 
+- FTP support (connect, browse, upload, download files and folders)
+
 - Creating and unzipping of ZIP archives
   
 - Unicode support
