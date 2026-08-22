@@ -7,11 +7,8 @@ using Xunit;
 
 namespace SmartCommander.Tests
 {
-    // Opt-in only: hits real public FTP servers, so these must stay out of the default
-    // `dotnet test` run (network-dependent, external services, inherently flaky). xUnit 2.9.3
-    // has no runtime-conditional Skip (that needs xUnit v3), so each test self-gates on an env
-    // var instead and no-ops (reports Passed, not Skipped) when it isn't set - a known,
-    // deliberate trade-off given the pinned xUnit version. Run with:
+    // Opt-in only: hits real public FTP servers, so these stay out of the default `dotnet test`
+    // run. Each test self-gates on an env var and no-ops (reports Passed) when it's unset. Run with:
     //   SMARTCOMMANDER_FTP_INTEGRATION_TESTS=1 dotnet test src/SmartCommander.Tests
     public class FtpIntegrationTests
     {
@@ -188,6 +185,53 @@ namespace SmartCommander.Tests
 
             await provider.DeleteDirectoryAsync(remoteDir);
             Assert.False(await provider.DirectoryExistsAsync(remoteDir));
+        }
+
+        // Read-write public test server (dlp-test.com - note the hyphen, a distinct host from
+        // dlptest.com above): host ftp.dlp-test.com, true anonymous login (no credentials needed).
+        private static async Task<FtpFileSystemProvider> ConnectDlpTestPubAsync()
+        {
+            var provider = new FtpFileSystemProvider();
+            await provider.ConnectAsync("ftp.dlp-test.com", 21, "anonymous", "", anonymous: true, CancellationToken.None);
+            return provider;
+        }
+
+        [Fact]
+        public async Task DlpTestPub_AnonymousListUploadDelete_RoundTrips()
+        {
+            if (!OptedIn)
+            {
+                return;
+            }
+
+            await using var provider = await ConnectDlpTestPubAsync();
+            var name = "SCTests_" + Guid.NewGuid().ToString("N") + ".txt";
+            var localSource = Path.Combine(Path.GetTempPath(), name);
+            var remotePath = RemotePath.CombineChild(RemotePath.Combine("/"), name);
+            File.WriteAllText(localSource, "SmartCommander FTP anonymous integration test");
+
+            try
+            {
+                // Listing must succeed anonymously before we ever touch upload/delete.
+                var dirsBeforeUpload = await provider.GetDirectoriesAsync(RemotePath.Combine("/"), new DirectoryListingFilter(), CancellationToken.None);
+                var filesBeforeUpload = await provider.GetFilesAsync(RemotePath.Combine("/"), new DirectoryListingFilter(), CancellationToken.None);
+                Assert.NotNull(dirsBeforeUpload);
+                Assert.DoesNotContain(filesBeforeUpload, f => f.EndsWith(name));
+
+                await provider.UploadFileAsync(localSource, remotePath, delete: false, overwrite: true,
+                    progress: null, processedSize: 0, totalSize: 0, CancellationToken.None);
+                Assert.True(await provider.FileExistsAsync(remotePath));
+
+                await provider.DeleteFileAsync(remotePath);
+                Assert.False(await provider.FileExistsAsync(remotePath));
+            }
+            finally
+            {
+                if (File.Exists(localSource))
+                {
+                    File.Delete(localSource);
+                }
+            }
         }
 
         [Fact]

@@ -765,7 +765,7 @@ namespace SmartCommander.ViewModels
                     catch (Exception ex)
                     {
                         MessageBox_Show(null, string.Format(
-                            move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, ex.Message), Resources.Alert);
+                            move ? Resources.CantMoveFolderHere : Resources.CantCopyFolderHere, DescribeException(ex)), Resources.Alert);
                         throw new IOException($"Can't {(move ? "move" : "copy")} folder {fullName}", ex);
                     }
                 }
@@ -782,7 +782,7 @@ namespace SmartCommander.ViewModels
                     catch (Exception ex)
                     {
                         MessageBox_Show(null, string.Format(
-                            move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, ex.Message), Resources.Alert);
+                            move ? Resources.CantMoveFileHere : Resources.CantCopyFileHere, DescribeException(ex)), Resources.Alert);
                         throw new IOException($"Can't {(move ? "move" : "copy")} file {fullName}", ex);
                     }
                 }
@@ -836,8 +836,19 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "FTP connect failed for {Host}", result.Host);
-                MessageBox_Show(null, string.Format(Resources.FtpConnectionFailed, ex.Message), Resources.Alert, ButtonEnum.Ok);
+                MessageBox_Show(null, string.Format(Resources.FtpConnectionFailed, DescribeException(ex)), Resources.Alert, ButtonEnum.Ok);
                 return;
+            }
+
+            // Bumped here rather than on dialog OK-click, so a mistyped password or unreachable
+            // host doesn't move that profile to the top of the MRU dropdown ahead of profiles
+            // that have actually connected successfully.
+            var profile = FtpConnectionsModel.Instance.Connections.FirstOrDefault(c =>
+                c.Host == result.Host && c.Port == result.Port && c.Username == result.Username && c.Anonymous == result.Anonymous);
+            if (profile != null)
+            {
+                profile.LastUsed = DateTime.Now;
+                FtpConnectionsModel.Instance.Save();
             }
 
             this.RaisePropertyChanged(nameof(IsFtpConnected));
@@ -998,7 +1009,7 @@ namespace SmartCommander.ViewModels
                 catch (Exception ex)
                 {
                     MessageBox_Show(null, string.Format(
-                        isFolder ? Resources.CantDeleteFolderHere : Resources.CantDeleteFileHere, ex.Message), Resources.Alert);
+                        isFolder ? Resources.CantDeleteFolderHere : Resources.CantDeleteFileHere, DescribeException(ex)), Resources.Alert);
                     throw new IOException($"Can't delete {(isFolder ? "folder" : "file")} {fullName}", ex);
                 }
                 done++;

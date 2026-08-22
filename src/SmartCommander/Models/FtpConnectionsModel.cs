@@ -16,6 +16,7 @@ namespace SmartCommander.Models
         public int Port { get; set; } = 21;
         public string Username { get; set; } = "";
         public bool Anonymous { get; set; }
+        public DateTime LastUsed { get; set; }
     }
 
     public class FtpConnectionsModel

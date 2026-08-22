@@ -7,11 +7,9 @@ using Xunit;
 
 namespace SmartCommander.Tests
 {
-    // Composite scheme-parsing and pairwise-dispatch tests. No real FTP connection is involved:
-    // the local side is a hand-written fake, and the ftp:// paths exercise the "no connection
-    // active" guard - the only FTP-provider-independent behavior the composite owns. Full FTP
-    // dispatch (an actual connection present) needs a live server, so it's covered separately
-    // by the opt-in integration tests in FtpIntegrationTests.cs.
+    // Composite scheme-parsing and pairwise-dispatch tests: a hand-written local fake plus the
+    // ftp:// "no connection active" guard. Dispatch against a real FTP connection is covered
+    // separately by the opt-in integration tests in FtpIntegrationTests.cs.
     public class FileSystemServiceTests
     {
         private const string LocalPath = @"C:\local\file.txt";

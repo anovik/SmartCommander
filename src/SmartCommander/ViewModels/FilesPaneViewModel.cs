@@ -622,6 +622,13 @@ namespace SmartCommander.ViewModels
                     CurrentDirectory = CurrentItem.FullName;
                 }
             }
+            else if (RemotePath.IsFtp(CurrentItem.FullName))
+            {
+                // UseShellExecute on an "ftp://" path hands it to the OS as a URL (opening a
+                // browser to a generic listing page) instead of launching a local application -
+                // there's no local file to open. Refuse instead of silently doing the wrong thing.
+                MessageBox_Show(null, Resources.CantOpenFtpFile, Resources.Alert, ButtonEnum.Ok);
+            }
             else
             {
                 // Callers discard the returned task, so a launch failure (e.g. no
@@ -679,7 +686,7 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to load directory {Dir}", dir);
-                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, ex.Message), Resources.Alert);
+                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, DescribeException(ex)), Resources.Alert);
                 return;
             }
 
@@ -704,7 +711,7 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to load directory {Dir}", dir);
-                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, ex.Message), Resources.Alert);
+                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, DescribeException(ex)), Resources.Alert);
                 return;
             }
 
@@ -729,7 +736,7 @@ namespace SmartCommander.ViewModels
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to build entries for {Dir}", dir);
-                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, ex.Message), Resources.Alert);
+                MessageBox_Show(null, string.Format(Resources.CantLoadDirectory, DescribeException(ex)), Resources.Alert);
                 return;
             }
 

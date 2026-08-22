@@ -468,4 +468,7 @@
   <data name="CantEditFtpFile" xml:space="preserve">
     <value>L'édition des fichiers FTP n'est pas encore prise en charge</value>
   </data>
+  <data name="CantOpenFtpFile" xml:space="preserve">
+    <value>L'ouverture des fichiers FTP n'est pas encore prise en charge</value>
+  </data>
 </root>

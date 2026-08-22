@@ -5,6 +5,7 @@ using MsBox.Avalonia.Enums;
 using ReactiveUI;
 using SmartCommander.Views;
 using System;
+using System.Collections.Generic;
 
 namespace SmartCommander.ViewModels
 {
@@ -36,9 +37,24 @@ namespace SmartCommander.ViewModels
         {
             if (this.MessageBoxInputRequest != null)
             {
-                this.MessageBoxInputRequest(this, new MvvmMessageBoxEventArgs(null, resultAction, messageBoxText, 
+                this.MessageBoxInputRequest(this, new MvvmMessageBoxEventArgs(null, resultAction, messageBoxText,
                     caption, ButtonEnum.OkCancel));
             }
+        }
+
+        // ex.Message alone is often just a wrapper like FluentFTP's "See InnerException for more
+        // info." - walk the chain so the actual server/network reason reaches the message box.
+        protected static string DescribeException(Exception ex)
+        {
+            var messages = new List<string>();
+            for (var e = ex; e != null; e = e.InnerException)
+            {
+                if (!string.IsNullOrWhiteSpace(e.Message) && !messages.Contains(e.Message))
+                {
+                    messages.Add(e.Message);
+                }
+            }
+            return string.Join(" ", messages);
         }
     }
 }

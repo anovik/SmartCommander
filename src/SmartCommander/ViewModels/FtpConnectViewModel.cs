@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using ReactiveUI;
 using SmartCommander.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
@@ -71,7 +72,10 @@ namespace SmartCommander.ViewModels
 
         public FtpConnectViewModel()
         {
-            SavedConnections = new ObservableCollection<FtpConnectionProfile>(FtpConnectionsModel.Instance.Connections);
+            // Most-recently-used first, so a connection just used to reconnect (or a brand new
+            // one, saved with LastUsed set below) surfaces at the top next time the dialog opens.
+            SavedConnections = new ObservableCollection<FtpConnectionProfile>(
+                FtpConnectionsModel.Instance.Connections.OrderByDescending(c => c.LastUsed));
             OKCommand = ReactiveCommand.Create<Window>(SaveClose);
             CancelCommand = ReactiveCommand.Create<Window>(Close);
         }
@@ -83,6 +87,10 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
+            // LastUsed is deliberately left unset here (default DateTime, sorts last) - it's only
+            // bumped by MainWindowViewModel.ConnectFtp once the connection actually succeeds, so
+            // a mistyped password or unreachable host doesn't move this profile to the top of the
+            // MRU dropdown.
             var existing = FtpConnectionsModel.Instance.Connections.FirstOrDefault(c =>
                 c.Host == Host && c.Port == Port && c.Username == Username && c.Anonymous == Anonymous);
             if (existing == null)

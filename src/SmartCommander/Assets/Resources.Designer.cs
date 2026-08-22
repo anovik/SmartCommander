@@ -1112,5 +1112,14 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("CantEditFtpFile", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opening FTP files isn't supported yet.
+        /// </summary>
+        public static string CantOpenFtpFile {
+            get {
+                return ResourceManager.GetString("CantOpenFtpFile", resourceCulture);
+            }
+        }
     }
 }

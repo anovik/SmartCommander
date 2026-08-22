@@ -468,4 +468,7 @@
   <data name="CantEditFtpFile" xml:space="preserve">
     <value>Уређивање FTP фајлова још није подржано</value>
   </data>
+  <data name="CantOpenFtpFile" xml:space="preserve">
+    <value>Отварање FTP фајлова још није подржано</value>
+  </data>
 </root>

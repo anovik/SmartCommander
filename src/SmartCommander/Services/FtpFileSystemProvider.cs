@@ -12,17 +12,13 @@ using System.Threading.Tasks;
 
 namespace SmartCommander.Services
 {
-    // Backed by FluentFTP's AsyncFtpClient. Exactly one instance exists at a time (owned by
-    // the composite FileSystemService, created on connect, disposed on disconnect) since only
-    // one FTP connection is ever active app-wide. All paths passed into this provider are full
-    // "ftp://" strings (see RemotePath); FluentFTP only ever sees the remote part.
+    // Backed by FluentFTP's AsyncFtpClient. Exactly one instance exists at a time (owned by the
+    // composite FileSystemService), since only one FTP connection is ever active app-wide. Paths
+    // passed in are full "ftp://" strings (see RemotePath); FluentFTP only sees the remote part.
     //
-    // A single FTP control connection can only run one command at a time - unlike local disk
-    // access, two commands issued concurrently on the same AsyncFtpClient corrupt the connection
-    // (garbled command/response state, spurious timeouts). Every method that touches the client
-    // acquires _lock first, so calls queue instead of interleaving; callers that used to run two
-    // requests in parallel against the local provider (e.g. listing files and folders together)
-    // now run them one after another here.
+    // A control connection can only run one command at a time - concurrent commands on the same
+    // AsyncFtpClient corrupt it (garbled responses, spurious timeouts). Every method acquires
+    // _lock first, so calls queue instead of interleaving.
     public class FtpFileSystemProvider : IFileSystemProvider, IAsyncDisposable
     {
         private readonly SemaphoreSlim _lock = new(1, 1);
@@ -227,6 +223,14 @@ namespace SmartCommander.Services
                 var status = await Client.UploadFile(localSource, RemotePath.GetRemotePart(ftpDest), existsMode,
                     false, FtpVerify.None, adapter, ct);
 
+                // UploadFile reports a server-side rejection (e.g. read-only account, quota,
+                // permission error) via FtpStatus.Failed rather than an exception, and gives no
+                // exception/result object to inspect - use the server's own reply text instead.
+                if (status == FtpStatus.Failed)
+                {
+                    throw new IOException($"Server rejected the upload of {Path.GetFileName(localSource)}. {Client.LastReply.ErrorMessage}".TrimEnd());
+                }
+
                 long processed = processedSize + (status == FtpStatus.Skipped ? 0 : fileSize);
                 ReportProgress(progress, processed, totalSize);
 
@@ -257,6 +261,14 @@ namespace SmartCommander.Services
                 var status = await Client.DownloadFile(localDest, remoteSource, FtpLocalExists.Overwrite,
                     FtpVerify.None, adapter, ct);
 
+                // Same silent-failure shape as UploadFileAsync above: DownloadFile reports a
+                // server-side failure via FtpStatus.Failed rather than an exception, and the
+                // single-file overload gives no exception object - use LastReply instead.
+                if (status == FtpStatus.Failed)
+                {
+                    throw new IOException($"Failed to download {Path.GetFileName(remoteSource)}. {Client.LastReply.ErrorMessage}".TrimEnd());
+                }
+
                 long processed = processedSize + fileSize;
                 ReportProgress(progress, processed, totalSize);
 
@@ -275,8 +287,19 @@ namespace SmartCommander.Services
             {
                 var dirSize = GetLocalDirectorySize(localSource);
                 var adapter = new FtpProgressAdapter(progress, processedSize, totalSize, dirSize);
-                await Client.UploadDirectory(localSource, RemotePath.GetRemotePart(ftpDest), FtpFolderSyncMode.Update,
+                var results = await Client.UploadDirectory(localSource, RemotePath.GetRemotePart(ftpDest), FtpFolderSyncMode.Update,
                     overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, FtpVerify.None, null, adapter, ct);
+
+                // UploadDirectory catches every per-file exception into its FtpResult list
+                // instead of throwing - without this check a rejected folder upload (e.g. a
+                // read-only account) would silently no-op instead of surfacing an error. List
+                // every failed file, not just the first, so the user knows the true scope.
+                var failed = results.Where(r => r.IsFailed).ToList();
+                if (failed.Count > 0)
+                {
+                    throw new IOException($"Server rejected the upload of: {string.Join(", ", failed.Select(f => f.Name))}.",
+                        failed[0].Exception);
+                }
 
                 long processed = processedSize + dirSize;
                 ReportProgress(progress, processed, totalSize);
@@ -297,8 +320,18 @@ namespace SmartCommander.Services
                 var remoteSource = RemotePath.GetRemotePart(ftpSource);
                 var dirSize = await GetDirectorySizeAsync(ftpSource);
                 var adapter = new FtpProgressAdapter(progress, processedSize, totalSize, dirSize);
-                await Client.DownloadDirectory(localDest, remoteSource, FtpFolderSyncMode.Update,
+                var results = await Client.DownloadDirectory(localDest, remoteSource, FtpFolderSyncMode.Update,
                     overwrite ? FtpLocalExists.Overwrite : FtpLocalExists.Skip, FtpVerify.None, null, adapter, ct);
+
+                // Same silent-failure shape as UploadDirectoryAsync above: per-file exceptions
+                // land in the FtpResult list instead of throwing. List every failed file, not
+                // just the first, so the user knows the true scope.
+                var failed = results.Where(r => r.IsFailed).ToList();
+                if (failed.Count > 0)
+                {
+                    throw new IOException($"Failed to download: {string.Join(", ", failed.Select(f => f.Name))}.",
+                        failed[0].Exception);
+                }
 
                 long processed = processedSize + dirSize;
                 ReportProgress(progress, processed, totalSize);
@@ -492,12 +525,10 @@ namespace SmartCommander.Services
             progress.Report(totalSize == 0 ? 0 : Convert.ToInt32(processedSize * 100 / totalSize));
         }
 
-        // Adapts FluentFTP's per-item IProgress<FtpProgress> to the cumulative-across-the-whole-
-        // operation IProgress<int> (0-100) that FileOperationViewModel expects, matching
-        // LocalFileSystemProvider's processedSize/totalSize accumulation contract. Prefers
-        // FtpProgress.TransferredBytes (cumulative bytes for this transfer); falls back to
-        // Progress% scaled against a known item size (used for directory transfers, where
-        // TransferredBytes semantics are less reliable across multiple files).
+        // Adapts FluentFTP's per-item IProgress<FtpProgress> to the cumulative 0-100 IProgress<int>
+        // that FileOperationViewModel expects. Prefers TransferredBytes (cumulative for this
+        // transfer); falls back to Progress% scaled against a known item size, since
+        // TransferredBytes is less reliable across multiple files in a directory transfer.
         private sealed class FtpProgressAdapter : IProgress<FtpProgress>
         {
             private readonly IProgress<int>? _progress;

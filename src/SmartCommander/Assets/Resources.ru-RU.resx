@@ -468,4 +468,7 @@
   <data name="CantEditFtpFile" xml:space="preserve">
     <value>Редактирование файлов по FTP пока не поддерживается</value>
   </data>
+  <data name="CantOpenFtpFile" xml:space="preserve">
+    <value>Открытие файлов по FTP пока не поддерживается</value>
+  </data>
 </root>
