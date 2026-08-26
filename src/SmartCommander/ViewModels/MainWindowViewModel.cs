@@ -132,7 +132,9 @@ namespace SmartCommander.ViewModels
 
         volatile bool _F3Busy;
         volatile bool _F4Busy;
-        volatile bool _F7Busy;
+        // Shared by both F7 and the pane's right-click "New Folder" so the two entry points
+        // can't stack two dialogs at once.
+        volatile bool _newFolderDialogBusy;
 
         public string CommandText
         {
@@ -879,13 +881,29 @@ namespace SmartCommander.ViewModels
             }
         }
 
+        // Shared with FilesPaneViewModel.NewFolder so pressing F7 and right-clicking "New
+        // Folder" in quick succession can't stack two dialogs.
+        internal bool TryBeginNewFolderDialog()
+        {
+            if (_newFolderDialogBusy)
+            {
+                return false;
+            }
+            _newFolderDialogBusy = true;
+            return true;
+        }
+
+        internal void EndNewFolderDialog()
+        {
+            _newFolderDialogBusy = false;
+        }
+
         public void CreateNewFolder()
         {
-            if (_F7Busy)
+            if (!TryBeginNewFolderDialog())
             {
                 return;
             }
-            _F7Busy = true;
             MessageBoxInput_Show(CreateNewFolderAnswer, Resources.CreateNewFolder);
         }
 
@@ -907,7 +925,7 @@ namespace SmartCommander.ViewModels
             }
             finally
             {
-                _F7Busy = false;
+                EndNewFolderDialog();
             }
         }
 

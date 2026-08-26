@@ -471,4 +471,7 @@
   <data name="CantOpenFtpFile" xml:space="preserve">
     <value>Открытие файлов по FTP пока не поддерживается</value>
   </data>
+  <data name="Rename" xml:space="preserve">
+    <value>Переименовать</value>
+  </data>
 </root>

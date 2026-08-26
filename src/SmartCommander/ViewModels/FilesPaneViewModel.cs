@@ -80,13 +80,23 @@ namespace SmartCommander.ViewModels
         private MainWindowViewModel.FtpTransferMenuMode TransferMenuMode =>
             MainWindowViewModel.DetermineFtpTransferMenuMode(IsFtp, RemotePath.IsFtp(_mainVM.OtherPane(this).CurrentDirectory));
 
-        public bool ShowLocalCopyCut => TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.LocalClipboard;
-        public bool ShowDownload => TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.Download;
-        public bool ShowUpload => TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.Upload;
+        // ".." isn't a real file/folder - it gets the background-style menu (Paste/New
+        // Folder/MoreOptions), not the item-specific menu below.
+        public bool IsRealItemSelected => CurrentItem != null && CurrentItem.FullName != "..";
+        public bool IsParentEntrySelected => CurrentItem != null && CurrentItem.FullName == "..";
 
-        public bool ShowZip => !IsFtp && !IsUnzip;
-        public bool ShowUnzip => !IsFtp && IsUnzip;
+        public bool ShowLocalCopyCut => IsRealItemSelected && TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.LocalClipboard;
+        public bool ShowDownload => IsRealItemSelected && TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.Download;
+        public bool ShowUpload => IsRealItemSelected && TransferMenuMode == MainWindowViewModel.FtpTransferMenuMode.Upload;
+        public bool ShowFtpMove => IsRealItemSelected && !ShowLocalCopyCut;
+
+        public bool ShowZip => IsRealItemSelected && !IsFtp && !IsUnzip;
+        public bool ShowUnzip => IsRealItemSelected && !IsFtp && IsUnzip;
         public bool CanShowMoreOptions => !IsFtp && IsWindows;
+        public bool CanShowItemMoreOptions => IsRealItemSelected && CanShowMoreOptions;
+        // Covers both ".." and no selection at all (e.g. an empty directory) - either way
+        // there's no real item to act on, so this falls back to directory-level options.
+        public bool CanShowBackgroundMoreOptions => !IsRealItemSelected && CanShowMoreOptions;
 
         private bool _canPaste;
         public bool CanPaste
@@ -161,6 +171,8 @@ namespace SmartCommander.ViewModels
             TransferCommand = ReactiveCommand.CreateFromTask(() => _mainVM.Copy());
             FtpMoveCommand = ReactiveCommand.CreateFromTask(() => _mainVM.Move());
             DeleteCommand = ReactiveCommand.CreateFromTask(Delete);
+            RenameCommand = ReactiveCommand.Create(Rename);
+            NewFolderCommand = ReactiveCommand.Create(NewFolder);
             PasteCommand = ReactiveCommand.CreateFromTask(Paste, this.WhenAnyValue(x => x.CanPaste));
             ShowMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowMoreOptions);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
@@ -184,6 +196,8 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? TransferCommand { get; }
         public ReactiveCommand<Unit, Unit>? FtpMoveCommand { get; }
         public ReactiveCommand<Unit, Unit>? DeleteCommand { get; }
+        public ReactiveCommand<Unit, Unit>? RenameCommand { get; }
+        public ReactiveCommand<Unit, Unit>? NewFolderCommand { get; }
         public ReactiveCommand<Unit, Unit>? PasteCommand { get; }
         public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
 
@@ -545,6 +559,16 @@ namespace SmartCommander.ViewModels
 
         public async Task ShowMoreOptions()
         {
+            // ".." isn't a real path - treat it like no selection (background options for the directory).
+            if (IsParentEntrySelected)
+            {
+                if (ShowWindowsContextMenuInteraction != null)
+                {
+                    await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
+                }
+                return;
+            }
+
             if (CurrentItems == null || CurrentItems.Count == 0)
             {
                 if (CurrentItem != null)
@@ -588,6 +612,52 @@ namespace SmartCommander.ViewModels
                 return;
             }
             await _fs.CreateDirectoryAsync(newFolder);
+        }
+
+        public void NewFolder()
+        {
+            // Shared with MainWindowViewModel.CreateNewFolder (F7) so the two entry points
+            // can't stack two dialogs.
+            if (!_mainVM.TryBeginNewFolderDialog())
+            {
+                return;
+            }
+            MessageBoxInput_Show(NewFolderAnswer, Resources.CreateNewFolder);
+        }
+
+        private async void NewFolderAnswer(string result)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(result))
+                {
+                    await CreateNewFolder(result);
+                    Update();
+                    _mainVM.OtherPane(this).Update();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "NewFolder failed");
+                MessageBox_Show(null, Resources.CantCreateFolder, Resources.Alert);
+            }
+            finally
+            {
+                _mainVM.EndNewFolderDialog();
+            }
+        }
+
+        // The View starts the same inline DataGrid cell edit BeginningEdit/Name already drive -
+        // this is just another trigger for it, not a separate rename path.
+        public event EventHandler? RenameRequested;
+
+        public void Rename()
+        {
+            if (!IsRealItemSelected)
+            {
+                return;
+            }
+            RenameRequested?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task ProcessCurrentItem(bool goToParent = false)

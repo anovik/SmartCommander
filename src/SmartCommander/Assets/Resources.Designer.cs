@@ -1121,5 +1121,14 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("CantOpenFtpFile", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rename.
+        /// </summary>
+        public static string Rename {
+            get {
+                return ResourceManager.GetString("Rename", resourceCulture);
+            }
+        }
     }
 }
