@@ -38,6 +38,8 @@
 			<MenuFlyout>
 				<MenuItem Header="{x:Static assets:Resources.Paste}"
 						  Command="{Binding PasteCommand}" />
+				<MenuItem Header="{x:Static assets:Resources.CreateNewFolder}"
+						  Command="{Binding NewFolderCommand}" />
 				<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
 						  IsVisible="{Binding CanShowMoreOptions}"
 						  Command="{Binding ShowMoreOptionsCommand}" />
@@ -87,8 +89,22 @@
 
 			<DataGrid.ContextFlyout>
 				<MenuFlyout>
-					<MenuItem Header="{x:Static assets:Resources.View}" Command="{Binding ViewCommand}" />
-					<MenuItem Header="{x:Static assets:Resources.Edit}" Command="{Binding EditCommand}" />
+					<!-- No real item selected (".." or an empty directory) gets the background-style menu, not the item menu. -->
+					<MenuItem Header="{x:Static assets:Resources.Paste}"
+                              IsVisible="{Binding !IsRealItemSelected}"
+                              Command="{Binding PasteCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.CreateNewFolder}"
+                              IsVisible="{Binding !IsRealItemSelected}"
+                              Command="{Binding NewFolderCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
+                              IsVisible="{Binding CanShowBackgroundMoreOptions}"
+                              Command="{Binding ShowMoreOptionsCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.View}"
+                              IsVisible="{Binding IsRealItemSelected}"
+                              Command="{Binding ViewCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Edit}"
+                              IsVisible="{Binding IsRealItemSelected}"
+                              Command="{Binding EditCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Copy}"
                               IsVisible="{Binding ShowLocalCopyCut}"
                               Command="{Binding CopyCommand}" />
@@ -102,9 +118,14 @@
                               IsVisible="{Binding ShowUpload}"
                               Command="{Binding TransferCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Move}"
-                              IsVisible="{Binding !ShowLocalCopyCut}"
+                              IsVisible="{Binding ShowFtpMove}"
                               Command="{Binding FtpMoveCommand}" />
-					<MenuItem Header="{x:Static assets:Resources.Delete}" Command="{Binding DeleteCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Rename}"
+                              IsVisible="{Binding IsRealItemSelected}"
+                              Command="{Binding RenameCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Delete}"
+                              IsVisible="{Binding IsRealItemSelected}"
+                              Command="{Binding DeleteCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Zip}"
                               IsVisible="{Binding ShowZip, Mode=TwoWay}"
                               Command="{Binding ZipCommand}" />
@@ -112,7 +133,7 @@
                               IsVisible="{Binding ShowUnzip, Mode=TwoWay}"
                               Command="{Binding UnzipCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
-                              IsVisible="{Binding CanShowMoreOptions}"
+                              IsVisible="{Binding CanShowItemMoreOptions}"
                               Command="{Binding ShowMoreOptionsCommand}" />
 				</MenuFlyout>
 			</DataGrid.ContextFlyout>

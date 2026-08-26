@@ -122,12 +122,26 @@ namespace SmartCommander.Views
                     PaneDataGrid.ScrollIntoView(item, (DataGridColumn)column);
                     PaneDataGrid.Focus();
                 };
+                viewModel.RenameRequested += (s, args) => BeginRenameEdit();
             }
         }
 
         public void FocusGrid()
         {
             paneDataGrid?.Focus();
+        }
+
+        // Column 1 is always Name (matches the DisplayIndex check in
+        // FilesPaneViewModel.BeginningEdit) - point the grid at it and start editing.
+        private void BeginRenameEdit()
+        {
+            if (paneDataGrid == null)
+            {
+                return;
+            }
+            paneDataGrid.Focus();
+            paneDataGrid.CurrentColumn = paneDataGrid.Columns[1];
+            paneDataGrid.BeginEdit();
         }
 
 

@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using MsBox.Avalonia.Dto;
@@ -118,7 +119,7 @@ namespace SmartCommander.Views
                     var messageBoxWindow = MsBox.Avalonia.MessageBoxManager
                         .GetMessageBoxCustom(new MessageBoxCustomParams()
                         {
-                            ContentHeader = messageBoxText,
+                            ContentTitle = messageBoxText,
                             ContentMessage = "",
                             MinWidth = 300,
                             InputParams = new InputParams() { },
@@ -159,6 +160,16 @@ namespace SmartCommander.Views
 
             var inputTextBox = content.GetLogicalDescendants().OfType<TextBox>().FirstOrDefault(t => !t.IsReadOnly);
             inputTextBox?.Focus();
+
+            // The library's input row is a fixed 15px Grid row (ignores child margin), so push
+            // the Auto-sized buttons row down instead to open up the gap.
+            var buttonsPresenter = content.GetLogicalDescendants()
+                .OfType<ItemsControl>()
+                .FirstOrDefault(c => c.Name == "ButtonItemsPresenter");
+            if (buttonsPresenter != null)
+            {
+                buttonsPresenter.Margin = new Thickness(0, 20, 0, 0);
+            }
         }
     }
 }
