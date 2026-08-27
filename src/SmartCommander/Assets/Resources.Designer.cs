@@ -1096,15 +1096,6 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Viewing FTP files isn't supported yet.
-        /// </summary>
-        public static string CantViewFtpFile {
-            get {
-                return ResourceManager.GetString("CantViewFtpFile", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Editing FTP files isn't supported yet.
         /// </summary>
         public static string CantEditFtpFile {

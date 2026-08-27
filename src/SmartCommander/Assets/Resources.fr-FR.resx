@@ -462,9 +462,6 @@
   <data name="Move" xml:space="preserve">
     <value>Déplacer</value>
   </data>
-  <data name="CantViewFtpFile" xml:space="preserve">
-    <value>L'affichage des fichiers FTP n'est pas encore pris en charge</value>
-  </data>
   <data name="CantEditFtpFile" xml:space="preserve">
     <value>L'édition des fichiers FTP n'est pas encore prise en charge</value>
   </data>
