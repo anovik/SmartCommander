@@ -462,9 +462,6 @@
   <data name="Move" xml:space="preserve">
     <value>Переместить</value>
   </data>
-  <data name="CantViewFtpFile" xml:space="preserve">
-    <value>Просмотр файлов по FTP пока не поддерживается</value>
-  </data>
   <data name="CantEditFtpFile" xml:space="preserve">
     <value>Редактирование файлов по FTP пока не поддерживается</value>
   </data>

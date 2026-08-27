@@ -462,9 +462,6 @@
   <data name="Move" xml:space="preserve">
     <value>Premjesti</value>
   </data>
-  <data name="CantViewFtpFile" xml:space="preserve">
-    <value>Pregled FTP fajlova još nije podržan</value>
-  </data>
   <data name="CantEditFtpFile" xml:space="preserve">
     <value>Uređivanje FTP fajlova još nije podržano</value>
   </data>

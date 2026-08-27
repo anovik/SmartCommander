@@ -46,6 +46,10 @@ namespace SmartCommander
 
             StartServer();
 
+            // Best-effort sweep of temp folders left by a previous run that exited
+            // with an FTP file still open in the viewer; kept off the startup path.
+            Task.Run(TempViewFiles.CleanStale);
+
             base.OnFrameworkInitializationCompleted();
         }
 

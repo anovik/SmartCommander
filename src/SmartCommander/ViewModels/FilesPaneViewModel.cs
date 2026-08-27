@@ -352,25 +352,85 @@ namespace SmartCommander.ViewModels
                 resultAction?.Invoke(ButtonResult.Ok, null);
                 return;
             }
-            if (IsFtp)
+            if (CurrentItem.IsFolder)
             {
-                MessageBox_Show(resultAction, Resources.CantViewFtpFile, Resources.Alert, ButtonEnum.Ok);
+                MessageBox_Show(resultAction, Resources.CantViewFolder, Resources.Alert, ButtonEnum.Ok);
                 return;
             }
-            if (!CurrentItem.IsFolder)
+            if (ulong.TryParse(CurrentItem.Size, out var fileSize) && fileSize > 128 * 1024 * 1024)
             {
-                if (ulong.TryParse(CurrentItem.Size, out var fileSize) && fileSize > 128 * 1024 * 1024)
+                MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
+                return;
+            }
+
+            if (IsFtp)
+            {
+                await ViewFtpFileAsync(CurrentItem.FullName, resultAction);
+                return;
+            }
+
+            var copy = new ViewerViewModel(CurrentItem.FullName);
+            await ShowViewerDialog.Handle(copy);
+            resultAction?.Invoke(ButtonResult.Ok, null);
+        }
+
+        // The context-menu "View" item isn't covered by MainWindowViewModel._F3Busy, so
+        // guard here against a second FTP view starting while one is still downloading.
+        private bool _ftpViewBusy;
+
+        // F3 over FTP: the text viewer needs a local file, so download to a private temp
+        // folder, view the copy, and delete the folder when the viewer closes. Too small
+        // an operation to warrant the FileOperationViewModel/ActiveOperations machinery.
+        private async Task ViewFtpFileAsync(string ftpPath, Action<ButtonResult, object?>? resultAction)
+        {
+            if (_ftpViewBusy)
+            {
+                resultAction?.Invoke(ButtonResult.Ok, null);
+                return;
+            }
+            _ftpViewBusy = true;
+            var tempDir = TempViewFiles.NewFolder();
+            var tempFile = Path.Combine(tempDir, Path.GetFileName(ftpPath));
+            try
+            {
+                // A reported size over the limit is refused before downloading. -1 means
+                // the server has no SIZE support; then the post-download check on the
+                // real file is the backstop before the viewer loads it into memory.
+                var remoteSize = await _fs.GetFileSizeAsync(ftpPath);
+                if (remoteSize > 128 * 1024 * 1024)
                 {
                     MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
                     return;
                 }
-                var copy = new ViewerViewModel(CurrentItem.FullName);
+
+                await _fs.CreateDirectoryAsync(tempDir);
+                await _fs.CopyFileAsync(ftpPath, tempFile, false, true, null, 0, 0, CancellationToken.None);
+
+                if (remoteSize < 0 && await _fs.GetFileSizeAsync(tempFile) > 128 * 1024 * 1024)
+                {
+                    MessageBox_Show(resultAction, Resources.TooLargeSize, Resources.Alert, ButtonEnum.Ok);
+                    return;
+                }
+                var copy = new ViewerViewModel(tempFile);
                 await ShowViewerDialog.Handle(copy);
                 resultAction?.Invoke(ButtonResult.Ok, null);
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox_Show(resultAction, Resources.CantViewFolder, Resources.Alert, ButtonEnum.Ok);
+                Log.Error(ex, "Failed to view FTP file {FtpPath}", ftpPath);
+                MessageBox_Show(resultAction, DescribeException(ex), Resources.Alert, ButtonEnum.Ok);
+            }
+            finally
+            {
+                _ftpViewBusy = false;
+                try
+                {
+                    await _fs.DeleteDirectoryAsync(tempDir);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "Failed to delete temp view folder {TempDir}", tempDir);
+                }
             }
         }
 
