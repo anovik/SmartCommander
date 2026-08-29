@@ -471,4 +471,43 @@
   <data name="Rename" xml:space="preserve">
     <value>Preimenuj</value>
   </data>
+  <data name="ZipWithOptions" xml:space="preserve">
+    <value>Zip sa opcijama…</value>
+  </data>
+  <data name="ZipOptionsTitle" xml:space="preserve">
+    <value>Zip sa opcijama</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Lozinka</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Potvrdite lozinku</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Lozinke se ne podudaraju</value>
+  </data>
+  <data name="CompressionLevel" xml:space="preserve">
+    <value>Nivo kompresije</value>
+  </data>
+  <data name="CompressionStore" xml:space="preserve">
+    <value>Bez kompresije</value>
+  </data>
+  <data name="CompressionFastest" xml:space="preserve">
+    <value>Najbrže</value>
+  </data>
+  <data name="CompressionNormal" xml:space="preserve">
+    <value>Normalno</value>
+  </data>
+  <data name="CompressionMaximum" xml:space="preserve">
+    <value>Maksimalno</value>
+  </data>
+  <data name="EnterArchivePassword" xml:space="preserve">
+    <value>Unesite lozinku arhive:</value>
+  </data>
+  <data name="WrongArchivePassword" xml:space="preserve">
+    <value>Pogrešna lozinka. Pokušajte ponovo.</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Prikaži lozinku</value>
+  </data>
 </root>

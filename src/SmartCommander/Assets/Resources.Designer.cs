@@ -1121,5 +1121,122 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("Rename", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Zip with options….
+        /// </summary>
+        public static string ZipWithOptions {
+            get {
+                return ResourceManager.GetString("ZipWithOptions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Zip with options.
+        /// </summary>
+        public static string ZipOptionsTitle {
+            get {
+                return ResourceManager.GetString("ZipOptionsTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        public static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm password.
+        /// </summary>
+        public static string ConfirmPassword {
+            get {
+                return ResourceManager.GetString("ConfirmPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Passwords do not match.
+        /// </summary>
+        public static string PasswordsDoNotMatch {
+            get {
+                return ResourceManager.GetString("PasswordsDoNotMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compression level.
+        /// </summary>
+        public static string CompressionLevel {
+            get {
+                return ResourceManager.GetString("CompressionLevel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Store (no compression).
+        /// </summary>
+        public static string CompressionStore {
+            get {
+                return ResourceManager.GetString("CompressionStore", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fastest.
+        /// </summary>
+        public static string CompressionFastest {
+            get {
+                return ResourceManager.GetString("CompressionFastest", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Normal.
+        /// </summary>
+        public static string CompressionNormal {
+            get {
+                return ResourceManager.GetString("CompressionNormal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum.
+        /// </summary>
+        public static string CompressionMaximum {
+            get {
+                return ResourceManager.GetString("CompressionMaximum", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the archive password:.
+        /// </summary>
+        public static string EnterArchivePassword {
+            get {
+                return ResourceManager.GetString("EnterArchivePassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong password. Try again..
+        /// </summary>
+        public static string WrongArchivePassword {
+            get {
+                return ResourceManager.GetString("WrongArchivePassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show password.
+        /// </summary>
+        public static string ShowPassword {
+            get {
+                return ResourceManager.GetString("ShowPassword", resourceCulture);
+            }
+        }
     }
 }

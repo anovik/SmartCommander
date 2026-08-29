@@ -43,6 +43,12 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowFtpConnectDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<FtpConnectViewModel, FtpConnectWindow>(interaction)
             )));
+            this.WhenActivated(d => d(ViewModel!.ShowZipOptionsDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<ZipOptionsViewModel, ZipOptionsWindow>(interaction)
+            )));
+            this.WhenActivated(d => d(ViewModel!.ShowPasswordPromptDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<PasswordPromptViewModel, PasswordPromptWindow>(interaction)
+            )));
 
             operationsWindow = new OperationsWindow();
 

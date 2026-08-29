@@ -30,7 +30,7 @@ dotnet build src --configuration Release
 
 - FTP support (connect, browse, upload, download files and folders)
 
-- Creating and unzipping of ZIP archives
+- Creating and unzipping of ZIP archives (encryption/decryption and compression choice options)
   
 - Unicode support
   

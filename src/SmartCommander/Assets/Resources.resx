@@ -471,4 +471,43 @@
   <data name="Rename" xml:space="preserve">
     <value>Rename</value>
   </data>
+  <data name="ZipWithOptions" xml:space="preserve">
+    <value>Zip with options…</value>
+  </data>
+  <data name="ZipOptionsTitle" xml:space="preserve">
+    <value>Zip with options</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Passwords do not match</value>
+  </data>
+  <data name="CompressionLevel" xml:space="preserve">
+    <value>Compression level</value>
+  </data>
+  <data name="CompressionStore" xml:space="preserve">
+    <value>Store (no compression)</value>
+  </data>
+  <data name="CompressionFastest" xml:space="preserve">
+    <value>Fastest</value>
+  </data>
+  <data name="CompressionNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="CompressionMaximum" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="EnterArchivePassword" xml:space="preserve">
+    <value>Enter the archive password:</value>
+  </data>
+  <data name="WrongArchivePassword" xml:space="preserve">
+    <value>Wrong password. Try again.</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Show password</value>
+  </data>
 </root>
