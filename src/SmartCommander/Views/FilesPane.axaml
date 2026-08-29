@@ -129,6 +129,9 @@
 					<MenuItem Header="{x:Static assets:Resources.Zip}"
                               IsVisible="{Binding ShowZip, Mode=TwoWay}"
                               Command="{Binding ZipCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.ZipWithOptions}"
+                              IsVisible="{Binding ShowZip, Mode=TwoWay}"
+                              Command="{Binding ZipWithOptionsCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Unzip}"
                               IsVisible="{Binding ShowUnzip, Mode=TwoWay}"
                               Command="{Binding UnzipCommand}" />

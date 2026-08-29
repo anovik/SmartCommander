@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -25,6 +24,7 @@ namespace SmartCommander.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly IFileSystemService _fs;
+        private readonly ArchiveService _archives = new();
 
         public MainWindowViewModel(IFileSystemService fs)
         {
@@ -35,6 +35,8 @@ namespace SmartCommander.ViewModels
             ShowSearchDialog = new Interaction<FileSearchViewModel, FileSearchViewModel?>();
             ShowAboutDialog = new Interaction<AboutViewModel, AboutViewModel?>();
             ShowFtpConnectDialog = new Interaction<FtpConnectViewModel, FtpConnectViewModel?>();
+            ShowZipOptionsDialog = new Interaction<ZipOptionsViewModel, ZipOptionsViewModel?>();
+            ShowPasswordPromptDialog = new Interaction<PasswordPromptViewModel, PasswordPromptViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -152,6 +154,8 @@ namespace SmartCommander.ViewModels
         public Interaction<FileSearchViewModel, FileSearchViewModel?> ShowSearchDialog { get; }
         public Interaction<AboutViewModel, AboutViewModel?> ShowAboutDialog { get; }
         public Interaction<FtpConnectViewModel, FtpConnectViewModel?> ShowFtpConnectDialog { get; }
+        public Interaction<ZipOptionsViewModel, ZipOptionsViewModel?> ShowZipOptionsDialog { get; }
+        public Interaction<PasswordPromptViewModel, PasswordPromptViewModel?> ShowPasswordPromptDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -379,7 +383,8 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
-                long totalSize = await _fs.GetTotalSizeAsync(items.Select(i => (i.FullName, i.IsFolder)).ToList());
+                var zipItems = items.Select(i => (i.FullName, i.IsFolder)).ToList();
+                long totalSize = await _fs.GetTotalSizeAsync(zipItems);
                 string description = string.Format(Resources.OperationZipDescription,
                     DescribeItems(items.Count, items[0].Name), zipName);
                 _ = RunZipAsync();
@@ -387,13 +392,91 @@ namespace SmartCommander.ViewModels
                 async Task RunZipAsync()
                 {
                     await RunOperationAndRefreshAsync(description, "Zip",
-                        (progress, ct) => Task.Run(() => ZipCore(items, zipName, totalSize, progress, ct), ct),
+                        (progress, ct) => CreateZipWork(zipItems, zipName, ZipCompressionLevel.Normal, null,
+                            totalSize, progress, ct),
                         pane);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Zip failed");
+            }
+        }
+
+        // Mirrors the old ZipCore catch, now at the call site: the service throws on failure
+        // (no message boxes of its own), cancellation propagates untouched.
+        private async Task CreateZipWork(IReadOnlyList<(string FullName, bool IsFolder)> items, string zipName,
+            ZipCompressionLevel level, string? password, long totalSize, IProgress<int> progress, CancellationToken ct)
+        {
+            try
+            {
+                await _archives.CreateZipAsync(items, zipName, level, password, totalSize, progress, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Zip failed: {ZipName}", zipName);
+                MessageBox_Show(null, string.Format(Resources.CantCreateArchive, zipName), Resources.Alert);
+            }
+        }
+
+        // "Zip with options…" - same target archive as Zip(), but a dialog first picks the
+        // compression level and an optional AES-256 password. A blank password produces a
+        // plain zip identical to what Zip() would make at that level.
+        public async Task ZipWithOptions()
+        {
+            if (SelectedPane.CurrentItems.Count < 1)
+            {
+                return;
+            }
+
+            try
+            {
+                var pane = SelectedPane;
+                var items = pane.CurrentItems.Select(i => (i.FullName, i.IsFolder, i.Name)).ToList();
+                var zipName = Path.Combine(pane.CurrentDirectory, items[0].Name + ".zip");
+                if (File.Exists(zipName))
+                {
+                    MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
+                    return;
+                }
+
+                var result = await ShowZipOptionsDialog.Handle(new ZipOptionsViewModel());
+                if (result is null || !result.IsConfirmed)
+                {
+                    return;
+                }
+
+                // Re-check: the dialog above can sit open for a long time, and CreateZipAsync
+                // opens the target with FileMode.CreateNew (it would throw rather than clobber),
+                // so surface the collision here as the normal "already exists" message instead.
+                if (File.Exists(zipName))
+                {
+                    MessageBox_Show(null, string.Format(Resources.ArchiveExists, zipName), Resources.Alert);
+                    return;
+                }
+
+                var level = result.Level;
+                var password = result.PasswordOrNull;
+                var zipItems = items.Select(i => (i.FullName, i.IsFolder)).ToList();
+                long totalSize = await _fs.GetTotalSizeAsync(zipItems);
+                string description = string.Format(Resources.OperationZipDescription,
+                    DescribeItems(items.Count, items[0].Name), zipName);
+                _ = RunZipAsync();
+
+                async Task RunZipAsync()
+                {
+                    await RunOperationAndRefreshAsync(description, "Zip",
+                        (progress, ct) => CreateZipWork(zipItems, zipName, level, password, totalSize, progress, ct),
+                        pane);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "ZipWithOptions failed");
             }
         }
 
@@ -421,13 +504,62 @@ namespace SmartCommander.ViewModels
                     return;
                 }
 
+                bool encrypted;
+                try
+                {
+                    encrypted = await Task.Run(() => _archives.IsEncrypted(archiveFullName));
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unzip failed reading archive: {ArchiveFullName}", archiveFullName);
+                    MessageBox_Show(null, string.Format(Resources.CantExtractArchive, archiveFullName), Resources.Alert);
+                    return;
+                }
+
+                // Encrypted archive: prompt for the password before launching anything, re-prompting
+                // on a wrong entry. Cancel aborts with nothing added to ActiveOperations.
+                string? password = null;
+                if (encrypted)
+                {
+                    int attempt = 0;
+                    while (true)
+                    {
+                        var prompt = await ShowPasswordPromptDialog.Handle(new PasswordPromptViewModel(retry: attempt > 0));
+                        if (prompt is null || !prompt.IsConfirmed)
+                        {
+                            return;
+                        }
+
+                        var candidate = prompt.Password;
+                        bool verified;
+                        try
+                        {
+                            verified = await Task.Run(() => _archives.VerifyPassword(archiveFullName, candidate));
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, "Unzip failed verifying password: {ArchiveFullName}", archiveFullName);
+                            MessageBox_Show(null, string.Format(Resources.CantExtractArchive, archiveFullName), Resources.Alert);
+                            return;
+                        }
+
+                        if (verified)
+                        {
+                            password = candidate;
+                            break;
+                        }
+
+                        attempt++;
+                    }
+                }
+
                 string description = string.Format(Resources.OperationUnzipDescription, archiveName, destDir);
                 _ = RunUnzipAsync();
 
                 async Task RunUnzipAsync()
                 {
                     await RunOperationAndRefreshAsync(description, "Unzip",
-                        (progress, ct) => Task.Run(() => UnzipCore(archiveFullName, destDir, progress, ct), ct),
+                        (progress, ct) => ExtractZipWork(archiveFullName, destDir, password, progress, ct),
                         pane);
                 }
             }
@@ -437,114 +569,22 @@ namespace SmartCommander.ViewModels
             }
         }
 
-        // Extracted entry-by-entry (instead of one ZipFile.ExtractToDirectory call) so
-        // cancellation takes effect between entries; ExtractToDirectory itself is not
-        // cancellable mid-call.
-        private void UnzipCore(string archiveFullName, string destDir, IProgress<int> progress, CancellationToken ct)
+        // Mirrors the old UnzipCore catch, now at the call site.
+        private async Task ExtractZipWork(string archiveFullName, string destDir, string? password,
+            IProgress<int> progress, CancellationToken ct)
         {
-            ct.ThrowIfCancellationRequested();
-
             try
             {
-                progress.Report(0);
-                Directory.CreateDirectory(destDir);
-                string destDirFull = Path.GetFullPath(destDir + Path.DirectorySeparatorChar);
-
-                using var archive = ZipFile.OpenRead(archiveFullName);
-                var entries = archive.Entries;
-                int total = entries.Count;
-                int done = 0;
-                foreach (var entry in entries)
-                {
-                    ct.ThrowIfCancellationRequested();
-                    string destPath = Path.GetFullPath(Path.Combine(destDir, entry.FullName));
-                    if (!destPath.StartsWith(destDirFull, StringComparison.Ordinal))
-                    {
-                        throw new IOException($"Zip entry is outside the target directory: {entry.FullName}");
-                    }
-
-                    if (entry.Name.Length == 0)
-                    {
-                        Directory.CreateDirectory(destPath);
-                    }
-                    else
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
-                        entry.ExtractToFile(destPath, overwrite: true);
-                    }
-
-                    done++;
-                    progress.Report(total == 0 ? 100 : done * 100 / total);
-                }
+                await _archives.ExtractZipAsync(archiveFullName, destDir, password, progress, ct);
             }
-            catch (OperationCanceledException) { throw; }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 Log.Error(ex, "Unzip failed: {ArchiveFullName}", archiveFullName);
                 MessageBox_Show(null, string.Format(Resources.CantExtractArchive, archiveFullName), Resources.Alert);
-            }
-        }
-
-        private void ZipCore(List<(string FullName, bool IsFolder, string Name)> snapshot, string zipName, long totalSize, IProgress<int> progress, CancellationToken ct)
-        {
-            ct.ThrowIfCancellationRequested();
-            if (snapshot.Count < 1)
-            {
-                return;
-            }
-
-            try
-            {
-                progress.Report(0);
-                long processedSize = 0;
-
-                List<Tuple<string, string>> itemsToProcess = new();
-                foreach (var item in snapshot)
-                {
-                    itemsToProcess.Add(Tuple.Create("", item.FullName));
-                }
-
-                using (var zip = ZipFile.Open(zipName, ZipArchiveMode.Create))
-                {
-                    while (itemsToProcess.Count > 0)
-                    {
-                        ct.ThrowIfCancellationRequested();
-                        var item = itemsToProcess[0];
-                        var entryPath = item.Item1 as string;
-                        var path = item.Item2 as string;
-                        if (Directory.Exists(path))
-                        {
-                            var newEntryPath = Path.Combine(entryPath, new DirectoryInfo(path).Name);
-                            foreach (var folder in Directory.GetDirectories(path))
-                            {
-                                itemsToProcess.Add(Tuple.Create(newEntryPath, folder));
-                            }
-                            foreach (var file in Directory.GetFiles(path))
-                            {
-                                itemsToProcess.Add(Tuple.Create(newEntryPath, file));
-                            }
-                        }
-                        else if (File.Exists(path))
-                        {
-                            processedSize += new FileInfo(path).Length;
-                            zip.CreateEntryFromFile(sourceFileName: path,
-                                entryName: Path.Combine(item.Item1, Path.GetFileName(path)),
-                                CompressionLevel.Optimal);
-                        }
-
-                        itemsToProcess.Remove(item);
-
-                        progress.Report(totalSize == 0 ? 0 : (int)(processedSize * 100 / totalSize));
-                    }
-                }
-
-                progress.Report(100);
-            }
-            catch (OperationCanceledException) { throw; }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Zip failed: {ZipName}", zipName);
-                MessageBox_Show(null, string.Format(Resources.CantCreateArchive, zipName), Resources.Alert);
             }
         }
 

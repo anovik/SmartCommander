@@ -471,4 +471,43 @@
   <data name="Rename" xml:space="preserve">
     <value>Переименовать</value>
   </data>
+  <data name="ZipWithOptions" xml:space="preserve">
+    <value>Архивировать с параметрами…</value>
+  </data>
+  <data name="ZipOptionsTitle" xml:space="preserve">
+    <value>Архивировать с параметрами</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Подтвердите пароль</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Пароли не совпадают</value>
+  </data>
+  <data name="CompressionLevel" xml:space="preserve">
+    <value>Уровень сжатия</value>
+  </data>
+  <data name="CompressionStore" xml:space="preserve">
+    <value>Без сжатия</value>
+  </data>
+  <data name="CompressionFastest" xml:space="preserve">
+    <value>Быстрое</value>
+  </data>
+  <data name="CompressionNormal" xml:space="preserve">
+    <value>Обычное</value>
+  </data>
+  <data name="CompressionMaximum" xml:space="preserve">
+    <value>Максимальное</value>
+  </data>
+  <data name="EnterArchivePassword" xml:space="preserve">
+    <value>Введите пароль архива:</value>
+  </data>
+  <data name="WrongArchivePassword" xml:space="preserve">
+    <value>Неверный пароль. Попробуйте снова.</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Показать пароль</value>
+  </data>
 </root>

@@ -165,6 +165,7 @@ namespace SmartCommander.ViewModels
             ViewCommand = ReactiveCommand.Create(View);
             EditCommand = ReactiveCommand.Create(Edit);
             ZipCommand = ReactiveCommand.CreateFromTask(Zip);
+            ZipWithOptionsCommand = ReactiveCommand.CreateFromTask(ZipWithOptions);
             UnzipCommand = ReactiveCommand.CreateFromTask(Unzip);
             CopyCommand = ReactiveCommand.CreateFromTask(Copy);
             CutCommand = ReactiveCommand.CreateFromTask(Cut);
@@ -190,6 +191,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? ViewCommand { get; }
         public ReactiveCommand<Unit, Unit>? EditCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
+        public ReactiveCommand<Unit, Unit>? ZipWithOptionsCommand { get; }
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
         public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
         public ReactiveCommand<Unit, Unit>? CutCommand { get; }
@@ -472,6 +474,11 @@ namespace SmartCommander.ViewModels
         public Task Zip()
         {
             return _mainVM.Zip();
+        }
+
+        public Task ZipWithOptions()
+        {
+            return _mainVM.ZipWithOptions();
         }
 
         public Task Unzip()

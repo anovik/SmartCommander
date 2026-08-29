@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:CompileBindings="False"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="280"
+        Width="420" Height="280"
+        x:Class="SmartCommander.Views.ZipOptionsWindow"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        xmlns:assets="clr-namespace:SmartCommander.Assets"
+        Icon="/Assets/main.ico"
+        CanResize="False"
+        Title="{x:Static assets:Resources.ZipOptionsTitle}">
+	<Grid Margin="15" RowDefinitions="*,Auto">
+		<Grid Grid.Row="0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+					   Text="{x:Static assets:Resources.Password}"/>
+			<TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" Name="PasswordTextBox"
+					 Text="{Binding Password, Mode=TwoWay}" PasswordChar="●"
+					 RevealPassword="{Binding RevealPassword}"/>
+
+			<TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+					   Text="{x:Static assets:Resources.ConfirmPassword}"/>
+			<TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"
+					 Text="{Binding ConfirmPassword, Mode=TwoWay}" PasswordChar="●"
+					 RevealPassword="{Binding RevealPassword}"/>
+
+			<CheckBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"
+					  IsChecked="{Binding RevealPassword, Mode=TwoWay}"
+					  Content="{x:Static assets:Resources.ShowPassword}"/>
+
+			<TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,10" Foreground="Red"
+					   IsVisible="{Binding ShowMismatch}"
+					   Text="{x:Static assets:Resources.PasswordsDoNotMatch}"/>
+
+			<TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center"
+					   Text="{x:Static assets:Resources.CompressionLevel}"/>
+			<ComboBox Grid.Row="4" Grid.Column="1" Margin="0,0,0,10" HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding LevelOptions}" SelectedItem="{Binding SelectedLevel, Mode=TwoWay}">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Name}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+		</Grid>
+
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+			<Button Margin="5,0,5,0" Command="{Binding OKCommand}" CommandParameter="{Binding $parent[Window]}" IsDefault="True"
+					Content="{x:Static assets:Resources.OK}"/>
+			<Button Margin="5,0,0,0" Command="{Binding CancelCommand}" CommandParameter="{Binding $parent[Window]}" IsCancel="True"
+					Content="{x:Static assets:Resources.Cancel}"/>
+		</StackPanel>
+	</Grid>
+</Window>
