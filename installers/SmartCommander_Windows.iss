@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SmartCommander"
-#define MyAppVersion "0.6"
+#define MyAppVersion "0.7"
 #define MyAppPublisher "Anna Novikova"
 #define MyAppURL "https://github.com/anovik/SmartCommander"
 #define MyAppExeName "SmartCommander.exe"
