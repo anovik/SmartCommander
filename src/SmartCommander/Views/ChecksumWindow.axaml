@@ -1,0 +1,89 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:CompileBindings="False"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:SmartCommander.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="340"
+        Width="640" Height="340"
+        x:Class="SmartCommander.Views.ChecksumWindow"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        xmlns:assets="clr-namespace:SmartCommander.Assets"
+        Icon="/Assets/main.ico"
+        CanResize="False"
+        Title="{x:Static assets:Resources.ChecksumTitle}">
+
+	<Design.DataContext>
+		<vm:ChecksumViewModel/>
+	</Design.DataContext>
+
+	<Grid Margin="15" RowDefinitions="*,Auto">
+		<Grid Grid.Row="0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,12"
+					   FontWeight="Bold" TextTrimming="CharacterEllipsis"
+					   Text="{Binding FileName}"/>
+
+			<TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,10,8" VerticalAlignment="Center" Text="MD5"/>
+			<TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,8" IsReadOnly="True"
+					 Text="{Binding Md5}"/>
+
+			<TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,10,8" VerticalAlignment="Center" Text="SHA-1"/>
+			<TextBox Grid.Row="2" Grid.Column="1" Margin="0,0,0,8" IsReadOnly="True"
+					 Text="{Binding Sha1}"/>
+
+			<TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,10,8" VerticalAlignment="Center" Text="SHA-256"/>
+			<TextBox Grid.Row="3" Grid.Column="1" Margin="0,0,0,8" IsReadOnly="True"
+					 Text="{Binding Sha256}"/>
+
+			<ProgressBar Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,4,0,8"
+						 Minimum="0" Maximum="100" Value="{Binding Progress}"
+						 IsVisible="{Binding IsComputing}"/>
+
+			<TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,8"
+					   Foreground="Gray" TextWrapping="Wrap"
+					   IsVisible="{Binding HasStatus}" Text="{Binding Status}"/>
+
+			<TextBlock Grid.Row="6" Grid.Column="0" Margin="0,0,10,4" VerticalAlignment="Center"
+					   Text="{x:Static assets:Resources.ChecksumExpectedValue}"/>
+			<TextBox Grid.Row="6" Grid.Column="1" Margin="0,0,0,4"
+					 Text="{Binding ExpectedValue, Mode=TwoWay}"/>
+
+			<TextBlock Grid.Row="7" Grid.Column="1" Margin="0,0,0,8" FontSize="11"
+					   Foreground="Gray" TextWrapping="Wrap"
+					   Text="{x:Static assets:Resources.ChecksumSidecarHint}"/>
+
+			<TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+					   FontWeight="Bold" Foreground="Green" TextWrapping="Wrap"
+					   IsVisible="{Binding ShowMatch}" Text="{Binding MatchText}"/>
+			<TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+					   FontWeight="Bold" Foreground="Red" TextWrapping="Wrap"
+					   IsVisible="{Binding ShowNoMatch}" Text="{Binding MatchText}"/>
+		</Grid>
+
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+			<Button Margin="5,0,5,0" Command="{Binding CancelCommand}"
+					IsVisible="{Binding IsComputing}"
+					Content="{x:Static assets:Resources.Cancel}"/>
+			<Button Margin="5,0,0,0" Command="{Binding CloseCommand}" CommandParameter="{Binding $parent[Window]}"
+					IsDefault="True" IsCancel="True"
+					Content="{x:Static assets:Resources.OK}"/>
+		</StackPanel>
+	</Grid>
+</Window>

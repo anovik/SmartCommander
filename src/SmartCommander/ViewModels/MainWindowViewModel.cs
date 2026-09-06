@@ -25,6 +25,7 @@ namespace SmartCommander.ViewModels
     {
         private readonly IFileSystemService _fs;
         private readonly ArchiveService _archives = new();
+        private readonly ChecksumService _checksums = new();
 
         public MainWindowViewModel(IFileSystemService fs)
         {
@@ -37,6 +38,7 @@ namespace SmartCommander.ViewModels
             ShowFtpConnectDialog = new Interaction<FtpConnectViewModel, FtpConnectViewModel?>();
             ShowZipOptionsDialog = new Interaction<ZipOptionsViewModel, ZipOptionsViewModel?>();
             ShowPasswordPromptDialog = new Interaction<PasswordPromptViewModel, PasswordPromptViewModel?>();
+            ShowChecksumDialog = new Interaction<ChecksumViewModel, ChecksumViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -156,6 +158,7 @@ namespace SmartCommander.ViewModels
         public Interaction<FtpConnectViewModel, FtpConnectViewModel?> ShowFtpConnectDialog { get; }
         public Interaction<ZipOptionsViewModel, ZipOptionsViewModel?> ShowZipOptionsDialog { get; }
         public Interaction<PasswordPromptViewModel, PasswordPromptViewModel?> ShowPasswordPromptDialog { get; }
+        public Interaction<ChecksumViewModel, ChecksumViewModel?> ShowChecksumDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -586,6 +589,20 @@ namespace SmartCommander.ViewModels
                 Log.Error(ex, "Unzip failed: {ArchiveFullName}", archiveFullName);
                 MessageBox_Show(null, string.Format(Resources.CantExtractArchive, archiveFullName), Resources.Alert);
             }
+        }
+
+        // Single local file only (the menu item is hidden otherwise). The dialog streams the
+        // hashes off-thread and shows them - no ActiveOperations entry, it's read-only and
+        // self-contained, and cancellation is handled inside the dialog.
+        public async Task Checksum()
+        {
+            var pane = SelectedPane;
+            var item = pane.CurrentItem;
+            if (item == null || item.IsFolder || item.FullName == ".." || pane.IsFtp)
+            {
+                return;
+            }
+            await ShowChecksumDialog.Handle(new ChecksumViewModel(item.FullName, _checksums));
         }
 
         public async Task Copy()

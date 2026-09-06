@@ -49,6 +49,9 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowPasswordPromptDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<PasswordPromptViewModel, PasswordPromptWindow>(interaction)
             )));
+            this.WhenActivated(d => d(ViewModel!.ShowChecksumDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<ChecksumViewModel, ChecksumWindow>(interaction)
+            )));
 
             operationsWindow = new OperationsWindow();
 

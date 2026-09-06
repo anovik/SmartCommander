@@ -510,4 +510,25 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Показать пароль</value>
   </data>
+  <data name="Checksum" xml:space="preserve">
+    <value>Контрольная сумма…</value>
+  </data>
+  <data name="ChecksumTitle" xml:space="preserve">
+    <value>Контрольная сумма</value>
+  </data>
+  <data name="ChecksumExpectedValue" xml:space="preserve">
+    <value>Ожидаемое значение</value>
+  </data>
+  <data name="ChecksumSidecarHint" xml:space="preserve">
+    <value>Автоматически заполняется из файла .sha256 / .sha1 / .md5 рядом с этим файлом, если он есть.</value>
+  </data>
+  <data name="ChecksumMatches" xml:space="preserve">
+    <value>Совпадает с {0}</value>
+  </data>
+  <data name="ChecksumNoMatch" xml:space="preserve">
+    <value>Не совпадает ни с одной вычисленной хеш-суммой</value>
+  </data>
+  <data name="ChecksumCancelled" xml:space="preserve">
+    <value>Вычисление отменено</value>
+  </data>
 </root>

@@ -92,6 +92,9 @@ namespace SmartCommander.ViewModels
 
         public bool ShowZip => IsRealItemSelected && !IsFtp && !IsUnzip;
         public bool ShowUnzip => IsRealItemSelected && !IsFtp && IsUnzip;
+        // Checksum is a single-local-file tool: hidden for folders, FTP, and multi-selection.
+        public bool ShowChecksum => IsRealItemSelected && !IsFtp && CurrentItem != null
+            && !CurrentItem.IsFolder && CurrentItems.Count <= 1;
         public bool CanShowMoreOptions => !IsFtp && IsWindows;
         public bool CanShowItemMoreOptions => IsRealItemSelected && CanShowMoreOptions;
         // Covers both ".." and no selection at all (e.g. an empty directory) - either way
@@ -167,6 +170,7 @@ namespace SmartCommander.ViewModels
             ZipCommand = ReactiveCommand.CreateFromTask(Zip);
             ZipWithOptionsCommand = ReactiveCommand.CreateFromTask(ZipWithOptions);
             UnzipCommand = ReactiveCommand.CreateFromTask(Unzip);
+            ChecksumCommand = ReactiveCommand.CreateFromTask(Checksum);
             CopyCommand = ReactiveCommand.CreateFromTask(Copy);
             CutCommand = ReactiveCommand.CreateFromTask(Cut);
             TransferCommand = ReactiveCommand.CreateFromTask(() => _mainVM.Copy());
@@ -193,6 +197,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? ZipCommand { get; }
         public ReactiveCommand<Unit, Unit>? ZipWithOptionsCommand { get; }
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
+        public ReactiveCommand<Unit, Unit>? ChecksumCommand { get; }
         public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
         public ReactiveCommand<Unit, Unit>? CutCommand { get; }
         public ReactiveCommand<Unit, Unit>? TransferCommand { get; }
@@ -484,6 +489,11 @@ namespace SmartCommander.ViewModels
         public Task Unzip()
         {
             return _mainVM.Unzip();
+        }
+
+        public Task Checksum()
+        {
+            return _mainVM.Checksum();
         }
 
         public Task Delete()

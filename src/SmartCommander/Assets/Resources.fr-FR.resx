@@ -510,4 +510,25 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Afficher le mot de passe</value>
   </data>
+  <data name="Checksum" xml:space="preserve">
+    <value>Somme de contrôle…</value>
+  </data>
+  <data name="ChecksumTitle" xml:space="preserve">
+    <value>Somme de contrôle</value>
+  </data>
+  <data name="ChecksumExpectedValue" xml:space="preserve">
+    <value>Valeur attendue</value>
+  </data>
+  <data name="ChecksumSidecarHint" xml:space="preserve">
+    <value>Rempli automatiquement à partir d'un fichier .sha256 / .sha1 / .md5 adjacent, s'il existe.</value>
+  </data>
+  <data name="ChecksumMatches" xml:space="preserve">
+    <value>Correspond à {0}</value>
+  </data>
+  <data name="ChecksumNoMatch" xml:space="preserve">
+    <value>Ne correspond à aucune empreinte calculée</value>
+  </data>
+  <data name="ChecksumCancelled" xml:space="preserve">
+    <value>Calcul annulé</value>
+  </data>
 </root>
