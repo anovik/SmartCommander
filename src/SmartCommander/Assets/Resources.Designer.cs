@@ -1238,5 +1238,68 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("ShowPassword", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checksum….
+        /// </summary>
+        public static string Checksum {
+            get {
+                return ResourceManager.GetString("Checksum", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checksum.
+        /// </summary>
+        public static string ChecksumTitle {
+            get {
+                return ResourceManager.GetString("ChecksumTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Expected value.
+        /// </summary>
+        public static string ChecksumExpectedValue {
+            get {
+                return ResourceManager.GetString("ChecksumExpectedValue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Auto-filled from a .sha256 / .sha1 / .md5 file next to this one, if present..
+        /// </summary>
+        public static string ChecksumSidecarHint {
+            get {
+                return ResourceManager.GetString("ChecksumSidecarHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Matches {0}.
+        /// </summary>
+        public static string ChecksumMatches {
+            get {
+                return ResourceManager.GetString("ChecksumMatches", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Does not match any computed hash.
+        /// </summary>
+        public static string ChecksumNoMatch {
+            get {
+                return ResourceManager.GetString("ChecksumNoMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Computation cancelled.
+        /// </summary>
+        public static string ChecksumCancelled {
+            get {
+                return ResourceManager.GetString("ChecksumCancelled", resourceCulture);
+            }
+        }
     }
 }

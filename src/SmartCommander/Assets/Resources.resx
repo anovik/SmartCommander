@@ -510,4 +510,25 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Show password</value>
   </data>
+  <data name="Checksum" xml:space="preserve">
+    <value>Checksum…</value>
+  </data>
+  <data name="ChecksumTitle" xml:space="preserve">
+    <value>Checksum</value>
+  </data>
+  <data name="ChecksumExpectedValue" xml:space="preserve">
+    <value>Expected value</value>
+  </data>
+  <data name="ChecksumSidecarHint" xml:space="preserve">
+    <value>Auto-filled from a .sha256 / .sha1 / .md5 file next to this one, if present.</value>
+  </data>
+  <data name="ChecksumMatches" xml:space="preserve">
+    <value>Matches {0}</value>
+  </data>
+  <data name="ChecksumNoMatch" xml:space="preserve">
+    <value>Does not match any computed hash</value>
+  </data>
+  <data name="ChecksumCancelled" xml:space="preserve">
+    <value>Computation cancelled</value>
+  </data>
 </root>

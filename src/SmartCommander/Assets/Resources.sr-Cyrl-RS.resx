@@ -510,4 +510,25 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Прикажи лозинку</value>
   </data>
+  <data name="Checksum" xml:space="preserve">
+    <value>Контролна сума…</value>
+  </data>
+  <data name="ChecksumTitle" xml:space="preserve">
+    <value>Контролна сума</value>
+  </data>
+  <data name="ChecksumExpectedValue" xml:space="preserve">
+    <value>Очекивана вредност</value>
+  </data>
+  <data name="ChecksumSidecarHint" xml:space="preserve">
+    <value>Аутоматски попуњено из .sha256 / .sha1 / .md5 датотеке поред ове, ако постоји.</value>
+  </data>
+  <data name="ChecksumMatches" xml:space="preserve">
+    <value>Одговара {0}</value>
+  </data>
+  <data name="ChecksumNoMatch" xml:space="preserve">
+    <value>Не одговара ниједној израчунатој хеш вредности</value>
+  </data>
+  <data name="ChecksumCancelled" xml:space="preserve">
+    <value>Израчунавање је отказано</value>
+  </data>
 </root>

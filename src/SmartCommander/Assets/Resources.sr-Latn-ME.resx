@@ -510,4 +510,25 @@
   <data name="ShowPassword" xml:space="preserve">
     <value>Prikaži lozinku</value>
   </data>
+  <data name="Checksum" xml:space="preserve">
+    <value>Kontrolna suma…</value>
+  </data>
+  <data name="ChecksumTitle" xml:space="preserve">
+    <value>Kontrolna suma</value>
+  </data>
+  <data name="ChecksumExpectedValue" xml:space="preserve">
+    <value>Očekivana vrednost</value>
+  </data>
+  <data name="ChecksumSidecarHint" xml:space="preserve">
+    <value>Automatski popunjeno iz .sha256 / .sha1 / .md5 datoteke pored ove, ako postoji.</value>
+  </data>
+  <data name="ChecksumMatches" xml:space="preserve">
+    <value>Odgovara {0}</value>
+  </data>
+  <data name="ChecksumNoMatch" xml:space="preserve">
+    <value>Ne odgovara nijednoj izračunatoj heš vrednosti</value>
+  </data>
+  <data name="ChecksumCancelled" xml:space="preserve">
+    <value>Izračunavanje je otkazano</value>
+  </data>
 </root>

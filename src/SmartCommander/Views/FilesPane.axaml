@@ -135,6 +135,9 @@
 					<MenuItem Header="{x:Static assets:Resources.Unzip}"
                               IsVisible="{Binding ShowUnzip, Mode=TwoWay}"
                               Command="{Binding UnzipCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Checksum}"
+                              IsVisible="{Binding ShowChecksum}"
+                              Command="{Binding ChecksumCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
                               IsVisible="{Binding CanShowItemMoreOptions}"
                               Command="{Binding ShowMoreOptionsCommand}" />
