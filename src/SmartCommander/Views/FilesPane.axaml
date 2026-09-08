@@ -138,6 +138,9 @@
 					<MenuItem Header="{x:Static assets:Resources.Checksum}"
                               IsVisible="{Binding ShowChecksum}"
                               Command="{Binding ChecksumCommand}" />
+					<MenuItem Header="{x:Static assets:Resources.Properties}"
+                              IsVisible="{Binding ShowProperties}"
+                              Command="{Binding PropertiesCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
                               IsVisible="{Binding CanShowItemMoreOptions}"
                               Command="{Binding ShowMoreOptionsCommand}" />

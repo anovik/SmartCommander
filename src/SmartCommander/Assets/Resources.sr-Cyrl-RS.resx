@@ -531,4 +531,61 @@
   <data name="ChecksumCancelled" xml:space="preserve">
     <value>Израчунавање је отказано</value>
   </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Својства</value>
+  </data>
+  <data name="PropertiesLocation" xml:space="preserve">
+    <value>Локација</value>
+  </data>
+  <data name="PropertiesType" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="PropertiesTypeFile" xml:space="preserve">
+    <value>Датотека</value>
+  </data>
+  <data name="PropertiesTypeFolder" xml:space="preserve">
+    <value>Фасцикла</value>
+  </data>
+  <data name="PropertiesContains" xml:space="preserve">
+    <value>Садржај</value>
+  </data>
+  <data name="PropertiesContainsFormat" xml:space="preserve">
+    <value>{0:N0} датотека, {1:N0} фасцикли</value>
+  </data>
+  <data name="PropertiesCreated" xml:space="preserve">
+    <value>Направљено</value>
+  </data>
+  <data name="PropertiesModified" xml:space="preserve">
+    <value>Измењено</value>
+  </data>
+  <data name="PropertiesAccessed" xml:space="preserve">
+    <value>Приступљено</value>
+  </data>
+  <data name="PropertiesAttributes" xml:space="preserve">
+    <value>Атрибути</value>
+  </data>
+  <data name="PropertiesReadOnly" xml:space="preserve">
+    <value>Само за читање</value>
+  </data>
+  <data name="PropertiesHidden" xml:space="preserve">
+    <value>Скривено</value>
+  </data>
+  <data name="PropertiesCalculating" xml:space="preserve">
+    <value>Израчунавање…</value>
+  </data>
+  <data name="PropertiesSizeCancelled" xml:space="preserve">
+    <value>Отказано</value>
+  </data>
+  <data name="PropertiesSizeFormat" xml:space="preserve">
+    <value>{0} ({1:N0} бајтова)</value>
+  </data>
+  <data name="PropertiesApplyFailed" xml:space="preserve">
+    <value>Није могуће променити атрибуте: {0}</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Примени</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Затвори</value>
+  </data>
 </root>

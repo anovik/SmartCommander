@@ -26,6 +26,7 @@ namespace SmartCommander.ViewModels
         private readonly IFileSystemService _fs;
         private readonly ArchiveService _archives = new();
         private readonly ChecksumService _checksums = new();
+        private readonly PropertiesService _properties = new();
 
         public MainWindowViewModel(IFileSystemService fs)
         {
@@ -39,6 +40,7 @@ namespace SmartCommander.ViewModels
             ShowZipOptionsDialog = new Interaction<ZipOptionsViewModel, ZipOptionsViewModel?>();
             ShowPasswordPromptDialog = new Interaction<PasswordPromptViewModel, PasswordPromptViewModel?>();
             ShowChecksumDialog = new Interaction<ChecksumViewModel, ChecksumViewModel?>();
+            ShowPropertiesDialog = new Interaction<PropertiesViewModel, PropertiesViewModel?>();
 
             ExitCommand = ReactiveCommand.Create(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
@@ -159,6 +161,7 @@ namespace SmartCommander.ViewModels
         public Interaction<ZipOptionsViewModel, ZipOptionsViewModel?> ShowZipOptionsDialog { get; }
         public Interaction<PasswordPromptViewModel, PasswordPromptViewModel?> ShowPasswordPromptDialog { get; }
         public Interaction<ChecksumViewModel, ChecksumViewModel?> ShowChecksumDialog { get; }
+        public Interaction<PropertiesViewModel, PropertiesViewModel?> ShowPropertiesDialog { get; }
 
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
@@ -603,6 +606,19 @@ namespace SmartCommander.ViewModels
                 return;
             }
             await ShowChecksumDialog.Handle(new ChecksumViewModel(item.FullName, _checksums));
+        }
+
+        // Single local file or folder (the menu item is hidden for FTP panes and multi-selection).
+        // Self-contained dialog, no ActiveOperations entry.
+        public async Task Properties()
+        {
+            var pane = SelectedPane;
+            var item = pane.CurrentItem;
+            if (item == null || item.FullName == ".." || pane.IsFtp)
+            {
+                return;
+            }
+            await ShowPropertiesDialog.Handle(new PropertiesViewModel(item.FullName, item.IsFolder, _properties));
         }
 
         public async Task Copy()
