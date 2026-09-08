@@ -95,6 +95,8 @@ namespace SmartCommander.ViewModels
         // Checksum is a single-local-file tool: hidden for folders, FTP, and multi-selection.
         public bool ShowChecksum => IsRealItemSelected && !IsFtp && CurrentItem != null
             && !CurrentItem.IsFolder && CurrentItems.Count <= 1;
+        // Properties is a single local file/folder tool: hidden for FTP and multi-selection.
+        public bool ShowProperties => IsRealItemSelected && !IsFtp && CurrentItems.Count <= 1;
         public bool CanShowMoreOptions => !IsFtp && IsWindows;
         public bool CanShowItemMoreOptions => IsRealItemSelected && CanShowMoreOptions;
         // Covers both ".." and no selection at all (e.g. an empty directory) - either way
@@ -171,6 +173,7 @@ namespace SmartCommander.ViewModels
             ZipWithOptionsCommand = ReactiveCommand.CreateFromTask(ZipWithOptions);
             UnzipCommand = ReactiveCommand.CreateFromTask(Unzip);
             ChecksumCommand = ReactiveCommand.CreateFromTask(Checksum);
+            PropertiesCommand = ReactiveCommand.CreateFromTask(Properties);
             CopyCommand = ReactiveCommand.CreateFromTask(Copy);
             CutCommand = ReactiveCommand.CreateFromTask(Cut);
             TransferCommand = ReactiveCommand.CreateFromTask(() => _mainVM.Copy());
@@ -198,6 +201,7 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? ZipWithOptionsCommand { get; }
         public ReactiveCommand<Unit, Unit>? UnzipCommand { get; }
         public ReactiveCommand<Unit, Unit>? ChecksumCommand { get; }
+        public ReactiveCommand<Unit, Unit>? PropertiesCommand { get; }
         public ReactiveCommand<Unit, Unit>? CopyCommand { get; }
         public ReactiveCommand<Unit, Unit>? CutCommand { get; }
         public ReactiveCommand<Unit, Unit>? TransferCommand { get; }
@@ -494,6 +498,11 @@ namespace SmartCommander.ViewModels
         public Task Checksum()
         {
             return _mainVM.Checksum();
+        }
+
+        public Task Properties()
+        {
+            return _mainVM.Properties();
         }
 
         public Task Delete()

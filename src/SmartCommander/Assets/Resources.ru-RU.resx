@@ -531,4 +531,61 @@
   <data name="ChecksumCancelled" xml:space="preserve">
     <value>Вычисление отменено</value>
   </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Свойства</value>
+  </data>
+  <data name="PropertiesLocation" xml:space="preserve">
+    <value>Расположение</value>
+  </data>
+  <data name="PropertiesType" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="PropertiesTypeFile" xml:space="preserve">
+    <value>Файл</value>
+  </data>
+  <data name="PropertiesTypeFolder" xml:space="preserve">
+    <value>Папка</value>
+  </data>
+  <data name="PropertiesContains" xml:space="preserve">
+    <value>Содержимое</value>
+  </data>
+  <data name="PropertiesContainsFormat" xml:space="preserve">
+    <value>Файлов: {0:N0}, папок: {1:N0}</value>
+  </data>
+  <data name="PropertiesCreated" xml:space="preserve">
+    <value>Создан</value>
+  </data>
+  <data name="PropertiesModified" xml:space="preserve">
+    <value>Изменён</value>
+  </data>
+  <data name="PropertiesAccessed" xml:space="preserve">
+    <value>Открыт</value>
+  </data>
+  <data name="PropertiesAttributes" xml:space="preserve">
+    <value>Атрибуты</value>
+  </data>
+  <data name="PropertiesReadOnly" xml:space="preserve">
+    <value>Только для чтения</value>
+  </data>
+  <data name="PropertiesHidden" xml:space="preserve">
+    <value>Скрытый</value>
+  </data>
+  <data name="PropertiesCalculating" xml:space="preserve">
+    <value>Вычисление…</value>
+  </data>
+  <data name="PropertiesSizeCancelled" xml:space="preserve">
+    <value>Отменено</value>
+  </data>
+  <data name="PropertiesSizeFormat" xml:space="preserve">
+    <value>{0} ({1:N0} байт)</value>
+  </data>
+  <data name="PropertiesApplyFailed" xml:space="preserve">
+    <value>Не удалось изменить атрибуты: {0}</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Применить</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
 </root>

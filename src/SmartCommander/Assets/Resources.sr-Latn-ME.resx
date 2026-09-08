@@ -531,4 +531,61 @@
   <data name="ChecksumCancelled" xml:space="preserve">
     <value>Izračunavanje je otkazano</value>
   </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Svojstva</value>
+  </data>
+  <data name="PropertiesLocation" xml:space="preserve">
+    <value>Lokacija</value>
+  </data>
+  <data name="PropertiesType" xml:space="preserve">
+    <value>Tip</value>
+  </data>
+  <data name="PropertiesTypeFile" xml:space="preserve">
+    <value>Datoteka</value>
+  </data>
+  <data name="PropertiesTypeFolder" xml:space="preserve">
+    <value>Fascikla</value>
+  </data>
+  <data name="PropertiesContains" xml:space="preserve">
+    <value>Sadržaj</value>
+  </data>
+  <data name="PropertiesContainsFormat" xml:space="preserve">
+    <value>{0:N0} datoteka, {1:N0} fascikli</value>
+  </data>
+  <data name="PropertiesCreated" xml:space="preserve">
+    <value>Napravljeno</value>
+  </data>
+  <data name="PropertiesModified" xml:space="preserve">
+    <value>Izmijenjeno</value>
+  </data>
+  <data name="PropertiesAccessed" xml:space="preserve">
+    <value>Pristupljeno</value>
+  </data>
+  <data name="PropertiesAttributes" xml:space="preserve">
+    <value>Atributi</value>
+  </data>
+  <data name="PropertiesReadOnly" xml:space="preserve">
+    <value>Samo za čitanje</value>
+  </data>
+  <data name="PropertiesHidden" xml:space="preserve">
+    <value>Skriveno</value>
+  </data>
+  <data name="PropertiesCalculating" xml:space="preserve">
+    <value>Izračunavanje…</value>
+  </data>
+  <data name="PropertiesSizeCancelled" xml:space="preserve">
+    <value>Otkazano</value>
+  </data>
+  <data name="PropertiesSizeFormat" xml:space="preserve">
+    <value>{0} ({1:N0} bajtova)</value>
+  </data>
+  <data name="PropertiesApplyFailed" xml:space="preserve">
+    <value>Nije moguće promijeniti atribute: {0}</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Primijeni</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Zatvori</value>
+  </data>
 </root>

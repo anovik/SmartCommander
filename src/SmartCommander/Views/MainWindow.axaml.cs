@@ -52,6 +52,9 @@ namespace SmartCommander.Views
             this.WhenActivated(d => d(ViewModel!.ShowChecksumDialog.RegisterHandler(
                 interaction => DoShowDialogAsync<ChecksumViewModel, ChecksumWindow>(interaction)
             )));
+            this.WhenActivated(d => d(ViewModel!.ShowPropertiesDialog.RegisterHandler(
+                interaction => DoShowDialogAsync<PropertiesViewModel, PropertiesWindow>(interaction)
+            )));
 
             operationsWindow = new OperationsWindow();
 

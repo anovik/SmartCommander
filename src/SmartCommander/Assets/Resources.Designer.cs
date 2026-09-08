@@ -1301,5 +1301,176 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("ChecksumCancelled", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Properties.
+        /// </summary>
+        public static string Properties {
+            get {
+                return ResourceManager.GetString("Properties", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Location.
+        /// </summary>
+        public static string PropertiesLocation {
+            get {
+                return ResourceManager.GetString("PropertiesLocation", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        public static string PropertiesType {
+            get {
+                return ResourceManager.GetString("PropertiesType", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File.
+        /// </summary>
+        public static string PropertiesTypeFile {
+            get {
+                return ResourceManager.GetString("PropertiesTypeFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder.
+        /// </summary>
+        public static string PropertiesTypeFolder {
+            get {
+                return ResourceManager.GetString("PropertiesTypeFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Contains.
+        /// </summary>
+        public static string PropertiesContains {
+            get {
+                return ResourceManager.GetString("PropertiesContains", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:N0} files, {1:N0} folders.
+        /// </summary>
+        public static string PropertiesContainsFormat {
+            get {
+                return ResourceManager.GetString("PropertiesContainsFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Created.
+        /// </summary>
+        public static string PropertiesCreated {
+            get {
+                return ResourceManager.GetString("PropertiesCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Modified.
+        /// </summary>
+        public static string PropertiesModified {
+            get {
+                return ResourceManager.GetString("PropertiesModified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accessed.
+        /// </summary>
+        public static string PropertiesAccessed {
+            get {
+                return ResourceManager.GetString("PropertiesAccessed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Attributes.
+        /// </summary>
+        public static string PropertiesAttributes {
+            get {
+                return ResourceManager.GetString("PropertiesAttributes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Read-only.
+        /// </summary>
+        public static string PropertiesReadOnly {
+            get {
+                return ResourceManager.GetString("PropertiesReadOnly", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden.
+        /// </summary>
+        public static string PropertiesHidden {
+            get {
+                return ResourceManager.GetString("PropertiesHidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Calculating….
+        /// </summary>
+        public static string PropertiesCalculating {
+            get {
+                return ResourceManager.GetString("PropertiesCalculating", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelled.
+        /// </summary>
+        public static string PropertiesSizeCancelled {
+            get {
+                return ResourceManager.GetString("PropertiesSizeCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ({1:N0} bytes).
+        /// </summary>
+        public static string PropertiesSizeFormat {
+            get {
+                return ResourceManager.GetString("PropertiesSizeFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not change attributes: {0}.
+        /// </summary>
+        public static string PropertiesApplyFailed {
+            get {
+                return ResourceManager.GetString("PropertiesApplyFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply.
+        /// </summary>
+        public static string Apply {
+            get {
+                return ResourceManager.GetString("Apply", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
     }
 }

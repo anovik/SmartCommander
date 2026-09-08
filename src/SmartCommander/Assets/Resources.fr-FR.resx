@@ -531,4 +531,61 @@
   <data name="ChecksumCancelled" xml:space="preserve">
     <value>Calcul annulé</value>
   </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="PropertiesLocation" xml:space="preserve">
+    <value>Emplacement</value>
+  </data>
+  <data name="PropertiesType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="PropertiesTypeFile" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="PropertiesTypeFolder" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="PropertiesContains" xml:space="preserve">
+    <value>Contenu</value>
+  </data>
+  <data name="PropertiesContainsFormat" xml:space="preserve">
+    <value>{0:N0} fichiers, {1:N0} dossiers</value>
+  </data>
+  <data name="PropertiesCreated" xml:space="preserve">
+    <value>Créé</value>
+  </data>
+  <data name="PropertiesModified" xml:space="preserve">
+    <value>Modifié</value>
+  </data>
+  <data name="PropertiesAccessed" xml:space="preserve">
+    <value>Dernier accès</value>
+  </data>
+  <data name="PropertiesAttributes" xml:space="preserve">
+    <value>Attributs</value>
+  </data>
+  <data name="PropertiesReadOnly" xml:space="preserve">
+    <value>Lecture seule</value>
+  </data>
+  <data name="PropertiesHidden" xml:space="preserve">
+    <value>Caché</value>
+  </data>
+  <data name="PropertiesCalculating" xml:space="preserve">
+    <value>Calcul en cours…</value>
+  </data>
+  <data name="PropertiesSizeCancelled" xml:space="preserve">
+    <value>Annulé</value>
+  </data>
+  <data name="PropertiesSizeFormat" xml:space="preserve">
+    <value>{0} ({1:N0} octets)</value>
+  </data>
+  <data name="PropertiesApplyFailed" xml:space="preserve">
+    <value>Impossible de modifier les attributs : {0}</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Appliquer</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
 </root>
