@@ -682,8 +682,28 @@ namespace SmartCommander.ViewModels
         // onMoveCompleted (if given) runs only once the background move has actually finished
         // successfully - not merely been launched - so a cut-paste caller can safely clear its
         // clipboard without losing the source on a failed move.
-        public async Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut,
+        public Task<bool> PasteFiles(string destDirectory, List<string> sourcePaths, bool isCut,
             Func<Task>? onMoveCompleted = null)
+        {
+            return CopyOrMovePathsAsync(destDirectory, sourcePaths, isCut, "PasteSelectedItems",
+                onCompleted: onMoveCompleted == null ? null : async succeeded =>
+                {
+                    if (succeeded)
+                    {
+                        await onMoveCompleted();
+                    }
+                });
+        }
+
+        // Drag-and-drop front door: same funnel as paste, but copy/move comes from the drop
+        // gesture and the clipboard is never involved.
+        public Task<bool> DropFiles(string destDirectory, List<string> sourcePaths, bool move)
+        {
+            return CopyOrMovePathsAsync(destDirectory, sourcePaths, move, "DropItems");
+        }
+
+        private async Task<bool> CopyOrMovePathsAsync(string destDirectory, List<string> sourcePaths, bool move,
+            string logContext, Func<bool, Task>? onCompleted = null)
         {
             var items = new List<(string FullName, bool IsFolder)>();
             foreach (var path in sourcePaths)
@@ -696,14 +716,7 @@ namespace SmartCommander.ViewModels
             }
 
             return await ConfirmOverwriteThenRun(items, destDirectory,
-                overwrite => RunFileOperation(items, destDirectory, isCut, overwrite, "PasteSelectedItems",
-                    onCompleted: onMoveCompleted == null ? null : async succeeded =>
-                    {
-                        if (succeeded)
-                        {
-                            await onMoveCompleted();
-                        }
-                    }));
+                overwrite => RunFileOperation(items, destDirectory, move, overwrite, logContext, onCompleted));
         }
 
         // Returns true only once the user has confirmed (or no confirmation was needed) and the

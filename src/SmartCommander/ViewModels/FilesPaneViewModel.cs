@@ -522,6 +522,82 @@ namespace SmartCommander.ViewModels
             return (topLevel?.Clipboard, topLevel?.StorageProvider);
         }
 
+        // Shared by clipboard copy/cut and drag-out: real OS file items, so Explorer / Finder /
+        // file managers accept them. Items the storage provider can't resolve (e.g. ftp://
+        // paths) are skipped.
+        private static async Task<DataTransfer> BuildFileDataTransfer(IReadOnlyList<FileViewModel> items,
+            IStorageProvider storageProvider)
+        {
+            var dataTransfer = new DataTransfer();
+            foreach (var item in items)
+            {
+                // Uri's implicit file-path detection only recognizes Windows drive-letter/UNC
+                // forms; a plain absolute Unix path (e.g. "/home/user/file") has no scheme and
+                // throws UriFormatException, so the file:// URI is built explicitly instead.
+                var uri = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = "", Path = item.FullName }.Uri;
+                IStorageItem? storageItem = item.IsFolder
+                    ? await storageProvider.TryGetFolderFromPathAsync(uri)
+                    : await storageProvider.TryGetFileFromPathAsync(uri);
+                if (storageItem != null)
+                {
+                    dataTransfer.Add(DataTransferItem.Create(DataFormat.File, storageItem));
+                }
+            }
+            return dataTransfer;
+        }
+
+        // An in-app drag carries its source pane and paths in a process-only format, so a drop
+        // on either pane can read them synchronously (DragOver needs them on every move) and
+        // FTP rows - which have no OS file representation - can still be dragged between panes.
+        public sealed record PaneDragPayload(FilesPaneViewModel SourcePane, IReadOnlyList<string> Paths);
+
+        public static readonly DataFormat<PaneDragPayload> PaneDragFormat =
+            DataFormat.CreateInProcessFormat<PaneDragPayload>("SmartCommander.PaneDrag");
+
+        // Windows Explorer's own "Preferred DropEffect" hint (a DWORD, 1 = DROPEFFECT_COPY):
+        // makes a plain drag out of the app a copy by default, so a same-volume drop onto the
+        // desktop doesn't silently move the file out of the pane.
+        private static readonly DataFormat<byte[]> PreferredDropEffectFormat =
+            DataFormat.CreateBytesPlatformFormat("Preferred DropEffect");
+
+        // Returns null when nothing draggable remains (e.g. only "..").
+        public async Task<DataTransfer?> BuildDragDataTransfer(IReadOnlyList<FileViewModel> items)
+        {
+            if (items.Count == 0)
+            {
+                return null;
+            }
+
+            DataTransfer dataTransfer;
+            if (IsFtp)
+            {
+                dataTransfer = new DataTransfer();
+            }
+            else
+            {
+                var storageProvider = GetTopLevel()?.StorageProvider;
+                if (storageProvider == null)
+                {
+                    return null;
+                }
+                dataTransfer = await BuildFileDataTransfer(items, storageProvider);
+                if (OperatingSystem.IsWindows())
+                {
+                    dataTransfer.Add(DataTransferItem.Create(PreferredDropEffectFormat, BitConverter.GetBytes(1)));
+                }
+            }
+            dataTransfer.Add(DataTransferItem.Create(PaneDragFormat,
+                new PaneDragPayload(this, items.Select(i => i.FullName).ToList())));
+            return dataTransfer;
+        }
+
+        // Drop target entry point. sourcePaths are resolved by the View (from the in-app payload
+        // or the OS file list) before the drag's data object is released.
+        public Task DropFiles(string destDirectory, List<string> sourcePaths, bool move)
+        {
+            return _mainVM.DropFiles(destDirectory, sourcePaths, move);
+        }
+
         private async Task CopyOrCutToClipboard(bool isCut)
         {
             var items = (CurrentItems.Count > 0 ? CurrentItems :
@@ -539,22 +615,7 @@ namespace SmartCommander.ViewModels
                 return;
             }
 
-            var dataTransfer = new DataTransfer();
-            foreach (var item in items)
-            {
-                // Uri's implicit file-path detection only recognizes Windows drive-letter/UNC
-                // forms; a plain absolute Unix path (e.g. "/home/user/file") has no scheme and
-                // throws UriFormatException, so the file:// URI is built explicitly instead.
-                var uri = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = "", Path = item.FullName }.Uri;
-                IStorageItem? storageItem = item.IsFolder
-                    ? await storageProvider.TryGetFolderFromPathAsync(uri)
-                    : await storageProvider.TryGetFileFromPathAsync(uri);
-                if (storageItem != null)
-                {
-                    dataTransfer.Add(DataTransferItem.Create(DataFormat.File, storageItem));
-                }
-            }
-
+            var dataTransfer = await BuildFileDataTransfer(items, storageProvider);
             if (dataTransfer.Items.Count == 0)
             {
                 return;
