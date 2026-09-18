@@ -85,6 +85,11 @@
 				<Style Selector="DataGridCell:invalid /template/ Rectangle#InvalidVisualElement">
 					<Setter Property="IsVisible" Value="False" />
 				</Style>
+				<!-- Folder row a drag is hovering: the drop lands inside that folder. -->
+				<Style Selector="DataGridRow.dropTarget /template/ Rectangle#BackgroundRectangle">
+					<Setter Property="Fill" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+					<Setter Property="Opacity" Value="0.5" />
+				</Style>
 			</DataGrid.Styles>
 
 			<DataGrid.ContextFlyout>
@@ -195,6 +200,15 @@
 				</ia:EventTriggerBehavior>
 			</i:Interaction.Behaviors>
 		</DataGrid>
+
+		<!-- Shown while a drag would drop into the pane's current directory. -->
+		<Border Name="DropHighlight"
+				Grid.Row="1"
+				Margin="5"
+				BorderThickness="2"
+				BorderBrush="{DynamicResource SystemControlHighlightAccentBrush}"
+				IsHitTestVisible="False"
+				IsVisible="False" />
 
 		<TextBlock Grid.Row="2" Text="{Binding CurrentDirectoryInfo}" />
 	</Grid>
