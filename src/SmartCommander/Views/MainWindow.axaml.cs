@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using ReactiveUI.Avalonia;
 using MsBox.Avalonia.Enums;
 using ReactiveUI;
@@ -14,7 +15,13 @@ namespace SmartCommander.Views
 {
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        OperationsWindow operationsWindow;
+        // Created fresh for each run of operations and closed when they finish, never hidden and
+        // re-shown: on Linux/X11 a re-shown window intermittently came back unpainted (only the
+        // title bar visible) and unresponsive.
+        private OperationsWindow? operationsWindow;
+        private readonly DispatcherTimer _operationsShowTimer =
+            new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+        private bool _showOperationsWhenVisible;
         private bool _closeConfirmedAndCancelling;
         private bool _openedEventsWired;
         public MainWindow()
@@ -56,7 +63,11 @@ namespace SmartCommander.Views
                 interaction => DoShowDialogAsync<PropertiesViewModel, PropertiesWindow>(interaction)
             )));
 
-            operationsWindow = new OperationsWindow();
+            _operationsShowTimer.Tick += (s, e) =>
+            {
+                _operationsShowTimer.Stop();
+                ShowOperationsWindow();
+            };
 
             Closing += async (s, e) =>
             {
@@ -107,9 +118,6 @@ namespace SmartCommander.Views
                         }
                     }
                 }
-
-                // Programmatic close bypasses the OperationsWindow hide-intercept.
-                operationsWindow.Close();
             }
         }
 
@@ -145,6 +153,12 @@ namespace SmartCommander.Views
                 }
             }
 
+            if (_showOperationsWhenVisible)
+            {
+                _showOperationsWhenVisible = false;
+                ShowOperationsWindow();
+            }
+
             // Opened fires again on every Show() following a Hide() (tray minimize/restore,
             // second-instance activation) even though DataContext hasn't changed, so the
             // handlers below must only be wired once per window lifetime.
@@ -159,7 +173,6 @@ namespace SmartCommander.Views
             {
                 _openedEventsWired = true;
 
-                operationsWindow.DataContext = vm;
                 vm.ActiveOperations.CollectionChanged += OnActiveOperationsChanged;
                 LeftPane.DataContext = vm.LeftFileViewModel;
                 RightPane.DataContext = vm.RightFileViewModel;
@@ -184,14 +197,66 @@ namespace SmartCommander.Views
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                // Owned: stays above MainWindow without blocking it. Showing on every add also
-                // re-surfaces the window if the user hid it with X while operations were running.
-                operationsWindow.Show(this);
+                // Shown after a short delay so operations that finish almost instantly never
+                // flash it open and shut. Every add also re-surfaces the window if the user
+                // closed it with X while operations were running.
+                _operationsShowTimer.Start();
             }
             else if ((DataContext as MainWindowViewModel)?.ActiveOperations.Count == 0)
             {
-                operationsWindow.Hide();
+                CloseOperationsWindow();
             }
+        }
+
+        private void ShowOperationsWindow()
+        {
+            if (DataContext is not MainWindowViewModel vm || vm.ActiveOperations.Count == 0)
+            {
+                return;
+            }
+            if (operationsWindow != null)
+            {
+                return;
+            }
+            // Show(this) throws for a hidden owner: the delay may have let the user minimize to
+            // the tray. OnOpened shows it once the main window is back.
+            if (!IsVisible)
+            {
+                _showOperationsWhenVisible = true;
+                return;
+            }
+            var window = new OperationsWindow
+            {
+                DataContext = vm,
+                // The delayed show must not pull keyboard focus away from the file pane.
+                ShowActivated = false,
+            };
+            window.Closed += (s, e) =>
+            {
+                if (operationsWindow == window)
+                {
+                    operationsWindow = null;
+                }
+            };
+            operationsWindow = window;
+            // Owned: stays above MainWindow without blocking it.
+            window.Show(this);
+        }
+
+        private void CloseOperationsWindow()
+        {
+            _operationsShowTimer.Stop();
+            _showOperationsWhenVisible = false;
+            operationsWindow?.Close();
+            operationsWindow = null;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // Also covers programmatic closes (tray Exit), which skip HandleClosingAsync's
+            // checks; a still-running timer would otherwise fire against the closed window.
+            CloseOperationsWindow();
+            base.OnClosed(e);
         }
 
         void View_MessageBoxRequest(object? sender, MvvmMessageBoxEventArgs e)
