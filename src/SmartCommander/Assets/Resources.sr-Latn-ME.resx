@@ -390,11 +390,11 @@
   <data name="Plugins" xml:space="preserve">
     <value>Dopune</value>
   </data>
-  <data name="Copy" xml:space="preserve">
-    <value>Kopiraj</value>
+  <data name="CopyToClipboard" xml:space="preserve">
+    <value>Kopiraj u bafer</value>
   </data>
-  <data name="Cut" xml:space="preserve">
-    <value>Iseci</value>
+  <data name="CutToClipboard" xml:space="preserve">
+    <value>Iseci u bafer</value>
   </data>
   <data name="Delete" xml:space="preserve">
     <value>Obriši</value>
