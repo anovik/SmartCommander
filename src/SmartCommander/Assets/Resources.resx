@@ -303,6 +303,9 @@
   <data name="Operations" xml:space="preserve">
     <value>Operations</value>
   </data>
+  <data name="OperationsRunning" xml:space="preserve">
+    <value>Operations running: {0}</value>
+  </data>
   <data name="OperationUnzipDescription" xml:space="preserve">
     <value>Unzip {0} → {1}</value>
   </data>

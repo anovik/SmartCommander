@@ -303,6 +303,9 @@
   <data name="Operations" xml:space="preserve">
     <value>Operacije</value>
   </data>
+  <data name="OperationsRunning" xml:space="preserve">
+    <value>Operacije u toku: {0}</value>
+  </data>
   <data name="OperationUnzipDescription" xml:space="preserve">
     <value>Raspakivanje {0} → {1}</value>
   </data>

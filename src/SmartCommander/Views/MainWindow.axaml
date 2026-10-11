@@ -85,6 +85,12 @@
       </MenuItem>
     </Menu>
 
+	<!-- Shown only while operations run with the Operations window closed; click re-opens it. -->
+	<Button Name="OperationsIndicator" Grid.Column="1" Classes="FN"
+			HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"
+			Focusable="False" IsVisible="False"
+			Click="OperationsIndicator_Click" />
+
     <views:FilesPane Grid.Row="1"  Name="LeftPane" />
 	<views:FilesPane Grid.Row="1" Grid.Column="1" Name="RightPane" />
 
