@@ -880,20 +880,20 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Copy.
+        ///   Looks up a localized string similar to Copy to clipboard.
         /// </summary>
-        public static string Copy {
+        public static string CopyToClipboard {
             get {
-                return ResourceManager.GetString("Copy", resourceCulture);
+                return ResourceManager.GetString("CopyToClipboard", resourceCulture);
             }
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Cut.
+        ///   Looks up a localized string similar to Cut to clipboard.
         /// </summary>
-        public static string Cut {
+        public static string CutToClipboard {
             get {
-                return ResourceManager.GetString("Cut", resourceCulture);
+                return ResourceManager.GetString("CutToClipboard", resourceCulture);
             }
         }
 

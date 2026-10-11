@@ -110,10 +110,10 @@
 					<MenuItem Header="{x:Static assets:Resources.Edit}"
                               IsVisible="{Binding IsRealItemSelected}"
                               Command="{Binding EditCommand}" />
-					<MenuItem Header="{x:Static assets:Resources.Copy}"
+					<MenuItem Header="{x:Static assets:Resources.CopyToClipboard}"
                               IsVisible="{Binding ShowLocalCopyCut}"
                               Command="{Binding CopyCommand}" />
-					<MenuItem Header="{x:Static assets:Resources.Cut}"
+					<MenuItem Header="{x:Static assets:Resources.CutToClipboard}"
                               IsVisible="{Binding ShowLocalCopyCut}"
                               Command="{Binding CutCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.Download}"
