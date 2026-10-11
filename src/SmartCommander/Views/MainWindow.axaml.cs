@@ -67,6 +67,7 @@ namespace SmartCommander.Views
             {
                 _operationsShowTimer.Stop();
                 ShowOperationsWindow();
+                UpdateOperationsIndicator();
             };
 
             Closing += async (s, e) =>
@@ -206,9 +207,10 @@ namespace SmartCommander.Views
             {
                 CloseOperationsWindow();
             }
+            UpdateOperationsIndicator();
         }
 
-        private void ShowOperationsWindow()
+        private void ShowOperationsWindow(bool activate = false)
         {
             if (DataContext is not MainWindowViewModel vm || vm.ActiveOperations.Count == 0)
             {
@@ -228,8 +230,9 @@ namespace SmartCommander.Views
             var window = new OperationsWindow
             {
                 DataContext = vm,
-                // The delayed show must not pull keyboard focus away from the file pane.
-                ShowActivated = false,
+                // The delayed show must not pull keyboard focus away from the file pane; a click
+                // on the indicator asked for the window, so that one may take it.
+                ShowActivated = activate,
             };
             window.Closed += (s, e) =>
             {
@@ -237,10 +240,27 @@ namespace SmartCommander.Views
                 {
                     operationsWindow = null;
                 }
+                UpdateOperationsIndicator();
             };
             operationsWindow = window;
             // Owned: stays above MainWindow without blocking it.
             window.Show(this);
+        }
+
+        // The only sign of running operations once the Operations window has been closed with X.
+        // Stays hidden while the show delay is pending so quick operations never flash it.
+        private void UpdateOperationsIndicator()
+        {
+            int count = (DataContext as MainWindowViewModel)?.ActiveOperations.Count ?? 0;
+            OperationsIndicator.IsVisible = count > 0 && operationsWindow == null &&
+                !_operationsShowTimer.IsEnabled && !_showOperationsWhenVisible;
+            OperationsIndicator.Content = string.Format(Assets.Resources.OperationsRunning, count);
+        }
+
+        private void OperationsIndicator_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            ShowOperationsWindow(activate: true);
+            UpdateOperationsIndicator();
         }
 
         private void CloseOperationsWindow()

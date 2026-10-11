@@ -698,6 +698,15 @@ namespace SmartCommander.Assets {
                 return ResourceManager.GetString("Operations", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operations running: {0}.
+        /// </summary>
+        public static string OperationsRunning {
+            get {
+                return ResourceManager.GetString("OperationsRunning", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Unzip {0} → {1}.
