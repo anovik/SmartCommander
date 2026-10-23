@@ -51,6 +51,9 @@ namespace SmartCommander.Services
         public Task<DateTime> GetCreationTimeAsync(string path) =>
             Task.FromResult(File.GetCreationTime(path));
 
+        public Task<DateTime> GetModifiedTimeAsync(string path) =>
+            Task.FromResult(File.GetLastWriteTimeUtc(path));
+
         public Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items) =>
             Task.Run(() => GetTotalSizeCore(items));
 

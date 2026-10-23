@@ -1105,11 +1105,29 @@ namespace SmartCommander.Assets {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Editing FTP files isn't supported yet.
+        ///   Looks up a localized string similar to {0} was changed. Upload it to the server?.
         /// </summary>
-        public static string CantEditFtpFile {
+        public static string FtpEditUploadPrompt {
             get {
-                return ResourceManager.GetString("CantEditFtpFile", resourceCulture);
+                return ResourceManager.GetString("FtpEditUploadPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} was changed on the server after you opened it. Overwrite it with your version?.
+        /// </summary>
+        public static string FtpEditConflictPrompt {
+            get {
+                return ResourceManager.GetString("FtpEditConflictPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t upload {0}: {1}.
+        /// </summary>
+        public static string FtpEditUploadFailed {
+            get {
+                return ResourceManager.GetString("FtpEditUploadFailed", resourceCulture);
             }
         }
 

@@ -21,6 +21,7 @@ namespace SmartCommander.Services
         // Metadata — intended to be called from a background thread; no Task.Run internally
         Task<long> GetFileSizeAsync(string path);
         Task<DateTime> GetCreationTimeAsync(string path);
+        Task<DateTime> GetModifiedTimeAsync(string path);
         Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items);
 
         // Mutating

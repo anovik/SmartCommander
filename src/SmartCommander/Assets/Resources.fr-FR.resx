@@ -465,8 +465,14 @@
   <data name="Move" xml:space="preserve">
     <value>Déplacer</value>
   </data>
-  <data name="CantEditFtpFile" xml:space="preserve">
-    <value>L'édition des fichiers FTP n'est pas encore prise en charge</value>
+  <data name="FtpEditUploadPrompt" xml:space="preserve">
+    <value>{0} a été modifié. L'envoyer sur le serveur ?</value>
+  </data>
+  <data name="FtpEditConflictPrompt" xml:space="preserve">
+    <value>{0} a été modifié sur le serveur après son ouverture. Le remplacer par votre version ?</value>
+  </data>
+  <data name="FtpEditUploadFailed" xml:space="preserve">
+    <value>Impossible d'envoyer {0} : {1}</value>
   </data>
   <data name="CantOpenFtpFile" xml:space="preserve">
     <value>L'ouverture des fichiers FTP n'est pas encore prise en charge</value>

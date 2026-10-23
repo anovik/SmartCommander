@@ -158,6 +158,9 @@ namespace SmartCommander.Services
         // FTP (via MDTM) only exposes a modified time, not a creation time; used as the
         // closest available approximation for FileViewModel's metadata display.
         public Task<DateTime> GetCreationTimeAsync(string path) =>
+            GetModifiedTimeAsync(path);
+
+        public Task<DateTime> GetModifiedTimeAsync(string path) =>
             LockedAsync(CancellationToken.None, () => Client.GetModifiedTime(RemotePath.GetRemotePart(path)));
 
         public Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items) =>

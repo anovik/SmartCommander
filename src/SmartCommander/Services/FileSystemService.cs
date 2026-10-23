@@ -76,6 +76,9 @@ namespace SmartCommander.Services
         public Task<DateTime> GetCreationTimeAsync(string path) =>
             ProviderFor(path).GetCreationTimeAsync(path);
 
+        public Task<DateTime> GetModifiedTimeAsync(string path) =>
+            ProviderFor(path).GetModifiedTimeAsync(path);
+
         public Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items)
         {
             if (items.Count == 0)

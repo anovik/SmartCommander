@@ -465,8 +465,14 @@
   <data name="Move" xml:space="preserve">
     <value>Premjesti</value>
   </data>
-  <data name="CantEditFtpFile" xml:space="preserve">
-    <value>Uređivanje FTP fajlova još nije podržano</value>
+  <data name="FtpEditUploadPrompt" xml:space="preserve">
+    <value>Fajl {0} je izmijenjen. Poslati ga na server?</value>
+  </data>
+  <data name="FtpEditConflictPrompt" xml:space="preserve">
+    <value>Fajl {0} je izmijenjen na serveru nakon što ste ga otvorili. Zamijeniti ga vašom verzijom?</value>
+  </data>
+  <data name="FtpEditUploadFailed" xml:space="preserve">
+    <value>Ne možete da pošaljete {0}: {1}</value>
   </data>
   <data name="CantOpenFtpFile" xml:space="preserve">
     <value>Otvaranje FTP fajlova još nije podržano</value>

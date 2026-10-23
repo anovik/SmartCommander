@@ -67,6 +67,12 @@ namespace SmartCommander.Tests
                 return Task.FromResult(DateTime.MinValue);
             }
 
+            public Task<DateTime> GetModifiedTimeAsync(string path)
+            {
+                Calls.Add(nameof(GetModifiedTimeAsync));
+                return Task.FromResult(DateTime.MinValue);
+            }
+
             public Task<long> GetTotalSizeAsync(IReadOnlyList<(string FullName, bool IsFolder)> items)
             {
                 Calls.Add(nameof(GetTotalSizeAsync));
