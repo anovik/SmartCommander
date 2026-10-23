@@ -23,10 +23,14 @@ namespace SmartCommander.Views
             new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
         private bool _showOperationsWhenVisible;
         private bool _closeConfirmedAndCancelling;
+        private bool _endingFtpEditsBeforeClose;
         private bool _openedEventsWired;
         public MainWindow()
         {
             Opened += OnOpened;
+            // Coming back from the editor offers a pending FTP upload at once rather than on
+            // the next poll.
+            Activated += (s, e) => (DataContext as MainWindowViewModel)?.WakeFtpEditWatch();
             InitializeComponent();
 
             this.WhenActivated(d => d(ViewModel!.ShowCopyDialog.RegisterHandler(
@@ -89,7 +93,8 @@ namespace SmartCommander.Views
             {
                 // A close already confirmed is draining operations in the background; a second
                 // X-click racing that drain must not stack another confirmation dialog.
-                if (_closeConfirmedAndCancelling)
+                // Same for a close that is still asking about unsent FTP edits.
+                if (_closeConfirmedAndCancelling || _endingFtpEditsBeforeClose)
                 {
                     e.Cancel = true;
                     return;
@@ -98,6 +103,24 @@ namespace SmartCommander.Views
                 MainWindowViewModel? vm = DataContext as MainWindowViewModel;
                 if (vm != null)
                 {
+                    // Unsent FTP edits get their upload prompt before the local copies are
+                    // deleted. The close is cancelled for the wait and redone below.
+                    bool endedFtpEdits = false;
+                    if (vm.HasFtpEditSessions)
+                    {
+                        e.Cancel = true;
+                        _endingFtpEditsBeforeClose = true;
+                        try
+                        {
+                            await vm.EndFtpEditSessionsAsync();
+                        }
+                        finally
+                        {
+                            _endingFtpEditsBeforeClose = false;
+                        }
+                        endedFtpEdits = true;
+                    }
+
                     if (vm.ActiveOperations.Count > 0)
                     {
                         e.Cancel = true;
@@ -117,6 +140,10 @@ namespace SmartCommander.Views
                         {
                             return;
                         }
+                    }
+                    else if (endedFtpEdits)
+                    {
+                        this.Close();
                     }
                 }
             }
@@ -276,6 +303,13 @@ namespace SmartCommander.Views
             // Also covers programmatic closes (tray Exit), which skip HandleClosingAsync's
             // checks; a still-running timer would otherwise fire against the closed window.
             CloseOperationsWindow();
+            if (DataContext is MainWindowViewModel vm)
+            {
+                foreach (var folder in vm.EndFtpEditSessionsOnExit())
+                {
+                    TempViewFiles.TryDelete(folder);
+                }
+            }
             base.OnClosed(e);
         }
 

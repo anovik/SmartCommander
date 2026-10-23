@@ -465,8 +465,14 @@
   <data name="Move" xml:space="preserve">
     <value>Переместить</value>
   </data>
-  <data name="CantEditFtpFile" xml:space="preserve">
-    <value>Редактирование файлов по FTP пока не поддерживается</value>
+  <data name="FtpEditUploadPrompt" xml:space="preserve">
+    <value>Файл {0} изменён. Загрузить его на сервер?</value>
+  </data>
+  <data name="FtpEditConflictPrompt" xml:space="preserve">
+    <value>Файл {0} был изменён на сервере после открытия. Перезаписать его вашей версией?</value>
+  </data>
+  <data name="FtpEditUploadFailed" xml:space="preserve">
+    <value>Невозможно загрузить {0}: {1}</value>
   </data>
   <data name="CantOpenFtpFile" xml:space="preserve">
     <value>Открытие файлов по FTP пока не поддерживается</value>

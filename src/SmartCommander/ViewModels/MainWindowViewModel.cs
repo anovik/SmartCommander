@@ -21,7 +21,7 @@ using Application = Avalonia.Application;
 
 namespace SmartCommander.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly IFileSystemService _fs;
         private readonly ArchiveService _archives = new();
@@ -42,7 +42,7 @@ namespace SmartCommander.ViewModels
             ShowChecksumDialog = new Interaction<ChecksumViewModel, ChecksumViewModel?>();
             ShowPropertiesDialog = new Interaction<PropertiesViewModel, PropertiesViewModel?>();
 
-            ExitCommand = ReactiveCommand.Create(Exit);
+            ExitCommand = ReactiveCommand.CreateFromTask(Exit);
             SortNameCommand = ReactiveCommand.Create(SortName);
             SortExtensionCommand = ReactiveCommand.Create(SortExtension);
             SortSizeCommand = ReactiveCommand.Create(SortSize);
@@ -166,8 +166,11 @@ namespace SmartCommander.ViewModels
         public static bool IsFunctionKeysDisplayed => OptionsModel.Instance.IsFunctionKeysDisplayed;
         public static bool IsCommandLineDisplayed => OptionsModel.Instance.IsCommandLineDisplayed;
 
-        public void Exit()
+        // Shutdown() closes the main window programmatically, which skips MainWindow's
+        // closing checks - so unsent FTP edits are offered for upload here first.
+        public async Task Exit()
         {
+            await EndFtpEditSessionsAsync();
             if (Application.Current != null &&
                 Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
@@ -945,6 +948,8 @@ namespace SmartCommander.ViewModels
 
         public async Task DisconnectFtp()
         {
+            await EndFtpEditSessionsAsync();
+
             var localHome = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             if (RemotePath.IsFtp(LeftFileViewModel.CurrentDirectory))
             {

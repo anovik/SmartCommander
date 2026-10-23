@@ -465,8 +465,14 @@
   <data name="Move" xml:space="preserve">
     <value>Move</value>
   </data>
-  <data name="CantEditFtpFile" xml:space="preserve">
-    <value>Editing FTP files isn't supported yet</value>
+  <data name="FtpEditUploadPrompt" xml:space="preserve">
+    <value>{0} was changed. Upload it to the server?</value>
+  </data>
+  <data name="FtpEditConflictPrompt" xml:space="preserve">
+    <value>{0} was changed on the server after you opened it. Overwrite it with your version?</value>
+  </data>
+  <data name="FtpEditUploadFailed" xml:space="preserve">
+    <value>Can't upload {0}: {1}</value>
   </data>
   <data name="CantOpenFtpFile" xml:space="preserve">
     <value>Opening FTP files isn't supported yet</value>

@@ -457,26 +457,53 @@ namespace SmartCommander.ViewModels
                 resultAction?.Invoke(ButtonResult.Ok, null);
                 return;
             }
-            if (IsFtp)
-            {
-                MessageBox_Show(resultAction, Resources.CantEditFtpFile, Resources.Alert, ButtonEnum.Ok);
-                return;
-            }
-            if (!CurrentItem.IsFolder)
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    LaunchProcess("vi", CurrentItem.FullName);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Process.Start("notepad.exe", CurrentItem.FullName);
-                }
-                resultAction?.Invoke(ButtonResult.Ok, null);
-            }
-            else
+            if (CurrentItem.IsFolder)
             {
                 MessageBox_Show(resultAction, Resources.CantEditFolder, Resources.Alert, ButtonEnum.Ok);
+                return;
+            }
+            if (IsFtp)
+            {
+                _ = EditFtpFileAsync(CurrentItem.FullName, CurrentDirectory, resultAction);
+                return;
+            }
+            LaunchEditor(CurrentItem.FullName);
+            resultAction?.Invoke(ButtonResult.Ok, null);
+        }
+
+        private void LaunchEditor(string path)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                LaunchProcess("vi", path);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("notepad.exe", path);
+            }
+        }
+
+        // F4 over FTP: MainWindowViewModel downloads a local copy and from then on offers
+        // every save of it for upload (MainWindowViewModel.FtpEdit.cs); the pane only opens
+        // the editor on that copy. Fire-and-forget from Edit, so it must not throw.
+        private async Task EditFtpFileAsync(string ftpPath, string ftpFolder, Action<ButtonResult, object?>? resultAction)
+        {
+            try
+            {
+                var tempFile = await _mainVM.BeginFtpEditAsync(ftpPath, ftpFolder);
+                if (tempFile != null)
+                {
+                    LaunchEditor(tempFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to launch the editor for {FtpPath}", ftpPath);
+                MessageBox_Show(null, DescribeException(ex), Resources.Alert, ButtonEnum.Ok);
+            }
+            finally
+            {
+                resultAction?.Invoke(ButtonResult.Ok, null);
             }
         }
 

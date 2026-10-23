@@ -86,7 +86,7 @@ namespace SmartCommander
                 Menu = new NativeMenu() 
             };
 
-            trayIcon.Menu.Add(new NativeMenuItem("Exit") { Command = vm?.ExitCommand });
+            trayIcon.Menu.Add(new NativeMenuItem("Exit") { Command = ReactiveCommand.CreateFromTask(ExitFromTray) });
 
             var trayIcons = new TrayIcons
             {
@@ -96,6 +96,21 @@ namespace SmartCommander
             SetValue(TrayIcon.IconsProperty, trayIcons);
 
             trayIcon.IsVisible = false;
+        }
+
+        // Exit asks about unsent FTP edits, and a prompt can't be shown over a main window
+        // that is hidden in the tray - bring it back first when there is anything to ask.
+        private async Task ExitFromTray()
+        {
+            if (vm == null)
+            {
+                return;
+            }
+            if (vm.HasFtpEditSessions)
+            {
+                ShowApplication();
+            }
+            await vm.Exit();
         }
 
         private void ShowApplication()
