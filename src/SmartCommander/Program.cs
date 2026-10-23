@@ -41,7 +41,9 @@ namespace SmartCommander
 #if DEBUG
                    .WriteTo.Console()
 #endif
-                   .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                   // Not the current directory: that may be unwritable (Program Files) or
+                   // wherever the AppImage happened to be started.
+                   .WriteTo.File(Path.Combine(dir, "log.txt"), rollingInterval: RollingInterval.Day)
                    .CreateLogger();                
 
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
