@@ -15,7 +15,8 @@
         Title="SmartCommander Viewer">
 
 	<Grid x:Name="GridPanel">
-		<AvaloniaEdit:TextEditor IsReadOnly="True"
+		<AvaloniaEdit:TextEditor x:Name="TextView"
+                                 IsReadOnly="True"
                                  FontFamily="Cascadia Code,Consolas,Menlo,Monospace">
 			<i:Interaction.Behaviors>
 				<behaviors:DocumentTextBindingBehavior Text="{Binding Text, Mode=TwoWay}" />

@@ -1,99 +1,99 @@
 using Avalonia.Controls;
-using Avalonia.Controls.Platform;
-using Avalonia.Platform;
-using SmartCommander.Models;
+using Serilog;
 using SmartCommander.Plugins;
 using SmartCommander.ViewModels;
+using SmartCommander.Views;
 using System;
+using System.IO;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace SmartCommander;
 
 public partial class ViewerWindow : Window
 {
-    IntPtr listerWindowHandle { get; set; }
+    private bool _closed;
+    private ListerPluginHost? _pluginHost;
+
     public ViewerWindow()
     {
         InitializeComponent();
-        this.Opened+= OnWindowOpened;
+        Opened += OnWindowOpened;
     }
 
-    private void OnWindowOpened(object? sender, EventArgs e)
+    protected override void OnClosing(WindowClosingEventArgs e)
     {
-        var grid = this.FindControl<Grid>("GridPanel");
-        if (grid != null)
+        base.OnClosing(e);
+        if (!e.Cancel && OperatingSystem.IsWindows())
         {
-            var viewModel = this.DataContext as ViewerViewModel;
-
-            if (OperatingSystem.IsWindows() && OptionsModel.Instance.ListerPlugins.Count > 0)
-            {
-                var embed = new EmbedSample(viewModel!.Filename);
-                if (embed.CanShowByPlugin)
-                {
-                    grid.Children.Add(embed);
-                }
-            }
-        }
-    }
-}
-
-internal class Win32WindowControlHandle : PlatformHandle, INativeControlHostDestroyableControlHandle
-{
-    public Win32WindowControlHandle(IntPtr handle, string descriptor) : base(handle, descriptor)
-    {
-    }
-
-    public void Destroy()
-    {
-    }
-}
-
-public class EmbedSample : NativeControlHost
-{
-    ListerPluginWrapper? listerPluginWrapper { get; set; }
-    IntPtr listerWindowHandle { get; set; }
-
-    public bool CanShowByPlugin
-    {
-        get
-        {
-            return (listerWindowHandle != IntPtr.Zero);
+            // Release the plugin (and its hold on the file) before ShowDialog returns.
+            _pluginHost?.CloseListerWindow();
         }
     }
 
-    public EmbedSample(string Filename)
+    protected override void OnClosed(EventArgs e)
     {
-        HorizontalAlignment = 0;
-        VerticalAlignment = 0;
+        _closed = true;
+        base.OnClosed(e);
+    }
 
-        foreach (var ListerFileName in OptionsModel.Instance.ListerPlugins)
+    private async void OnWindowOpened(object? sender, EventArgs e)
+    {
+        if (OperatingSystem.IsWindows() && ListerPluginRegistry.HasConfiguredPlugins && DataContext is ViewerViewModel viewModel)
         {
-            listerPluginWrapper?.Dispose();
-
-            try
-            {
-                listerPluginWrapper = PluginManager.CreateListerWrapper(ListerFileName);
-                listerWindowHandle = listerPluginWrapper.CreateListerWindow(IntPtr.Zero, Filename);
-
-                if (listerWindowHandle != IntPtr.Zero)
-                    return;
-            }
-            catch (BadImageFormatException ex)
-            {
-                Console.WriteLine($"we cannot load 32bit libraries: {ex.Message}");
-            }
-
+            await TryShowByPluginAsync(viewModel.Filename);
         }
     }
 
-    protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
+    // Offers the file to the lister plugins whose detect string matches it. With no candidates
+    // nothing native happens at all and the text view stays.
+    [SupportedOSPlatform("windows")]
+    private async Task TryShowByPluginAsync(string filePath)
     {
-        //TODO better use  INativeDemoControl? Implementation; to make it cross platform
-        return new Win32WindowControlHandle(listerWindowHandle, "Lister");
+        long size;
+        byte[] header;
+        try
+        {
+            (size, header) = await ReadHeaderAsync(filePath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warning(ex, "Could not read {File} for lister plugin detection", filePath);
+            return;
+        }
+        if (_closed)
+        {
+            return;
+        }
+
+        var candidates = ListerPluginRegistry.GetCandidates(filePath, size, header);
+        if (candidates.Count == 0)
+        {
+            return;
+        }
+
+        var host = new ListerPluginHost(candidates, filePath, ListerPlugin.ShowFlagWrapText);
+        // The text editor stays under the plugin window until a plugin accepts the file; then it's
+        // hidden so Tab can't land on it.
+        host.Accepted += (_, _) => TextView.IsVisible = false;
+        host.Declined += (_, _) =>
+        {
+            GridPanel.Children.Remove(host);
+            _pluginHost = null;
+        };
+        _pluginHost = host;
+        GridPanel.Children.Add(host);
     }
 
-    protected override void DestroyNativeControlCore(IPlatformHandle control)
+    // Size plus the first DetectContext.HeaderSize bytes, for detect strings ([n], FIND).
+    // Direct I/O in the view layer, like ArchiveService: plugins need a local path anyway.
+    private static async Task<(long Size, byte[] Header)> ReadHeaderAsync(string path)
     {
-        listerPluginWrapper?.CloseWindow(listerWindowHandle);
-        base.DestroyNativeControlCore(control);
+        await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
+            FileShare.ReadWrite | FileShare.Delete, 4096, FileOptions.Asynchronous);
+        long size = stream.Length;
+        var header = new byte[(int)Math.Min(DetectContext.HeaderSize, size)];
+        int read = await stream.ReadAtLeastAsync(header, header.Length, throwOnEndOfStream: false);
+        return (size, read == header.Length ? header : header[..read]);
     }
 }
