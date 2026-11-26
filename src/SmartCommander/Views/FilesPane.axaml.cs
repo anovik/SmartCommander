@@ -47,6 +47,7 @@ namespace SmartCommander.Views
                     {
                         viewModel.ShowWindowsContextMenuInteraction.RegisterHandler(interaction =>
                         {
+                            bool invoked = false;
                             var topLevel = TopLevel.GetTopLevel(this);
                             if (topLevel != null)
                             {
@@ -74,11 +75,11 @@ namespace SmartCommander.Views
                                         {
                                             if (isBackground)
                                             {
-                                                ShellContextMenuHelper.ShowBackgroundContextMenu(hwnd, interaction.Input[0]);
+                                                invoked = ShellContextMenuHelper.ShowBackgroundContextMenu(hwnd, interaction.Input[0]);
                                             }
                                             else
                                             {
-                                                ShellContextMenuHelper.ShowContextMenu(hwnd, interaction.Input);
+                                                invoked = ShellContextMenuHelper.ShowContextMenu(hwnd, interaction.Input);
                                             }
                                         }
                                     }
@@ -92,7 +93,7 @@ namespace SmartCommander.Views
                                     Log.Error(ex, "Error getting HWND");
                                 }
                             }
-                            interaction.SetOutput(Unit.Default);
+                            interaction.SetOutput(invoked);
                         });
                     }
                 };

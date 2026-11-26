@@ -183,8 +183,9 @@ namespace SmartCommander.ViewModels
             NewFolderCommand = ReactiveCommand.Create(NewFolder);
             PasteCommand = ReactiveCommand.CreateFromTask(Paste, this.WhenAnyValue(x => x.CanPaste));
             ShowMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowMoreOptions);
+            ShowBackgroundMoreOptionsCommand = ReactiveCommand.CreateFromTask(ShowBackgroundMoreOptions);
             ShowViewerDialog = new Interaction<ViewerViewModel, ViewerViewModel?>();
-            ShowWindowsContextMenuInteraction = new Interaction<string[], Unit>();
+            ShowWindowsContextMenuInteraction = new Interaction<string[], bool>();
             FocusChanged += focusHandler;
         }
 
@@ -211,9 +212,11 @@ namespace SmartCommander.ViewModels
         public ReactiveCommand<Unit, Unit>? NewFolderCommand { get; }
         public ReactiveCommand<Unit, Unit>? PasteCommand { get; }
         public ReactiveCommand<Unit, Unit>? ShowMoreOptionsCommand { get; }
+        public ReactiveCommand<Unit, Unit>? ShowBackgroundMoreOptionsCommand { get; }
 
         public Interaction<ViewerViewModel, ViewerViewModel?> ShowViewerDialog { get; }
-        public Interaction<string[], Unit>? ShowWindowsContextMenuInteraction { get; }
+        // Output: true when a shell command was invoked from the menu.
+        public Interaction<string[], bool>? ShowWindowsContextMenuInteraction { get; }
 
         public void CellPointerPressed(object sender, object parameter)
         {
@@ -731,39 +734,62 @@ namespace SmartCommander.ViewModels
                 onMoveCompleted: isCut ? clipboard.ClearAsync : null);
         }
 
+        // Background menus (empty area, `..`, empty directory) always mean the current directory,
+        // whatever row is still selected.
+        public Task ShowBackgroundMoreOptions()
+        {
+            return ShowShellMenuAsync(new string[] { CurrentDirectory });
+        }
+
+        private async Task ShowShellMenuAsync(string[] paths)
+        {
+            if (ShowWindowsContextMenuInteraction == null)
+            {
+                return;
+            }
+
+            bool invoked = await ShowWindowsContextMenuInteraction.Handle(paths);
+            if (!invoked)
+            {
+                return;
+            }
+
+            // The shell command may have changed the folder (New, Paste, Rename...) and there's no file
+            // watcher. This catches commands that finish synchronously; ones that keep running after
+            // the menu closes (e.g. a shell Delete with its own dialog) still need a manual refresh.
+            if (CurrentItem != null && CurrentItem.FullName != "..")
+            {
+                _pendingScrollTargetFullName = CurrentItem.FullName;
+            }
+            var other = _mainVM.OtherPane(this);
+            if (other.CurrentDirectory == CurrentDirectory)
+            {
+                other.Update();
+            }
+            Update();
+        }
+
         public async Task ShowMoreOptions()
         {
             // ".." isn't a real path - treat it like no selection (background options for the directory).
             if (IsParentEntrySelected)
             {
-                if (ShowWindowsContextMenuInteraction != null)
-                {
-                    await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
-                }
+                await ShowBackgroundMoreOptions();
                 return;
             }
 
-            if (CurrentItems == null || CurrentItems.Count == 0)
+            IEnumerable<FileViewModel> items = CurrentItems != null && CurrentItems.Count > 0
+                ? CurrentItems
+                : CurrentItem != null ? new[] { CurrentItem } : Array.Empty<FileViewModel>();
+            // ".." can also be part of a multi-selection; it's never a path the shell can resolve.
+            var paths = items.Where(i => i.FullName != "..").Select(i => i.FullName).ToArray();
+            if (paths.Length == 0)
             {
-                if (CurrentItem != null)
-                {
-                    CurrentItems = new List<FileViewModel> { CurrentItem };
-                }
-                else
-                {
-                    if (ShowWindowsContextMenuInteraction != null)
-                    {
-                        await ShowWindowsContextMenuInteraction.Handle(new string[] { CurrentDirectory });
-                    }
-                    return;
-                }
+                await ShowBackgroundMoreOptions();
+                return;
             }
 
-            var paths = CurrentItems.Select(i => i.FullName).ToArray();
-            if (ShowWindowsContextMenuInteraction != null)
-            {
-                await ShowWindowsContextMenuInteraction.Handle(paths);
-            }
+            await ShowShellMenuAsync(paths);
         }
 
         private void LaunchProcess(string program, string argument)

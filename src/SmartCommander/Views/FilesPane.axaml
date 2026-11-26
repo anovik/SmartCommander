@@ -42,7 +42,7 @@
 						  Command="{Binding NewFolderCommand}" />
 				<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
 						  IsVisible="{Binding CanShowMoreOptions}"
-						  Command="{Binding ShowMoreOptionsCommand}" />
+						  Command="{Binding ShowBackgroundMoreOptionsCommand}" />
 			</MenuFlyout>
 		</Grid.ContextFlyout>
 
@@ -103,7 +103,7 @@
                               Command="{Binding NewFolderCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.MoreOptions}"
                               IsVisible="{Binding CanShowBackgroundMoreOptions}"
-                              Command="{Binding ShowMoreOptionsCommand}" />
+                              Command="{Binding ShowBackgroundMoreOptionsCommand}" />
 					<MenuItem Header="{x:Static assets:Resources.View}"
                               IsVisible="{Binding IsRealItemSelected}"
                               Command="{Binding ViewCommand}" />
