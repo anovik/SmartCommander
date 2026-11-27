@@ -61,8 +61,10 @@ namespace SmartCommander.Views
                                 ButtonDefinitions = BuildButtonDefinitions(button, defaultButton.Value),
                                 WindowStartupLocation = WindowStartupLocation.CenterScreen
                             });
+                        // The custom box reports the clicked button's name, or null when it was
+                        // closed without a button (title-bar X, Alt+F4): treat that as the cancel button.
                         var clicked = await customWindow.ShowWindowDialogAsync(owner);
-                        result = Enum.Parse<ButtonResult>(clicked);
+                        result = Enum.TryParse<ButtonResult>(clicked, out var parsed) ? parsed : GetCloseResult(button);
                     }
                     else
                     {
@@ -73,8 +75,9 @@ namespace SmartCommander.Views
                 }
                 catch (Exception ex)
                 {
+                    // Still answer: callers await this result.
                     Log.Error(ex, "MessageBox failed");
-                    return;
+                    result = GetCloseResult(button);
                 }
                 try
                 {
@@ -90,7 +93,19 @@ namespace SmartCommander.Views
         // Mirrors MsBoxStandardView.axaml's button set/order and IsCancel assignment per ButtonEnum.
         private static ButtonDefinition[] BuildButtonDefinitions(ButtonEnum button, ButtonResult defaultButton)
         {
-            var results = button switch
+            // Exactly one IsCancel button, so Esc can't press No on a YesNoCancel box.
+            var closeResult = GetCloseResult(button);
+            return GetButtonResults(button).Select(r => new ButtonDefinition
+            {
+                Name = r.ToString(),
+                IsDefault = r == defaultButton,
+                IsCancel = r == closeResult
+            }).ToArray();
+        }
+
+        private static ButtonResult[] GetButtonResults(ButtonEnum button)
+        {
+            return button switch
             {
                 ButtonEnum.Ok => new[] { ButtonResult.Ok },
                 ButtonEnum.YesNo => new[] { ButtonResult.Yes, ButtonResult.No },
@@ -100,13 +115,19 @@ namespace SmartCommander.Views
                 ButtonEnum.YesNoAbort => new[] { ButtonResult.Yes, ButtonResult.No, ButtonResult.Abort },
                 _ => throw new ArgumentOutOfRangeException(nameof(button), button, null)
             };
+        }
 
-            return results.Select(r => new ButtonDefinition
-            {
-                Name = r.ToString(),
-                IsDefault = r == defaultButton,
-                IsCancel = r is ButtonResult.No or ButtonResult.Abort or ButtonResult.Cancel
-            }).ToArray();
+        private static bool IsCancelResult(ButtonResult result)
+        {
+            return result is ButtonResult.No or ButtonResult.Abort or ButtonResult.Cancel;
+        }
+
+        // The button that backs out: Cancel/Abort over No (YesNoCancel callers treat No as
+        // "proceed without overwriting"); Ok for an Ok-only box.
+        internal static ButtonResult GetCloseResult(ButtonEnum button)
+        {
+            var results = GetButtonResults(button);
+            return results.LastOrDefault(IsCancelResult, results[0]);
         }
 
         public void ShowInput(Window owner)
@@ -137,8 +158,9 @@ namespace SmartCommander.Views
                 }
                 catch (Exception ex)
                 {
+                    // Answer as Cancel so the caller still runs its cleanup (New Folder's busy guard).
                     Log.Error(ex, "MessageBox input failed");
-                    return;
+                    callbackArg = "";
                 }
                 try
                 {
