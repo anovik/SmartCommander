@@ -75,8 +75,7 @@ namespace SmartCommander.Views
                 }
                 catch (Exception ex)
                 {
-                    // Still answer: callers await this result, and skipping the callback left
-                    // their command (e.g. F8) stuck disabled until restart.
+                    // Still answer: callers await this result.
                     Log.Error(ex, "MessageBox failed");
                     result = GetCloseResult(button);
                 }
@@ -94,8 +93,7 @@ namespace SmartCommander.Views
         // Mirrors MsBoxStandardView.axaml's button set/order and IsCancel assignment per ButtonEnum.
         private static ButtonDefinition[] BuildButtonDefinitions(ButtonEnum button, ButtonResult defaultButton)
         {
-            // Exactly one IsCancel button: with No and Cancel both marked, Esc pressed No, which
-            // the overwrite / non-empty-delete callers read as "proceed without overwriting".
+            // Exactly one IsCancel button, so Esc can't press No on a YesNoCancel box.
             var closeResult = GetCloseResult(button);
             return GetButtonResults(button).Select(r => new ButtonDefinition
             {
@@ -124,9 +122,8 @@ namespace SmartCommander.Views
             return result is ButtonResult.No or ButtonResult.Abort or ButtonResult.Cancel;
         }
 
-        // The most "back out" button of the set (Cancel/Abort over No; Ok for an Ok-only box).
-        // Callers of YesNoCancel boxes test for Cancel and treat No as "proceed without
-        // overwriting", so a box closed without a button must never come back as No there.
+        // The button that backs out: Cancel/Abort over No (YesNoCancel callers treat No as
+        // "proceed without overwriting"); Ok for an Ok-only box.
         internal static ButtonResult GetCloseResult(ButtonEnum button)
         {
             var results = GetButtonResults(button);
